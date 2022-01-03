@@ -1,3 +1,4 @@
 ﻿CMakeLists.txt
 .idea
 .autocp
+cmake-build-debug
