@@ -2,3 +2,7 @@
 .idea
 .autocp
 cmake-build-debug
+
+*.out*
+*.in*
+*.ans*
