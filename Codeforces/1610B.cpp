@@ -18,8 +18,29 @@ using namespace std;
 //    
 //    ans = true;
 //}
-bool check(int* a, int start, int end, int rem){
+
+//move/delete pointers
+bool check(vector<int> a, int start, int end, int rem){
     bool res = true;
+    
+    while (start <= end){
+        if (a[start] != a[end]){
+            if (a[start] == rem)
+                //delete start pointer
+                start++;
+            else if (a[end] == rem)
+                end--;
+            else {
+                res = false;
+                break;
+            }
+        } else {
+            start++;
+            end--;
+        }
+    }
+    
+    return res;
 }
 
 int main() {
@@ -38,15 +59,31 @@ int main() {
         }
         bool ans = true;
         bool first = false, second = false;
+        bool once = false;
         int start = 0;
         int end = n-1;
         
         while (start <= end){
+            //pointers not equal?
             if (a[start] != a[end]){
+                first = check(a, start+1, end, a[start]);
+                second = check(a, start, end-1, a[end]);
+                //iterated whole array, break
+                once = true;
+                break;
                 
+            } else {
+                start++;
+                end--;
             }
         }
         
+        //first or second or is just a palindrome
+        if (first || second || !once) {
+            cout << "YES" << '\n';
+        } else {
+            cout << "NO" << '\n';
+        }
     }
 
     return 0;
