@@ -3,6 +3,10 @@ using namespace std;
 
 #define ll long long
 
+void reduceOne(vector<int>& h) {
+    
+}
+
 int main() {
     freopen("skidesign.in", "r", stdin);
     freopen("skidesign.out", "w", stdout);
@@ -14,8 +18,7 @@ int main() {
     vector<int> h(N);
     for (int i = 0; i < N; i++)
         cin >> h[i];
-    sort(h.begin(), h.end());
-    vector<int> original = h;
+    vector<int> costs(N, 0);
     
     int dy = (h[N-1] - h[0] - 17) / 2;
     
