@@ -10,10 +10,10 @@ using namespace std;
 constexpr int nil = -1;
 
 enum DIR {
-    DIR_NORTH = 1,
-    DIR_EAST = 2,
-    DIR_SOUTH = 4,
-    DIR_WEST = 8,
+    DIR_NORTH = 2,
+    DIR_EAST = 4,
+    DIR_SOUTH = 8,
+    DIR_WEST = 1,
 };
 
 struct Square {
@@ -42,9 +42,9 @@ void floodFill(int newComponent) {
                     nVisited++;
                     node.component = newComponent;
 
-                    for (int k = DIR_NORTH; k < DIR_WEST; k <<= 1) {
+                    for (int k = DIR_WEST; k <= DIR_SOUTH; k <<= 1) {
                         //remember, it's negated (we can't go through walls)
-                        if ((node.walls & k) != k) {
+                        if (!(node.walls & k)) {
                             int nx = x + transX[k];
                             int ny = y + transY[k];
                             
