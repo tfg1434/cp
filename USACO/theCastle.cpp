@@ -50,8 +50,8 @@ void floodFill(int component, int x, int y) {
 }
 
 int main() {
-//    freopen("castle.in", "r", stdin);
-//    freopen("castle.out", "w", stdout);
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
     
@@ -79,23 +79,21 @@ int main() {
     int largestPossible = 0;
     int xx, yy;
     char dir;
-    for (int x = 0; x < M; ++x) {
-        for (int y = N-1; y >= 0; --y) {
-            if (y > 0 && castle[y][x].component != castle[y-1][x].component) {
-                int size = roomSize[castle[y][x].component] + roomSize[castle[y-1][x].component];
-                
-                if (size > largestPossible){
-                    largestPossible = size;
+    for(int x=0; x<M; x++) {
+        for (int y = N - 1; y >= 0; y--) {
+            if (y > 0 && castle[y][x].component != castle[y - 1][x].component) {
+                int n = roomSize[castle[y][x].component] + roomSize[castle[y - 1][x].component];
+                if (n > largestPossible) {
+                    largestPossible = n;
                     xx = x;
                     yy = y;
                     dir = 'N';
                 }
             }
-
-            if(x+1 < M && castle[y][x].component != castle[y][x+1].component) {
-                int size = roomSize[castle[y][x].component] + roomSize[castle[y][x+1].component];
-                if(size > largestPossible) {
-                    largestPossible = size;
+            if (x + 1 < M && castle[y][x].component != castle[y][x + 1].component) {
+                int n = roomSize[castle[y][x].component] + roomSize[castle[y][x + 1].component];
+                if (n > largestPossible) {
+                    largestPossible = n;
                     xx = x;
                     yy = y;
                     dir = 'E';
@@ -104,7 +102,7 @@ int main() {
         }
     }
     
-    cout << component << '\n' << largest << '\n' << largestPossible << '\n' << xx-1 << ' ' << yy-1 << ' ' << dir << endl;
+    cout << component << '\n' << largest << '\n' << largestPossible << '\n' << yy+1 << ' ' << xx+1 << ' ' << dir << endl;
     
     return 0;
 }
