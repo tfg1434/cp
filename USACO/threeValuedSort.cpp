@@ -17,37 +17,35 @@ void swap(int *a, int *b) {
     *b = temp;
 }
 
-void selectionSort(vector<int>& arr, int size) {
-    int i, j, min_idx;
-
-    // One by one move boundary of unsorted subarray 
-    for (i = 0; i < size-1; i++){
-        // Find the minimum element in unsorted array 
-        min_idx = i;
-        for (j = i+1; j < size; j++)
-            if (arr[j] < arr[min_idx])
-                min_idx = j;
-
-        // Swap the found minimum element with the first element 
-        swap(&arr[min_idx], &arr[i]);
-        swaps++;
-    }
-}
-
 int main() {
-//    freopen("sort3.in", "r", stdin);
-//    freopen("sort3.out", "w", stdout);
+    freopen("sort3.in", "r", stdin);
+    freopen("sort3.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
 
     cin >> N;
     vector<int> arr(N);
+    int count[4] = { 0 };
     for (int i = 0; i < N; ++i) {
         cin >> arr[i];
+        count[arr[i]]++;
     }
 
-    selectionSort(arr, N);
-    cout << swaps / 2 << endl;
+    int _1in2 = 0, _1in3 = 0, _2in1 = 0, _2in3 = 0, _3in1 = 0, _3in2 = 0;
+    for (int i = 0; i < count[1]; ++i) {
+        if (arr[i] == 2) _2in1++;
+        else if (arr[i] == 3) _3in1++;
+    }
+    for (int i = count[1]; i < count[1] + count[2]; ++i) {
+        if (arr[i] == 1) _1in2++;
+        else if (arr[i] == 3) _3in2++;
+    }
+    for (int i = count[1] + count[2]; i < count[1] + count[2] + count[3]; ++i) {
+        if (arr[i] == 1) _1in3++;
+        else if (arr[i] == 2) _2in3++;
+    }
+    
+    cout << min(_2in1, _1in2) + min(_3in1, _1in3) + min(_2in3, _3in2) + 2*(max(_2in1, _1in2) - min(_2in1, _1in2)) << endl;
     
     return 0;
 }
