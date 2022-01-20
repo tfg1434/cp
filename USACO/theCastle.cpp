@@ -20,71 +20,33 @@ struct Square {
     int x, y;
     int walls;
     int component = nil;
+    int checked = false;
 };
-int transX[9];
-int transY[9];
-
 constexpr int MAX_MN = 50;
 Square castle[MAX_MN][MAX_MN];
+int roomSize[MAX_MN * MAX_MN];
 int M, N;
 
-void floodFill(int newComponent) {
-    int nVisited;
+void floodFill(int component, int x, int y) {
+    int walls;
     
-    do {
-        nVisited = 0;
-
-        for (int y = 0; y < N; ++y) {
-            for (int x = 0; x < M; ++x) {
-                Square node = castle[y][x];
-                
-                if (node.component == -2) {
-                    nVisited++;
-                    node.component = newComponent;
-
-                    for (int k = DIR_WEST; k <= DIR_SOUTH; k <<= 1) {
-                        //remember, it's negated (we can't go through walls)
-                        if (!(node.walls & k)) {
-                            int nx = x + transX[k];
-                            int ny = y + transY[k];
-                            
-                            if (nx >= 0 && nx < M && ny >= 0 && ny < N) {
-                                if (castle[ny][nx].component == nil)
-                                    castle[ny][nx].component = -2;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        cout << nVisited << endl;
-        
-    } while (nVisited != 0);
-}
-
-int solve() {
-    int nComponents = 0;
-
-    for (int y = 0; y < N; ++y) {
-        for (int x = 0; x < M; ++x) {
-            castle[y][x].component = nil;
-        }
+    if (castle[y][x].checked) {
+        assert("components equal" && castle[y][x].component == component);
+        return;
     }
     
-    for (int y = 0; y < N; ++y) {
-        for (int x = 0; x < M; ++x) {
-            cout << "d" << endl;
-            
-            if (castle[y][x].component == nil) {
-                nComponents++;
-                castle[y][x].component = -2;
-                floodFill(nComponents);
-            }
-        }
-    }
+    castle[y][x].checked = true;
+    castle[y][x].component = component;
+    roomSize[component]++;
+    walls = castle[y][x].walls;
     
-    return nComponents;
+    if (x > 0 && !(walls & DIR_WEST)) floodFill(component, x - 1, y);
+    
+    if (x+1 < M && !(walls & DIR_EAST)) floodFill(component, x + 1, y);
+    
+    if (y > 0 && !(walls & DIR_NORTH)) floodFill(component, x, y - 1);
+    
+    if (y+1 < N && !(walls & DIR_SOUTH)) floodFill(component, x, y + 1);
 }
 
 int main() {
@@ -92,9 +54,6 @@ int main() {
 //    freopen("castle.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
-    
-    transX[DIR_NORTH] = 0, transX[DIR_EAST] = 1, transX[DIR_SOUTH] = 0, transX[DIR_WEST] = -1;
-    transY[DIR_NORTH] = -1, transY[DIR_EAST] = 0, transY[DIR_SOUTH] = 1, transY[DIR_WEST] = 0;
     
     cin >> M >> N;
 
@@ -104,10 +63,48 @@ int main() {
             cin >> castle[y][x].walls;
         }
     }
-    
-    cout << "que?" << endl;
-    
-    cout << solve() << endl;
 
+    int component = 0;
+    for (int y = 0; y < N; ++y) {
+        for (int x = 0; x < M; ++x) {
+            if (!castle[y][x].checked) {
+                floodFill(component++, x, y);
+            }
+        }
+    }
+    int largest = *max_element(roomSize, roomSize + sizeof(roomSize) / sizeof(roomSize[0]));
+
+    //only check east and north walls (prob says)
+    //cant just check for walls, have to check if component is different.
+    int largestPossible = 0;
+    int xx, yy;
+    char dir;
+    for (int x = 0; x < M; ++x) {
+        for (int y = N-1; y >= 0; --y) {
+            if (y > 0 && castle[y][x].component != castle[y-1][x].component) {
+                int size = roomSize[castle[y][x].component] + roomSize[castle[y-1][x].component];
+                
+                if (size > largestPossible){
+                    largestPossible = size;
+                    xx = x;
+                    yy = y;
+                    dir = 'N';
+                }
+            }
+
+            if(x+1 < M && castle[y][x].component != castle[y][x+1].component) {
+                int size = roomSize[castle[y][x].component] + roomSize[castle[y][x+1].component];
+                if(size > largestPossible) {
+                    largestPossible = size;
+                    xx = x;
+                    yy = y;
+                    dir = 'E';
+                }
+            }
+        }
+    }
+    
+    cout << component << '\n' << largest << '\n' << largestPossible << '\n' << xx-1 << ' ' << yy-1 << ' ' << dir << endl;
+    
     return 0;
 }
