@@ -9,68 +9,57 @@ using namespace std;
 #define ll long long
 
 int V, G;
+int endPos = INT_MAX;
+int maxSum = INT_MIN;
+vector<int> best;
+vector<int> which;
 vector<int> required;
 vector<vector<int>> feed;
 vector<vector<int>> ans { };
-vector<int> curr { };
 
-bool isOk(const vector<int>& v) {
-    vector<int> vitamins(V, 0);
-    for (int scoopIdx : v) {
-        for (int vitIdx = 0; vitIdx < V; ++vitIdx) {
-            vitamins[vitIdx] += feed[scoopIdx][vitIdx];
-        }
-    }
-    for (int i = 0; i < vitamins.size(); ++i) {
-        if (vitamins[i] < required[i]) {
-            return false;
-        }
-    }
+int getSum(vector<int>& v){
+    int res = 0;
+    for (int i : v) res += i;
     
-    return true;
+    return res;
 }
 
-void solve() {
-//    bool ok = true;
-//    vector<int> vitamins(V, 0);
-//    for (int scoopIdx = 0; scoopIdx < curr.size(); scoopIdx++) {
-//        for (int vitIdx = 0; vitIdx < V; ++vitIdx) {
-//            vitamins[vitIdx] += feed[curr[scoopIdx]][vitIdx];
-//        }
-//    }
-//    for (int i = 0; i < vitamins.size(); ++i) {
-//        if (vitamins[i] < required[i]) {
-//            ok = false;
-//            break;
-//        }
-//    }
-//    if (ok) {
-    ans.push_back(curr);
-//        return;
-//    }
-    
-    for (int i = 0; i < feed.size(); ++i) {
-        if (std::count(curr.begin(), curr.end(), i) > 0) continue;
-        
-        curr.push_back(i);
-        solve();
-        curr.pop_back();
+bool isOk(vector<int>& v){
+    return all_of(v.begin(), v.end(), [](int i){ return i <= 0; });
+}
+
+void solve(vector<int>& v, int scoop, int pos) {
+    if (isOk(v) && endPos >= pos){
+        best = which;
+        endPos = pos - 1;
+        maxSum = getSum(v);
     }
     
+    if (pos == G) return;
     
+    for (int i = scoop; i < feed.size(); i++) {
+        vector<int> curr = v;
+        for (int j = 0; j < V; j++)
+            curr[j] -= feed[i][j];
+        which[pos] = i+1;
+        solve(curr, i+1, pos+1);
+        which[pos] = 0;
+    }
 }
 
 int main() {
-//    freopen("holstein.in", "r", stdin);
-//    freopen("holstein.out", "w", stdout);
+    freopen("holstein.in", "r", stdin);
+    freopen("holstein.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
-    
+
     cin >> V;
-    required = vector<int>(V);
+    best.resize(26);
+    which.resize(26);
+    required.resize(V);
     for (int i = 0; i < V; i++) cin >> required[i];
     cin >> G;
-    feed = vector<vector<int>>(G);
+    feed.resize(G);
     for (int g = 0; g < G; ++g) {
         feed[g] = vector<int>(V);
         
@@ -78,51 +67,11 @@ int main() {
             cin >> feed[g][v];
     }
         
-    solve();
+    solve(required, 0, 0);
 
-//    sort(ans.begin(), ans.end(), [](const vector<int>& a, const vector<int>& b) {
-//        return a.size() < b.size();
-//    });
-//    unsigned ll siz = ans[0].size();
-//    vector<int> sol;
-//    int minCost = INT_MAX;
-//    for (const vector<int>& a:ans) {
-//        if (a.size() != siz) continue;
-//        int cost = 0;
-//        for (int c:a) cost += c;
-//        
-//        if (cost < minCost) {
-//            sol = a;
-//            minCost = cost;
-//        }
-//    }
-    vector<int>::size_type minSize = INT_MAX;
-    vector<vector<int>> sol;
-    for (const vector<int>& a:ans) {
-        if (!isOk(a)) continue;
-        
-        sol.push_back(a);
-        minSize = min(minSize, a.size());
-    }
-    
-    cout << minSize;
-    
-    int minCost = INT_MAX;
-    vector<int> a;
-    for (auto s:sol) {
-        if (s.size() != minSize) continue;
-        
-        int cost = 0;
-        for (int c:s) cost += c;
-        
-        if (cost < minCost) {
-            a = s;
-            minCost = cost;
-        }
-    }
-    
-    for (int i : a) {
-        cout << " " << i+1;
+    cout << endPos + 1;
+    for (int i = 0; i <= endPos; i++) {
+        cout << " " << best[i];
     }
     cout << endl;
     
