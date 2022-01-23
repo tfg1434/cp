@@ -1,48 +1,94 @@
-﻿#include <bits/stdc++.h>
+﻿/*
+ID: toronto4
+TASK: preface
+LANG: C++14
+*/
+#include <bits/stdc++.h>
 using namespace std;
-using Numeral = int;
 
 #define ll long long
 
-constexpr Numeral I = -1;
-constexpr Numeral L = -2;    
-constexpr Numeral M = -3;
-constexpr Numeral V = -4;     
-constexpr Numeral C = -5;
-constexpr Numeral X = -6;     
-constexpr Numeral D = -7;
+int N;
+int I = 0, V = 0, X = 0, L = 0, C = 0, D = 0, M = 0;
 
-int roman[7] = { 1, 5, 10, 50, 100, 500, 1000 };
-int toNumeral[1001];
-map<int, vector<Numeral>> dp;
+/*
+ * No more than 3 consecutive 10^n digits
+ * No more than 1 consecutive 5*10^n digits
+ * 
+ * I   1     L   50    M  1000
+ * V   5     C  100
+ * X  10     D  500
+ */
 
-vector<Numeral> next(int x) {
-    if (x == 0) return {};
-    if (dp.count(x)) return dp[x];
+void solve(int x) {
+    int dI = 0, dV = 0, dX = 0, dL = 0, dC = 0, dD = 0, dM = 0;
     
-    int idx = 0;
-    vector<Numeral> ans;
+    for ( ; x >= 1000; x -= 1000, dM++) {}
+    for ( ; x >= 500; x -= 500, dD++) {}
+    for ( ; x >= 100; x -= 100, dC++) {}
+    for ( ; x >= 50; x -= 50, dL++) {}
+    for ( ; x >= 10; x -= 10, dX++) {}
+    for ( ; x >= 5; x -= 5, dV++) {}
+    for ( ; x >= 1; x -= 1, dI++) {}
     
-    while (idx < sizeof roman / sizeof roman[0] && roman[idx+1] <= x)
-        idx++;
+    //6 swaps (IV, VX, XL, LC, CD, DM)
     
-    ans.push_back(roman[idx]);
-    for (int n:next(x - roman[idx])) {
-        ans.push_back(n);
+    //trade one D (500) and 4 C (400) for one M (1000) - one C (100)
+    while (dD > 0 && dC/4 > 0){
+        dD--; dC -= 4; dM++; dC++;
     }
     
-    dp[x] = ans;
-    return ans;
+    //trade four C (400) for one D (500) - one (C)
+    while (dC >= 4) {
+        dC -= 4; dD++; dC++;
+    }
+    
+    //trade one L (50) and four X (40) for one C (100) - one X (10)
+    while (dL > 0 && dX/4 > 0){
+        dL--; dX -= 4; dC++; dX++;
+    }
+    
+    //trade four X (40) for one L (50) - one X (10)
+    while (dX >= 4) {
+        dX -= 4; dL++; dX++;
+    }
+    
+    //trade one V (5) and four I (4) for one X (10) - one I (1)
+    while (dV > 0 && dI/4 > 0){
+        dV--; dI -= 4; dX++; dI++;
+    }
+    
+    //trade four I (4) for one V (5) - one I (1)
+    while (dI >= 4) {
+        dI -= 4; dV++; dI++;
+    }
+    
+    I += dI, V += dV, X += dX, L += dL, C += dC, D += dD, M += dM;
 }
 
 int main() {
+    freopen("preface.in", "r", stdin);
+    freopen("preface.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
-
-    toNumeral[1] = I, toNumeral[5] = V, toNumeral[10] = X, toNumeral[50] = L, 
-        toNumeral[100] = C, toNumeral[500] = D,toNumeral[1000] = M;
-
-    auto a = next(268);
+    
+    cin >> N;
+    
+    for (int i = 1; i <= N; ++i) solve(i);
+    
+    if (I != 0) cout << 'I' << ' ' << I << '\n';
+    
+    if (V != 0) cout << 'V' << ' ' << V << '\n';
+    
+    if (X != 0) cout << 'X' << ' ' << X << '\n';
+    
+    if (L != 0) cout << 'L' << ' ' << L << '\n';
+    
+    if (C != 0) cout << 'C' << ' ' << C << '\n';
+    
+    if (D != 0) cout << 'D' << ' ' << D << '\n';
+    
+    if (M != 0) cout << 'M' << ' ' << M << '\n';
     
     return 0;
 }
