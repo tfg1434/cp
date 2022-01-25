@@ -12,7 +12,7 @@ constexpr int max_lamp = 6;
 // right six bits
 constexpr int lamp_mask = (1 << max_lamp) - 1;
 int N, C;
-int lamps[max_lamp];
+int lamps[1 << max_lamp];
 int on;
 int given;
 
@@ -26,8 +26,23 @@ int flip[4] = {
 void solve(int state, int i, int n) {
     if (n == 0) {
         if ((state & given) == on)
-            
+            lamps[state] = 1;
+        
+        return;
     }
+
+    for ( ; i < 4; ++i )
+        solve(state ^ flip[i], i, n - 1);
+}
+
+void print(int lights) {
+    char s[100+1];
+
+    for (int i = 0; i < N; ++i) 
+       s[i] = (lights & (1 << (max_lamp - 1 - i % max_lamp))) ? '1' : '0'; 
+    
+    s[N] = '\0';
+    cout << s << '\n';
 }
 
 int main() {
@@ -59,13 +74,23 @@ int main() {
         given |= 1 << a;
     }
     
-    if (N > 4) {
-        if (N % 2 == 0) N = 4;
-        else N = 3;
+    if (C > 4) {
+        if (C % 2 == 0) C = 4;
+        else C = 3;
     }
 
-    for ( ; N >= 0; N -= 2) 
-        solve(lamp_mask, 0, N);
+    for ( ; C >= 0; C -= 2) 
+        solve(lamp_mask, 0, C);
+    
+    bool impossible = true;
+    for (int i = 0; i < (1 << max_lamp); ++i) {
+        if (lamps[i]) {
+            impossible = false;
+            print(i);
+        }
+    }
+    
+    if (impossible) cout << "IMPOSSIBLE" << '\n';
     
     return 0;
 }
