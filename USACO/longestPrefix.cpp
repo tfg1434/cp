@@ -7,12 +7,11 @@ LANG: C++14
 using namespace std;
 
 #define ll long long
-constexpr int MAX_P_COUNT = 200;
-constexpr int MAX_P_LEN = 10;
+
 vector<string> prims;
 string S;
 set<string> prefixes { "" };
-set<string> tried;
+set<string> dp;
 
 bool startsWith(string mainStr, string toMatch) {
     for (int i = 0; i < toMatch.size(); ++i) 
@@ -22,6 +21,8 @@ bool startsWith(string mainStr, string toMatch) {
 }
 
 int main() {
+//    freopen("prefix.in", "r", stdin);
+//    freopen("prefix.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
 
@@ -38,14 +39,14 @@ int main() {
         bool found = false;
         
         for (string prefix:prefixes) {
-//            if (tried.count(prefix)) continue;
-//            tried.insert(prefix);
+            if (dp.count(prefix)) continue;
+            dp.insert(prefix);
             
-            if (S.rfind(prefix, 0) == 0) {
+            if (startsWith(S, prefix)) {
                 for (string p:prims) {
                     string look = prefix + p;
-                    cout << startsWith(S, look) << endl; 
-                    if (S.rfind(look, 0) == 0) {
+//                    cout << startsWith(S, look) << endl; 
+                    if (startsWith(S, look)) {
                         prefixes.insert(look);
                         found = true;
                     }
