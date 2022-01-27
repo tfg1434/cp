@@ -11,25 +11,21 @@ constexpr int MAX_P_COUNT = 200;
 constexpr int MAX_P_LEN = 10;
 vector<string> prims;
 string S;
-set<string> prefixes;
+set<string> prefixes { "" };
 
-//https://www.programmerall.com/article/10612175942/
 int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
 
     string a;
-    while (true) {
-        cin >> a;
+    while (cin >> a) {
         if (a == ".") break;
         
         prims.push_back(a);
     }
-    string b;
-    while (cin >> b || S.empty()) 
-        S += b;
+    
+    while (cin >> a) S += a;
 
-    cout << "hello?";
     while (true) {
         bool found = false;
         
@@ -46,8 +42,11 @@ int main() {
         
         if (!found) break;
     }
+
+    const auto longest = std::max_element(prefixes.cbegin(), prefixes.cend(),
+                                  [](const std::string& lhs, const std::string& rhs) { return lhs.size() < rhs.size(); });
     
-    
+    cout << *longest->size() << '\n';
     
     return 0;
 }
