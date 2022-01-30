@@ -4,7 +4,8 @@ TASK: maze1
 LANG: C++14
 */
 #include <bits/stdc++.h>
-#include <limits>
+
+using Point = std::pair<int, int>;
 using namespace std;
 
 #define ll long long
@@ -22,48 +23,81 @@ struct Node {
 constexpr int max_w = 38;
 constexpr int max_h = 100;
 int W, H;
-Node maze[max_h][max_w];
-string temp[max_h];
-int exit_x, exit_y;
+char maze[210][80];
+queue<Point> Q;
+queue<int> D;
+int exits[2];
 
 int main() {
+    freopen("maze1.in", "r", stdin);
+    freopen("maze1.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
         
     cin >> W >> H;
     int sw = W*2+1;
     int sh = H*2+1;
-    
-    for (int i = 0; i < sh; ++i) 
-        getline(cin, temp[i]);
+    int d = 0;
 
-    int xx = 0, yy = 0;
-    for (int y = 1; y < sh; y+=2) {
-        for (int x = 1; x < sw-1; x+=2) {
-            int walls = 0;
-            if (temp[y-1][x] == '-') walls |= NORTH;
-            if (temp[y+1][x] == '-') walls |= SOUTH;
-            if (temp[y][x-1] == '|') walls |= EAST; 
-            if (temp[y][x+1] == '|') walls |= WEST;
-            
-            if (yy == 0 && temp[y-1][x] == ' ') {
-                exit_x = xx;
-                exit_y = 0;
-            } else if (yy == H-1 && temp[y+1][x] == ' ') {
-                exit_x = xx;
-                exit_y = H-1;
-            } else if (xx == 0 && temp[y][x-1] == ' ') {
-                exit_x = 0;
-                exit_y = yy;
-            } else if (xx == W-1 && temp[y][x+1] == ' ') {
-                exit_x = W-1;
-                exit_y = yy;
+    for (int i = 0; i < sh; ++i) {
+        cin.get();
+        cin.get(maze[i], 80);
+        
+        if (i == 0 || i == sh-1){
+            for (int j = 0; j < sw; j++) {
+                if (maze[i][j] == ' ') {
+                    if (i == 0) exits[0] = 1;
+                    else if (i == sh-1) exits[0] = sh - 2;
+                    
+                    exits[1] = j;
+                    Q.push({exits[0], exits[1]});
+                    D.push(1);
+                }
             }
-            
-            xx++;
+        } else {
+            if (maze[i][0] == ' ') {
+                exits[0] = i; 
+                exits[1] = 1;
+                Q.push({exits[0], exits[1]});
+                D.push(1);
+            } else if (maze[i][sw-1] == ' ') {
+                exits[0] = i; 
+                exits[1] = sw-2;
+                Q.push({exits[0], exits[1]});
+                D.push(1);
+            }
         }
-        yy++;
-    } 
-
+    }
+    
+    while (!Q.empty()) {
+        Point p = Q.front(); 
+        Q.pop();
+        d = D.front();
+        D.pop();
+        
+        if (p.first >= 3 && maze[p.first-1][p.second] == ' ' && maze[p.first-2][p.second] != 'x') {
+            maze[p.first-2][p.second] = 'x';
+            Q.push(make_pair(p.first-2, p.second));
+            D.push(d+1);
+        } 
+        if (p.first <= sh - 3 - 1 && maze[p.first+1][p.second] == ' ' && maze[p.first+2][p.second] != 'x') {
+            maze[p.first+2][p.second] = 'x';
+            Q.push(make_pair(p.first+2, p.second));
+            D.push(d+1);
+        } 
+        if (p.second >= 3 && maze[p.first][p.second-1] == ' ' && maze[p.first][p.second-2] != 'x') {
+            maze[p.first][p.second-2] = 'x';
+            Q.push(make_pair(p.first, p.second-2));
+            D.push(d+1);
+        } 
+        if (p.second <= sw - 3 - 1 && maze[p.first][p.second+1] == ' ' && maze[p.first][p.second+2] != 'x') {
+            maze[p.first][p.second+2] = 'x';
+            Q.push(make_pair(p.first, p.second+2));
+            D.push(d+1);
+        }
+    }
+    
+    cout << d << endl;
+    
     return 0;
 }
