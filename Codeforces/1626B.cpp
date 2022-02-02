@@ -37,10 +37,14 @@ int main() {
         //nothing sums to >= 10. choose last digit
         if (!broke) {
             ints[1] += ints[0];
-            ints.pop_back(); 
+            ints[0] = -1; 
         }
        
-        for (auto i : ints) cout << i;
+        for (auto i : ints) {
+            if (i == -1) continue;
+            
+            cout << i;
+        }
         
         cout << endl;
     }
