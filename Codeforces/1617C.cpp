@@ -7,28 +7,34 @@ int T, N;
 
 void solve() {
     cin >> N;
-    vector<int> a(N);
-    for (int i = 0; i < N; i++) {
-        cin >> a[i];
+    vector<int> a;
+    set<int> s;
+    for (int i = 1; i <= N; i++) s.insert(i);
+    for (int i = 0; i < N; ++i) {
+        int x;
+        cin >> x;
+
+        //both in perm & a
+        if (s.count(x)) s.erase(x);
+        else a.push_back(x);
     }
     std::sort(a.begin(), a.end());
-    int ans = 0;
+    std::reverse(a.begin(), a.end());
 
-    for (int i = 0; i < a.size(); ++i) {
-        int item = a[i];
-        int n = i+1;
-
-        if (item != n) {
-            if (ceil(item/2.0) <= n) {
-                cout << -1 << endl;
-                return;
-            }
-            
-            ans++;
+    bool ok = true;
+    for (const int& item:a) {
+        auto iter = s.end();
+        iter--;
+        int n = *iter;
+        if (n > (item-1) / 2) {
+            ok = false;
+            break;
         }
+        s.erase(iter);
     }
-    
-    cout << ans << endl;
+
+    if (!ok) cout << -1 << endl;
+    else cout << a.size() << endl;
 }
 
 int main() {
