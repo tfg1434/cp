@@ -1,19 +1,14 @@
-﻿#include <bits/stdc++.h>
+﻿#include<bits/stdc++.h>
 using namespace std;
-
-#define ll long long
-
-int T;
-int t,n,A[1'000'000],s;
-pair<int,int>p[1'000'000];
-
-int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-
-    cin >> T;
-    while (T--) {
-        cin >> n;
+#define int long long
+const int N=1e6;
+int t,n,A[N],s;
+pair<int,int>p[N];
+signed main()
+{
+    cin>>t;
+    while(t--&&cin>>n)
+    {
         for(int i=1;i<=n;i++)
             cin>>p[i].first,p[i].second=i;
         sort(p+1,p+n+1),s=0;
@@ -24,6 +19,5 @@ int main() {
             cout<<A[i]<<' ';
         cout<<'\n';
     }
-
     return 0;
 }
