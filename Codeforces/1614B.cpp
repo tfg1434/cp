@@ -3,11 +3,9 @@ using namespace std;
 
 #define ll long long
 
-int T, N;
-
-struct Building {
-    int times, idx;
-};
+int T;
+int t,n,A[1'000'000],s;
+pair<int,int>p[1'000'000];
 
 int main() {
     ios::sync_with_stdio(0);
@@ -15,38 +13,16 @@ int main() {
 
     cin >> T;
     while (T--) {
-        cin >> N;
-        vector<Building> a(N);
-        for (int i = 0; i < N; i++) {
-            cin >> a[i].times;
-            a[i].idx = i;
-        }
-        vector<Building> b = a;
-        sort(b.begin(), b.end(), [](Building a, Building b) {
-            return a.times > b.times;
-        });
-        vector<int> ans(N);
-        int curr = 1;
-        int time = 0;
-        for (int i = 0; i < N; i++) {
-            ans[b[i].idx] = curr; 
-            
-            time += 2 * abs(ans[b[i].idx]) * b[i].times;
-            
-            if (curr > 0) curr = -curr;
-            else curr = -curr + 1;
-        }
-        
-//        for (int i = 0; i < N; i++) {
-//            time += 2 * a[i].times * abs(ans[i]);
-//        }
-        
-        cout << time << '\n';
-        cout << 0;
-        for (int item:ans) {
-            cout << " " << item;
-        } 
-        cout << endl;
+        cin >> n;
+        for(int i=1;i<=n;i++)
+            cin>>p[i].first,p[i].second=i;
+        sort(p+1,p+n+1),s=0;
+        for(int i=1;i<=n;i++)
+            A[p[i].second]=pow(-1,i&1)*(n-i+2)/2,s+=2*abs(A[p[i].second])*p[i].first;
+        cout<<s<<'\n';
+        for(int i=0;i<=n;i++)
+            cout<<A[i]<<' ';
+        cout<<'\n';
     }
 
     return 0;
