@@ -26,42 +26,23 @@ void solve() {
 
     for (const int item:s) {
         if (item < b && right.size() < n / 2) {
-            if (right.count(item)) {
-                cout << -1 << endl;
-                return;
-            }
             right.insert(item);
         } else if (item > a && left.size() < n / 2) {
-            if (left.count(item)) {
-                cout << -1 << endl;
-                return;
-            }
             left.insert(item);
-        } else {
-            cout << -1 << endl;
-            return;
         }
-//        if (item < b) {
-//            if (right.count(item)) {
-//                cout << -1 << endl;
-//                return;
-//            }
-//            right.insert(item);
-//        } else {
-//            if (left.count(item)) {
-//                cout << -1 << endl;
-//                return;
-//            }
-//            left.insert(item);
-//        }
     }
-
-    for (const int item:left) {
-        cout << item << " ";
+    
+    if (left.size() == n / 2 && right.size() == n / 2 && *min_element(left.begin(), left.end()) == a && *max_element(right.begin(), right.end()) == b) {
+        for (const int item:left) {
+            cout << item << " ";
+        }
+        for (const int item:right) {
+            cout << item << " ";
+        }    
+    } else {
+        cout << -1;
     }
-    for (const int item:right) {
-        cout << item << " ";
-    }
+    
     cout << endl;
 }
 
