@@ -3,7 +3,8 @@ using namespace std;
 
 #define ll long long
 
-int T, N, H;
+int T, N;
+ll H;
 
 int main() {
     ios::sync_with_stdio(0);
@@ -12,27 +13,22 @@ int main() {
     cin >> T;
     while (T--) {
         cin >> N >> H;
-        vector<int> a(N);
-        for (int i = 0; i < N; i++) cin >> a[i];
+        vector<ll> a(N);
+        for (auto &item:a) cin >> item;
+        ll l = 1, r = 1e18;
         
-        int k = 0;
-        vector<int> dt(N - 1);
-        for (int i = 0; i < N - 1; i++) {
-            dt[i] = a[i + 1] - a[i];
-        }
-        while (true) {
-            int total = 0;
-            for (int i = 0; i < N - 1; ++i) {
-                total += min(k, dt[i]); 
+        while (l <= r) {
+            ll mid = (l + r) / 2; //mid == k
+            ll total = mid; //account for last hit
+            for (int i = 0; i < N - 1; i++) {
+                total += min(a[i+1] - a[i], mid);
             }
-            total += k; //last hit
             
-            if (total >= H) break;
-            
-            k++;
+            if (total < H) l = mid + 1;
+            else r = mid - 1;
         }
         
-        cout << k << '\n';
+        cout << r+1 << '\n';
     }
 
     return 0;
