@@ -24,19 +24,15 @@ int main() {
         std::reverse(b.begin(), b.end());
         
         int ans = 0;
-        while (true) {
-            int x = 0;
-            int temp = b[0];
-            while (b[x] == temp) x++;
-            if (x == n) break;
-            
-            if (2 * x > n) {
-                apply(b, x - n + x + 1, n);
-                ans++;
-            } else {
-                apply(b, 1, 2 * x);
-                ans++;
+        int x = 0;
+        while (x < n) {
+            if (b[x] == b[0]) {
+                x++;
+                continue;
             }
+            
+            ans++;
+            x *= 2;
         }
         
         cout << ans << endl;
