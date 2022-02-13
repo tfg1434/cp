@@ -12,12 +12,14 @@ int main() {
     cin >> T;
     while (T--) {
         ll n, k; cin >> n >> k;
-        int ans = 0;
+        ll ans = 0;
         ll total = 1;
-        while (total < n) {
+        while (total < k) {
+            total *= 2;
             ans++;
-            total += min(k, total);
         }
+        //+ k - 1 for ceiling division
+        if (total < n) ans += (n - total + k - 1) / k;
 
         cout << ans << '\n';
     }    
