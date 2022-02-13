@@ -21,18 +21,18 @@ int main() {
             b[a[i]].push_back(i);
         }
 
-        int l = 0, r;
-        while (l < n) {
-            r = l;
+        int k = 0, r;
+        while (k < n) {
+            r = k;
             int i;
             for (i = 0; i <= n+1; i++) {
-                auto iter = lower_bound(b[i].begin(), b[i].end(), l);
+                auto iter = lower_bound(b[i].begin(), b[i].end(), k);
                 if (iter == b[i].end()) break;
                 r = max(r, *iter);
             }
 
             ans.push_back(i);
-            l = r+1;
+            k = r+1;
         }
 
         cout << ans.size() << endl;
