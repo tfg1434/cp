@@ -13,8 +13,17 @@ int main() {
     
     cin >> T;
     while (T--) {
-        
+        int n; cin >> n;
+        int c = 0, mx = 0;
+        for (int i = 0; i < n; i++) {
+            int x; cin >> x;
+            mx = max(mx, x);
+            if (mx == i+1) c++;
+        }
+
+        cout << c << endl;
     }    
     
     return 0;
 }
+
