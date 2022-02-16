@@ -10,6 +10,7 @@ int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
     
+    //k isnt the number of nodes stupid idiot
     int k; cin >> k;
     ll ans = 1;
     for (int i = 0; i < k - 1; i++) {
