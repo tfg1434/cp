@@ -11,11 +11,11 @@ int main() {
     cin.tie(0);
     
     int n; cin >> n;
-    vector<int> a(n);
+    vector<ll> a(n);
     for (auto& i : a) cin >> i;
     sort(all(a));
     int m; cin >> m;
-    vector<pair<int, int>> b(m);
+    vector<pair<ll, ll>> b(m);
     for (auto& i : b) cin >> i.first >> i.second;
     ll sum = accumulate(all(a), 0LL);
 
