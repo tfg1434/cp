@@ -7,7 +7,7 @@ using namespace std;
 int T;
 
 bool isPossible(int d1, int v1, int d2, int v2) {
-    return (v2 - v1) <= (d2 - d1);
+    return v2 - v1 <= d2 - d1;
 }
 
 int main() {
