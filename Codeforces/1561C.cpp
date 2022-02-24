@@ -14,27 +14,30 @@ int main() {
     cin >> T;
     while (T--) {
         int n; cin >> n;
-        vector<int> bs(n), ks(n);
+        vector<int> ks(n, 0);
+        vector<int> bs(n, 0);
         for (int i = 0; i < n; i++) {
-            int b = INT_MAX;
-            int k; cin >> k;
-            ks[i] = k;
+            cin >> ks[i];
 
-            for (int j = 0; j < k; j++) {
+            for (int j = 0; j < ks[i]; j++) {
                 int x; cin >> x;
-                b = min(b, x + j);
+                bs[i] = max(bs[i], x - j);
             }
-            bs[i] = b;
         }
 
-        int ans = INT_MIN;
+        vector<pair<int, int>> v;
+        for (int i = 0; i < n; i++) v.push_back({bs[i], ks[i]});
+        sort(all(v));
+
+        int ans = 0;
         int sub = 0;
-        for (int i = 0; i < n; i++) {
-            ans = max(ans, bs[i] - sub);
-            sub += ks[i];
+        for (auto [b, k] : v) {
+            ans = max(ans, b - sub);
+
+            sub += k;
         }
 
-        cout << ans+1 << '\n';
+        cout << ans + 1 << '\n';
     }    
     
     return 0;
