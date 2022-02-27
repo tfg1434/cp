@@ -5,7 +5,8 @@ using namespace std;
 #define rall(x) (x).rbegin(), (x).rend()
 
 int T;
-
+pair<int, int> b[200005];
+int i, j;
 
 int main() {
     ios::sync_with_stdio(0);
@@ -13,33 +14,27 @@ int main() {
     
     cin >> T;
     while (T--) {
-        int n, k; cin >> n >> k;
-        vector<pair<int, int>> a(n);
-        for (int i = 0; i < n; i++) {
-            cin >> a[i].first;
-            a[i].second = i;
-        }
-        sort(all(a));
-
-        vector<int> ans(n);
-        for (auto& x : ans) x = 0;
-        int c = 1;
-        for (int i = 0; i < n; i++) {
-            ans[a[i].second] = c;
-
-            c++;
-            if (c > k) {
-                c = 1;
-                while (a[i].first == a[i-1].first) {
-                    i++;
-                }
+        int num[200005] = {0}, sum[200005] = {0};
+        int n, k;
+        cin >> n >> k;
+        for (i = 0, j = 0; i < n; i++) {
+            int x;
+            cin >> x;
+            if (num[x] < k) {
+                num[x]++;
+                b[j++] = make_pair(x, i);
             }
         }
+        sort(b, b + j);
+        //make the painted divisible by k
+        j -= j % k;
+        for (i = 0; i < j; i++)
+            sum[b[i].second] = i % k + 1;
+        for (i = 0; i < n; i++)
+            cout << sum[i] << " ";
+        cout << endl;
+    }
 
-        for (auto& x : ans) cout << x << " ";
-        cout << '\n';
-    }    
-    
     return 0;
 }
 
