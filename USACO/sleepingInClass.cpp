@@ -18,11 +18,9 @@ int main() {
         for (auto& x : a) cin >> x;
 
         vector<int> pre(n);
-        int sum = 0;
-        for (int i = 0; i < n; i++) {
-            sum += a[i];
-            pre[i] = sum;
-        }
+        pre[0] = a[0];
+        for (int i = 1; i < n; i++) 
+            pre[i] = pre[i-1] + a[i];
 
         int ans = INT_MIN;
         for (auto x : pre) {
