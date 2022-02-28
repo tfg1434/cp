@@ -1,0 +1,4 @@
+1. Instead of considering both cases where one variable is bigger/smaller than the other, you can swap them WLOG.
+2. Consider using python instead of cpp if applicable.
+3. It's always easier to use and debug static memory.
+
