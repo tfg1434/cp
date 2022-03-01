@@ -2,3 +2,6 @@
 2. Consider using python instead of cpp if applicable.
 3. It's always easier to use and debug static memory.
 4. while(n--) != while(--n)
+5. Make test cases, draw diagrams, just do something!
+6. If you have strings on top of each other, consider the columns.
+7. Consider parity!
