@@ -5,3 +5,4 @@
 5. Make test cases, draw diagrams, just do something!
 6. If you have strings on top of each other, consider the columns.
 7. Consider parity!
+8. Watch for overflow. Can't rely on some grader (USACO) to tell you.
