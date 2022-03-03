@@ -7,3 +7,5 @@
 7. Consider parity!
 8. Watch for overflow. Can't rely on some grader (USACO) to tell you.
 9. You can manipulate your equation algebraically!
+10. Create new subproblems.
+11. Casework makes the dream work (especially edge cases)!
