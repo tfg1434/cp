@@ -9,3 +9,4 @@
 9. You can manipulate your equation algebraically!
 10. Create new subproblems.
 11. Casework makes the dream work (especially edge cases)!
+12. What's the longest the answer can be?
