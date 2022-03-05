@@ -11,22 +11,26 @@ int main() {
     cin.tie(0);
     
     int n; cin >> n;
-    map<int, int> a, b;
+    vector<int> a(n), b(n);
+    
+    auto posB = [&](int x) {
+        for (int i = 0; i < n; i++) {
+            if (b[i] == x) return i;
+        }
+
+        return -1;
+    };
+
+    vector<int> need(n, 0);
     for (int i = 0; i < n; i++) {
-        int x; cin >> x;
-        a[x] = i;
-    }
-    for (int i = 0; i < n; i++) {
-        int x; cin >> x;
-        b[x] = i;
+        for (int j = i+1; j < n; j++) {
+            if (posB(a[i]) > posB(a[j])) {
+                need[i] = 1;
+            }
+        }
     }
 
-    int ans = 0;
-    for (auto [num, idx] : a) {
-        if (b[num] < idx) ans++;
-    }
-
-    cout << ans << '\n';
+    cout << accumulate(all(need), 0) << '\n';
     
     return 0;
 }
