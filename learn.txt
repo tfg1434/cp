@@ -14,3 +14,5 @@
 14. # of xs instead of xs.
 15. If k works implies k + 1 works, use binary search!
 16. Give some leeway in your ranges; you are human after all.
+17. Subproblems. Instead of doing operation on the whole array, maybe do it on a pair.
+18. gcd(i, i + 1) = 1 for any integer i >= 1.
