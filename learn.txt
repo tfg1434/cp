@@ -16,3 +16,5 @@
 16. Give some leeway in your ranges; you are human after all.
 17. Subproblems. Instead of doing operation on the whole array, maybe do it on a pair.
 18. gcd(i, i + 1) = 1 for any integer i >= 1.
+19. Monkey see power of 2. Monkey think binary.
+20. Monkey see long time limit. Monkey think brute force.
