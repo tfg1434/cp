@@ -13,3 +13,4 @@
 13. Quantify it.
 14. # of xs instead of xs.
 15. If k works implies k + 1 works, use binary search!
+16. Give some leeway in your ranges; you are human after all.
