@@ -20,16 +20,16 @@ int main() {
         //compute the sum of the greatest contiguous subarray
         //for each length
         vector<int> maxSum(n+1);
-        for (int i = 1; i <= n; i++) {
+        for (int l = 1; l <= n; l++) {
             int res = INT_MIN, curr = 0;
 
-            for (int j = 0; j < i; j++) curr += a[j];
+            for (int j = 0; j < l; j++) curr += a[j];
             res = max(res, curr);
-            for (int j = i; j < n; j++) {
-                curr += a[j]; curr -= a[j-i];
+            for (int j = l; j < n; j++) {
+                curr += a[j]; curr -= a[j-l];
                 res = max(res, curr);
             }
-            maxSum[i] = res;
+            maxSum[l] = res;
         }
 
         for (int k = 0; k <= n; k++) {
