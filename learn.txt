@@ -19,3 +19,4 @@
 19. Monkey see power of 2. Monkey think binary.
 20. Monkey see long time limit. Monkey think brute force.
 21. Sum of XOR of all possible subsequences is OR of all elements * 2^(n-1).
+22. Rewrite the original inequality/equation.
