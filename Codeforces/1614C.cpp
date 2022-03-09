@@ -5,15 +5,15 @@ using namespace std;
 #define rall(x) (x).rbegin(), (x).rend()
 
 int T;
-constexpr int mod = 1e9 + 7;
+constexpr int MOD = 1e9 + 7;
 
 
 ll binpow(ll a, ll b) {
     ll res = 1;
     while (b) {
-        if (b & 1) res = res * a % mod;
+        if (b & 1) res = res * a % MOD;
         b >>= 1;
-        a = a * a % mod;
+        a = a * a % MOD;
     }
 
     return res;
@@ -33,7 +33,7 @@ int main() {
             ans |= x;
         }
 
-        cout << (binpow(2, n-1) * ans) % mod << '\n';
+        cout << (binpow(2, n-1) * ans) % MOD << '\n';
     }    
     
     return 0;
