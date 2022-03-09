@@ -18,3 +18,4 @@
 18. gcd(i, i + 1) = 1 for any integer i >= 1.
 19. Monkey see power of 2. Monkey think binary.
 20. Monkey see long time limit. Monkey think brute force.
+21. Sum of XOR of all possible subsequences is OR of all elements * 2^(n-1).
