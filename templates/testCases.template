@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+using pii = pair<int, int>;
 #define ll long long
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()

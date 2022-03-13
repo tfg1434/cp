@@ -1,0 +1,10 @@
+import sys
+
+
+MOD = 1000000007
+
+def solve():
+    pass
+
+for _ in range(int(input())):
+    solve()
