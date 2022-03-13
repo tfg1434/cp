@@ -21,3 +21,4 @@
 21. Sum of XOR of all possible subsequences is OR of all elements * 2^(n-1).
 22. Rewrite the original inequality/equation.
 23. Perform a reverse operation.
+24. Set is ordered!
