@@ -23,3 +23,4 @@
 23. Perform a reverse operation.
 24. Set is ordered!
 25. What if you iterate backwards?
+26. How can you represent n?
