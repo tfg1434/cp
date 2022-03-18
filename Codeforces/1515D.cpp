@@ -21,7 +21,7 @@ int main() {
         for (int i = 0; i < n; i++) {
             cin >> c[i];
             c[i]--;
-            if (i < 1) cl[c[i]]++;
+            if (i < l) cl[c[i]]++;
             else cr[c[i]]++;
         }
 
