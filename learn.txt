@@ -26,3 +26,4 @@
 26. How can you represent n?
 27. Instead of worrying about going out of bounds, use a big array.
 28. Let's take each number __ __.
+29. BE METHODICAL
