@@ -16,33 +16,32 @@ int main() {
         int n; cin >> n;
         vector<int> a(n);
         for (auto& x : a) cin >> x;
+        int sum = 0;
+        for (auto x : a) sum += x;
 
-        vector<int> pre(n);
-        pre[0] = a[0];
-        for (int i = 1; i < n; i++) 
-            pre[i] = pre[i-1] + a[i];
+        for (int i = n; i >= 1; i--) {
+            if (sum % i != 0) continue;
 
-        int ans = INT_MIN;
-        for (auto x : pre) {
-            int i = 0, sum = 0, m = 0;
-
-            while (i < n) {
-                sum += a[i];
-                i++;
-
-                if (sum == x) {
-                    m++;
-                    sum = 0;
-                } else if (sum > x) {
-                    m = -1;
+            int target = sum / i;
+            int curr = 0;
+            bool ok = true;
+            for (int i = 0; i < n; i++) {
+                curr += a[i];
+                if (curr > target) {
+                    ok = false;
                     break;
+                } else if (curr == target) {
+                    curr = 0;
                 }
             }
-
-            if (m > ans) ans = m;
+            
+            //you know there's always a solution
+            //we iterated backwards!
+            if (ok) {
+                cout << n-i << '\n';
+                break;
+            }        
         }
-
-        cout << n - ans << "\n";
     }    
     
     return 0;

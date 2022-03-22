@@ -27,3 +27,4 @@
 27. Instead of worrying about going out of bounds, use a big array.
 28. Let's take each number __ __.
 29. BE METHODICAL
+30. After __ operations, __ stays the same.
