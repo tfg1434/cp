@@ -12,26 +12,34 @@ int main() {
     
     int n; cin >> n;
     vector<int> a(n), b(n);
+    for (auto& x : a) cin >> x;
+    for (auto& x : b) cin >> x;
+
+    //instead of looping each time, let;s store the index
+    vector<int> posB(n+1);
+    for (int i = 1; i <= n; i++) posB[b[i-1]] = i;
+    for (int i = 0; i < n; i++) a[i] = posB[a[i]];
+    //B = 1..N
     
-    auto posB = [&](int x) {
-        for (int i = 0; i < n; i++) {
-            if (b[i] == x) return i;
-        }
-
-        return -1;
-    };
-
-    vector<int> need(n, 0);
-    for (int i = 0; i < n; i++) {
-        for (int j = i+1; j < n; j++) {
-            if (posB(a[i]) > posB(a[j])) {
-                need[i] = 1;
-            }
+    int ans = 0, mx = 0;
+    for (auto x : a) {
+        if (x > mx) {
+            mx = x;
+        } else {
+            ans++;
         }
     }
+    // for (int i = 0; i < n; i++) {
+        // bool needMove = false;
+        // for (int j = 0; j < i; j++) {
+            // if (a[j] > a[i]) 
+                // needMove = true;
+        // }
 
-    cout << accumulate(all(need), 0) << '\n';
+        // if (needMove) ans++;
+    // }
+
+    cout << ans << endl;
     
     return 0;
 }
-
