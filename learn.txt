@@ -28,3 +28,4 @@
 28. Let's take each number __ __.
 29. BE METHODICAL
 30. After __ operations, __ stays the same.
+31. Seeing a 2d problem, is it really 2d?
