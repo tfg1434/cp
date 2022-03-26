@@ -32,3 +32,5 @@
 32. Set an arbitrary answer, then try to fix it greedily.
 33. x + c (mod m) = x + c | x - (m - c)
 34. If you want to dispose of something, quantify where you will dipose it. (applies irl too)
+35. Force the problem into a topic you already know (dp, binary search, greedy, ...)
+36. Not all elements are equally important (useful).
