@@ -30,3 +30,4 @@
 30. After __ operations, __ stays the same.
 31. Seeing a 2d problem, is it really 2d?
 32. Set an arbitrary answer, then try to fix it greedily.
+33. x + c (mod m) = x + c | x - (m - c)
