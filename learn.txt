@@ -31,3 +31,4 @@
 31. Seeing a 2d problem, is it really 2d?
 32. Set an arbitrary answer, then try to fix it greedily.
 33. x + c (mod m) = x + c | x - (m - c)
+34. If you want to dispose of something, quantify where you will dipose it. (applies irl too)
