@@ -18,6 +18,7 @@ int main() {
     int n; cin >> n;
     priority_queue<int> g;
     priority_queue<int, vector<int>, greater<int>> l;
+    auto copyL = l;
     for (int i = 0; i < n; i++) {
         char c; cin >> c;
         int x; cin >> x;
@@ -28,9 +29,14 @@ int main() {
     int ans = INF;
     for (int i = 0; i < g.size(); i++) {
         for (int j = 0; j < l.size(); j++) {
-            if ()
+            if (l.top() <= g.top()) ans = min(ans, i + j);
+
+            l.pop();
         }
+        g.pop(); l = copyL;
     }
+
+    cout << ans << endl;
     
     return 0;
 }
