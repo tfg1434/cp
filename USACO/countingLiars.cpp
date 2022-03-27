@@ -16,25 +16,27 @@ int main() {
     cin.tie(0);
     
     int n; cin >> n;
-    priority_queue<int> g;
-    priority_queue<int, vector<int>, greater<int>> l;
-    auto copyL = l;
+    vector<int> l, g;
     for (int i = 0; i < n; i++) {
         char c; cin >> c;
         int x; cin >> x;
-        if (c == 'G') g.push(x);
-        else l.push(x);
+        if (c == 'G') g.push_back(x);
+        else l.push_back(x);
     }
+    // l.push_back(INF); g.push_back(-1);
+    sort(all(l)); sort(rall(g));
 
     int ans = INF;
     for (int i = 0; i < g.size(); i++) {
         for (int j = 0; j < l.size(); j++) {
-            if (l.top() <= g.top()) ans = min(ans, i + j);
-
-            l.pop();
+            int gx = g[i], lx = l[j];
+            if (lx >= gx) {
+                ans = min(ans, i + j);
+            }
         }
-        g.pop(); l = copyL;
     }
+    
+    if (l.size() == 1 || g.size() == 1) ans = min(ans, 1);
 
     cout << ans << endl;
     
