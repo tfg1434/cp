@@ -34,3 +34,4 @@
 34. If you want to dispose of something, quantify where you will dipose it. (applies irl too)
 35. Force the problem into a topic you already know (dp, binary search, greedy, ...)
 36. Not all elements are equally important (useful).
+37. If a_i + b_i = c_i (mod n), then \Sum_a_i + \Sum_b_i = \Sum_c_i (mod n).
