@@ -38,3 +38,4 @@
 38. Number has to be divisible by something? Write it in terms of the divisor.
 39. Reduce the problem to something you know how to do.
 40. Goldbach's conjecture.
+41. Why did they give you it as numbers <= N instead of in an array? Why did they __?
