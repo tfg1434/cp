@@ -39,3 +39,4 @@
 39. Reduce the problem to something you know how to do.
 40. Goldbach's conjecture.
 41. Why did they give you it as numbers <= N instead of in an array? Why did they __?
+42. Use multisource bfs if total nodes/edges not more than ~2e5

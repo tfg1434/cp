@@ -1,0 +1,7 @@
+int dx[4] = { 0, 0, 1, -1 };
+int dy[4] = { 1, -1, 0, 0 };
+
+bool isValid(int x, int y) {
+    return x < n && y < m && x >= 0 && y >= 0;
+}
+
