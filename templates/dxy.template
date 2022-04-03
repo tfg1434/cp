@@ -1,7 +1,9 @@
-int dx[4] = { 0, 0, 1, -1 };
-int dy[4] = { 1, -1, 0, 0 };
+int dx[] = { 0, 0, 1, -1 };
+int dy[] = { 1, -1, 0, 0 };
+int dx[] = { 1, 1, 1, 0, 0, -1, -1, -1 };
+int dy[] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 
-bool isValid(int x, int y) {
+inline bool valid(int x, int y) {
     return x < n && y < m && x >= 0 && y >= 0;
 }
 
