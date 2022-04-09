@@ -12,6 +12,29 @@ constexpr ll INFF = 1e18;
 ll n;
 
 
+ll solve(ll mx, ll n, const vector<ll>& a) {
+    ll ones = 0, twos = 0;
+
+    for (int i = 0; i < n; i++) {
+        ll diff = mx - a[i];
+        twos += diff / 2;
+        ones += diff % 2;
+    }
+
+    ll ans = 0, pairs = min(ones, twos);
+    ans = 2*pairs;
+    ones -= pairs, twos -= pairs;
+    ans += 4 * (twos / 3);
+    
+    ll rem = twos % 3;
+    if (rem == 1) ans += 2;
+    else if (rem == 2) ans += 3;
+
+    if (ones > 0) ans += 2*ones-1;
+
+    return ans;
+}
+
 int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
@@ -24,33 +47,10 @@ int main() {
         }
         ll mx = *max_element(all(h));
 
-        ll day = 0;
-        while (h.size() != 0) {
-            day++;
-            for (auto x : h) cout << x << " "; cout << endl;
-            for (int i = 0; i < h.size(); ++i) {
-                ll x = h[i];
-                if (x == mx){
-                    h.erase(h.begin() + i);
-                    continue;
-                }
+        ll ans = INFF;
+        ans = min({ ans, solve(mx, n, h), solve(mx+1, n, h) });
 
-                if (day % 2 == 1) {
-                    if (mx - x != 2) {
-                        h[i]++;
-                        break;
-                    }
-                } else {
-                    if (mx - x >= 2) {
-                        h[i] += 2;
-                        break;
-                    }
-                }
-            }
-
-        }
-
-        cout << day << '\n';
+        cout << ans << '\n';
     }    
     
     return 0;
