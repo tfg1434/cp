@@ -20,26 +20,30 @@ int main() {
     cin >> n;
     for (int i = 0; i < n; i++) {
         ll x; cin >> x;
-        ll cost = 0;
-        if (x % 2 == 1) x++, cost++;
-        cost += 15 - __builtin_ffs(x) + 1;
+        //corner case
+        if (x == 0) {
+            cout << "0\n";
+            continue;
+        }
 
-        cout << min(cost, 32768 - x) << ' ';
+        for (int j = 0; j <= 15; j++) {
+            for (int k = 0; k <= j; k++) {
+                if ((x+k) * (1<<(j-k)) % MOD == 0) {
+                    cout << j << ' ';
+                    goto HELL;
+                }
+            }
 
+        }
 
-        // ll a, b, x;
-        // cin >> x;
+        HELL:;
 
-        // ll ops = 0;
-        // while (x * 2 <= MOD) x *= 2, ops++;
-        // if (x == MOD) {
-            // a = ops;
-        // } else {
-            // while (x < MOD) x++, ops++;
-            // a = ops;
-        // }        
+        //my cool ffs solution didnt work :'(
+        // ll cost = 0;
+        // if (x % 2 == 1) x++, cost++;
+        // cost += 15 - __builtin_ffs(x) + 1;
 
-
+        // cout << min(cost, 32768 - x) << ' ';
     }
 
 
