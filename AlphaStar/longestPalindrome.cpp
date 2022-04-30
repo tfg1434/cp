@@ -31,6 +31,7 @@ Pal longestLength(string &s, int left, int right) {
             break;
         }
         left--; right++;
+        if (left < 0 || right >= n) break;
         if (isalpha(s[left])) len++;
         if (isalpha(s[right])) len++;
     }
@@ -60,36 +61,13 @@ int main() {
     string s = "", temp;
     while (!cin.eof()) {
         getline(cin, temp);
-        s += temp;
+        s += temp + '\n';
     }
 
     string ans = longestPalindrome(s);
     ll len = 0;
     for (auto x : ans) if (isalpha(x)) len++;
     cout << len << '\n' << ans << '\n';
-
-    // ll n = s.size();
-    // string rev = s;
-    // reverse(all(rev));
-    // vector<vector<ll>> dp(n+1, vector<ll>(n+1));
-
-    // ll len = 0, idx;
-    // for (ll i = 0; i <= n; i++) {
-        // for (ll j = 0; j <= n; j++) {
-            // if (i == 0 || j == 0) dp[i][j] = 0;
-            // else if (EQUAL(s[i-1], rev[j-1])) {
-                // dp[i][j] = dp[i-1][j-1] + 1;
-                // // if (dp[i][j] > len) {
-                    // // len = dp[i][j];
-                    // // idx = i;
-                // // }
-                // len = max(len, dp[i][j]);
-                 
-            // } else dp[i][j] = 0;
-        // }
-    // }
-
-    // cout << len << ' ' <<  idx << '\n';
     
     return 0;
 }
