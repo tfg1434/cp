@@ -25,17 +25,22 @@ int main() {
         for (ll i = 0; i < n; i++) {
             ll x; cin >> x;
             char op; cin >> op;
-            ll y;
-            if (op == 'R') y = pos + x;
-            else if (op == 'L') y = pos - x;
-            mp[x]++;
-            mp[y]--;
-            pos = y;
+            ll dx = x * (op == 'R' ? 1 : -1);
+            ll y = pos + dx;
+            if (y > pos) {
+                mp[pos]++;
+                mp[y]--;
+            } else {
+                mp[y]++;
+                mp[pos]--;
+            }
+            pos += dx;
+            // cout << pos << '\n';
         }
 
         ll ans = 0, sum = 0;
 
-        for (auto [x, y] : mp) cout << x << ' ' << y << '\n';
+        // for (auto [x, y] : mp) cout << x << ' ' << y << '\n';
 
         ll prev = mp.begin()->first;
         for (auto [x, y]: mp) {
