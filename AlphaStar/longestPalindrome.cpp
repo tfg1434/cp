@@ -9,66 +9,57 @@ using pll = pair<long long, long long>;
 template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << ", " << p.second << ')'; }
 template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = ", "; return os << '}'; }
 
-struct Pal {
-    ll left, right, len;
-};
-
 constexpr int MOD = 1e9 + 7;
 constexpr int INF = 1e9;
 constexpr ll INFF = 1e18;
-ll n;
-
-
-bool EQUAL(char a, char b) {
-    if (!(isalpha(a) && isalpha(b))) return true;
-    return tolower(a) == tolower(b);
-};
-Pal longestLength(string &s, int left, int right) {
-    ll len = 0;
-    while (left >= 0 && right < n) {
-        if (!EQUAL(s[left], s[right])) {
-            left++; right--;
-            break;
-        }
-        left--; right++;
-        if (left < 0 || right >= n) break;
-        if (isalpha(s[left])) len++;
-        if (isalpha(s[right])) len++;
-    }
-    while (right - left > 1 && (!isalpha(s[left]) || !isalpha(s[right]))) left++, right--;
-    return { left, right, len };
-}
-
-string longestPalindrome(string s) {
-    n = s.size();
-    
-    int start = 0, end = 0, maxlen = 0;
-    for (int i = 0; i < n; i++) {
-        Pal x = longestLength(s, i, i);
-        Pal y = longestLength(s, i, i+1);
-        if (x.len > maxlen) start = x.left, end = x.right, maxlen = x.len;
-        if (y.len > maxlen) start = y.left, end = y.right, maxlen = x.len;
-    }
-    
-    return s.substr(start, end - start + 1);
-}
+constexpr ll MAXN = 20000;
 
 
 int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
     
-    string s = "", temp;
-    while (!cin.eof()) {
-        getline(cin, temp);
-        s += temp + '\n';
+    char s[MAXN], s2[MAXN];
+    ll slen = 0, s2len = 0;
+    ll maxlen = 0, maxl, maxr;
+
+    char c;
+    while (cin.get(c)) {
+        s[slen] = c;
+        slen++;
+        if (isalpha(c)) {
+            s2[s2len] = tolower(c);
+            s2len++;
+        }
     }
 
-    string ans = longestPalindrome(s);
-    ll len = 0;
-    for (auto x : ans) if (isalpha(x)) len++;
-    cout << len << '\n' << ans << '\n';
+    auto pal = [&](ll l, ll r) {
+        ll i, j;
+        while (s2[l] == s2[r] && l >= 0 && r < s2len) {
+            i = l; j = r;
+            l--; r++;
+        }
+        if (j - i + 1 > maxlen) {
+            maxl = i; maxr = j;
+            maxlen = j - i + 1;
+        }
+    };
+
+    for (ll i = 1; i < s2len; i++) {
+        pal(i-1, i+1);//odd
+        pal(i-1, i); //even
+    }
+    
+    string ans = "";
+    ll cAlpha = -1;
+    for (ll i = 0; i < slen && maxr >= cAlpha+1; i++) {
+        if (isalpha(s[i])) cAlpha++;
+        if (maxl <= cAlpha && maxr >= cAlpha) ans += s[i];
+    }
+    cout << maxlen << '\n';
+    cout << ans << '\n';
     
     return 0;
 }
+
 
