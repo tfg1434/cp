@@ -19,13 +19,24 @@ int main() {
     cin.tie(0);
     
     ll n; cin >> n;
-    vector<deque<ll>> L;
+    vector<ll> L;
+    vector<vector<ll>> R(n+1);
     char op;
     while (cin >> op) {
         ll x; cin >> x;
         if (op == 'C') {
             L.push_back(x);
+        } else {
+            ll y = L.front();
+            L.erase(L.begin());
+            R[x].push_back(y);
         }
+    }
+
+    for (ll i = 1; i <= n; i++) {
+        cout << R[i].size() << ' ';
+        for (auto x : R[i]) cout << x << ' ';
+        cout << '\n';
     }
     
     return 0;
