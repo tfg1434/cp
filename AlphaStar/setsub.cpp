@@ -20,31 +20,49 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 constexpr int MOD = 1e9 + 7;
 constexpr int INF = 1e9;
 constexpr ll INFF = 1e18;
+string s;
 
+
+bool cmp(string a, string b) {
+    if (a.size() != b.size()) return a.size() < b.size();
+    
+    ll idx = 0;
+    while (a[idx] == b[idx]) idx++;
+
+    return s.find(a[idx]) < s.find(b[idx]);
+}
 
 int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
     
     ll m; cin >> m;
-    string s = "";
     char c;
     for (ll i = 0; i < m; i++) {
         cin >> c;
         // cout << c << endl;
         s += c;
     }
-    // cout << s << endl;
+//    cout << s << endl;
 
+//    cout << cmp("43", "48");
+
+    vector<string> ans;
+    //can also generate all using bitmasks
     y_combinator([&](auto rec, string in, string out) -> void {
         if (in.empty()) {
-            cout << out << endl;
+            ans.push_back(out);
             return;
         }
         rec(in.substr(1), out + in[0]);
         rec(in.substr(1), out);
 
     })(s, "");
+
+    sort(all(ans), cmp);
+    for (ll i = 1; i < ans.size(); i++) {
+        cout << ans[i] << '\n';
+    }
 
     return 0;
 }
