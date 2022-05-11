@@ -20,10 +20,25 @@ int main() {
     
     int T; cin >> T; while (T--) {
         ll n, m; cin >> n >> m;         
-        vector<ll> a(n);
-        for (auto& x : a) cin >> x;
+        string s; cin >> s;
 
+        ll last = -INFF;
+        ll colCnt = 0;
+        // vector<ll> row(1000100, 0), col(1000100, 0);
+        vector<ll> row(m, 0), col(m, 0);
+        for (ll i = 0; i < n*m; i++) {
+            if (s[i] == '1') {
+                last = i;
+                if (col[i%m] == 0) {
+                    col[i%m] = 1;
+                    colCnt++;
+                }
+            }
+            if (i - last < m) row[i%m]++;
 
+            cout << row[i%m] + colCnt << ' ';
+        }
+        cout << endl;
     }    
     
     return 0;
