@@ -46,42 +46,26 @@ int main() {
             sum += x;
         }
 
+        ll last2x, last2 = -1;
+        vector<ll> last1(n, -1), last1x(n);
         for (ll qq = 0; qq < q; qq++) {
             ll t; cin >> t;
             if (t == 1) {
-                ll i, x; cin >> i >> x;
-                i--;
-                sum += x - a[i];
-                a[i] = x;
+                ll i, y; cin >> i >> y;i--;
+
+                if (last1[i] < last2) a[i] = last2x;
+                sum += (y - a[i]);
+                last1[i] = qq;
+                a[i] = y;
 
             } else {
-                ll x; cin >> x;
-                a = vector(n, x);
-                sum = x * n;
+                cin >> last2x;
+                last2 = qq;
+                sum = last2x*n;
             }
 
             cout << sum << endl;
         }
-
-        // vector<ll> a(n+1);
-        // for (ll i = 1; i <= n; i++) {
-            // cin >> a[i];
-            // upd(i, a[i]);
-        // }
-
-        // for (ll qq = 0; qq < q; qq++) {
-            // ll t; cin >> t;
-            // if (t == 1) {
-                // ll i, x; cin >> i >> x;
-                // upd(i, x);
-            // } else {
-                // ll x; cin >> x;
-                // for (ll i = 1; i <= n; i++) upd(i, x);
-            // }
-
-            // cout << query(n) << endl;
-        // }
-
     }
     
     return 0;
