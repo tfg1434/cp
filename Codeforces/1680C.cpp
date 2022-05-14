@@ -20,7 +20,37 @@ int main() {
     
     int T; cin >> T; while (T--) {
         string s; cin >> s;
+        ll n = s.size();
+        vector<ll> pos;
+        for (ll i = 0; i < n; i++) {
+            if (s[i] == '1') pos.push_back(i);
+        }
 
+        auto can = [&](ll m) {
+            ll k = pos.size();
+            ll x = k - m;
+
+            for (ll i = 0; i <= m; i++) {
+                ll l = pos[i], r = pos[i + x - 1];
+                if (r - l + 1 - x <= m) return true;
+            }
+
+            return false;
+        };
+
+        ll lo = 0, hi = pos.size();
+        while (hi - lo > 1) {
+            ll mid = (lo+hi)/2;
+            if (can(mid)) hi = mid;
+            else lo = mid;
+        }
+
+        //no 1s or 1 strip of ones (remove 0s around)
+        if (pos.size() == 0 || pos.back() - pos[0] == pos.size() - 1) {
+            cout << 0 << endl;
+        } else {
+            cout << hi << endl;
+        }
     }    
     
     return 0;
