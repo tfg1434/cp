@@ -13,7 +13,6 @@ constexpr int MOD = 1e9 + 7;
 constexpr int INF = 1e9;
 constexpr ll INFF = 1e18;
 constexpr ll N = 1e5+5;
-ll xToY[N];
 
 
 int main() {
@@ -21,12 +20,12 @@ int main() {
     cin.tie(0);
     
     ll n, q; cin >> n >> q;
-    vector<vector<ll>> cnt(n+1, vector<ll>(n+1, 0));
     set<ll> freeRows, freeCols;
     for (ll i = 1; i <= n; i++) {
         freeRows.insert(i);
         freeCols.insert(i);
     }
+    vector<ll> row(n+1, 0), col(n+1, 0);
 
     for (ll i = 0; i < q; i++) {
         ll t; cin >> t;
@@ -34,30 +33,25 @@ int main() {
         //add a rook
         if (t == 1) {
             ll x, y; cin >> x >> y;
-            cnt[x][y]++;
-            freeRows.erase(y);
-            freeCols.erase(x);
+            col[x]++; row[y]++;
+            if (row[y] == 1) freeRows.erase(y);
+            if (col[x] == 1) freeCols.erase(x);
 
         //remove a rook
         } else if (t == 2) {
             ll x, y; cin >> x >> y;
-            cnt[x][y]--;
-            if (cnt[x][y] == 0) {
-                freeRows.insert(y);
-                freeCols.insert(x);
-            }
+            col[x]--; row[y]--;
+            if (col[x] == 0) freeCols.insert(x);
+            if (row[y] == 0) freeRows.insert(y);
 
         //query
         } else if (t == 3) {
             ll x1, x2, y1, y2; cin >> x1 >> y1 >> x2 >> y2;
 
-            ll xx = *lower_bound(all(freeCols), x1);
-            ll yy = *lower_bound(all(freeRows), y1);
-            // cerr << xx << ' ' << yy << endl;
-            if (xx > x2 || yy > y2) {
-                cout << "Yes" << endl;
-            } else {
+            if (x2 >= *freeCols.lower_bound(x1) && y2 >= *freeRows.lower_bound(y1)) {
                 cout << "No" << endl;
+            } else {
+                cout << "Yes" << endl;
             }
         }
     }
