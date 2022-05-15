@@ -1,0 +1,10 @@
+struct BIT
+{
+	int a[N],t[N];
+	int lowbit(int x){return x&(-x);}
+	void cg(int x,int c){while(x<N)t[x]+=c,x+=lowbit(x);}
+	int ask(int x){int r=0;while(x)r+=t[x],x-=lowbit(x);return r;}
+	int ask(int l,int r){return ask(r)-ask(l-1);}
+	void upd(int x){if(!a[x])cg(x,1);a[x]++;}
+	void del(int x){if(a[x]==1)cg(x,-1);a[x]--;}
+};

@@ -21,36 +21,44 @@ int main() {
     cin.tie(0);
     
     ll n, q; cin >> n >> q;
-    vector<pll> xs; //{x, idx}
-    ll idx = 0;
+    vector<vector<ll>> cnt(n+1, vector<ll>(n+1, 0));
+    set<ll> freeRows, freeCols;
+    for (ll i = 1; i <= n; i++) {
+        freeRows.insert(i);
+        freeCols.insert(i);
+    }
 
     for (ll i = 0; i < q; i++) {
         ll t; cin >> t;
+
+        //add a rook
         if (t == 1) {
             ll x, y; cin >> x >> y;
-            xs.push_back({x, y});
-            idx++;
-            push_heap(all(xs));
+            cnt[x][y]++;
+            freeRows.erase(y);
+            freeCols.erase(x);
+
+        //remove a rook
         } else if (t == 2) {
-            bool broke = false;
-            while (!broke) {
-                ll x, y; cin >> x >> y;
-                auto xx = lower_bound(all(xs), x);
-                if (xx->second == y) {
-                    xs.erase(xx);
-                    broke = true;
-                }
-            }
-        } else if (t == 3) {
-            ll x1, x2, y1, y2; cin >> x1 >> y1 >> x2 >> y2;
-            bool found = false;
-            while (!found) {
-                auto xx = lower_bound(all(xs) , x1);
-                if (xx - xs.begin() > x2) break;
-                else found = true;
+            ll x, y; cin >> x >> y;
+            cnt[x][y]--;
+            if (cnt[x][y] == 0) {
+                freeRows.insert(y);
+                freeCols.insert(x);
             }
 
-            cout << (found ? "Yes" : "No") << endl;
+        //query
+        } else if (t == 3) {
+            ll x1, x2, y1, y2; cin >> x1 >> y1 >> x2 >> y2;
+
+            ll xx = *lower_bound(all(freeCols), x1);
+            ll yy = *lower_bound(all(freeRows), y1);
+            // cerr << xx << ' ' << yy << endl;
+            if (xx > x2 || yy > y2) {
+                cout << "Yes" << endl;
+            } else {
+                cout << "No" << endl;
+            }
         }
     }
     
