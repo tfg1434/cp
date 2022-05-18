@@ -23,31 +23,32 @@ int main() {
         for (auto& x : a) cin >> x;
         for (auto& x : t) cin >> x;
 
-        vector<ll> p(n);
-        for (ll i = 1; i < n; i++) {
-            p[i] = a[i] * t[i] + p[i-1];
+        vector<ll> pre(n);
+        ll sum = 0;
+
+        for (ll i = 0; i < n; i++) {
+            pre[i] = 0;
+            if (t[i]) sum += a[i];
+            else pre[i] = a[i];
+
+            if (i) pre[i] += pre[i - 1];
         }
+    
 
-        vector<ll> s(n);
-        ll r = 0;
-        for (ll i = n-1; i <= 0; i--) {
-            r += a[i] * t[i];
-            s[i] = r;
-        }
+        ll ans = sum;
+        for (ll i = 0; i <= n - k; i++) {
+            ll curr = pre[i + k - 1];
+            if (i > 0) curr -= pre[i - 1];
+            ans = max(ans, sum + curr);
+            // ll curr = 0;
+            // if (i > 0) curr += p[i-1];
+            // if (i + k < n) curr += p[i+k];
 
-        vector<ll> pre(n+1);
-        partial_sum(all(a), pre.begin() + 1);
+            // ll rangeSum = pre[i+k-1];
+            // if (i > 0) rangeSum -= pre[i-1];
+            // curr += rangeSum;
 
-        ll ans = 0;
-        for (ll i = 0; i + k - 1 < n; i++) {
-            ll curr = 0;
-            if (i > 0) curr += p[i-1];
-            if (i + k < n) curr += p[i+k];
-
-            ll rangeSum = pre[i+k] - pre[i];
-            curr += rangeSum;
-
-            ans = max(ans, curr);
+            // ans = max(ans, curr);
         }
 
         cout << ans << '\n';
