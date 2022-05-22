@@ -12,3 +12,5 @@ input.txt
 *.ans*
 *.exe*
 *.idx*
+*.bat*
+*.log*
