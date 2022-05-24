@@ -1,0 +1,1 @@
+#define mod2(a, n) ((a%n)+n)%n
