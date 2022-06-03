@@ -52,27 +52,10 @@ int main() {
             continue;
         }
 
-        ll pos = (k % n);
-        ll ans = 0;
-        for (ll i = 0; i + pos < n; i++) {
-            ans += a[i+pos] + i;
-            a[i+pos] = 0;
-            k--;
-        }
-        for (ll i = 0; i < n; i++) {
-            ans += a[n-1-i] + i;
-            a[n-1-i] = 0;
-            k--;
-        }
-        
-        while (k > 0) {
-            for (ll i = 1; i < n && k > 0; i++) {
-                ans += i;
-                k--;
-            }
-        }
+        ll sum = 0;
+        for (auto x : a) sum += x;
 
-        cout << ans << '\n';
+        cout << sum + k*n - n*(n+1)/2 << '\n';
     }    
     
     return 0;

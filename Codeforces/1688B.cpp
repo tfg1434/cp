@@ -22,25 +22,12 @@ int main() {
     int T; cin >> T; while (T--) {
         ll n; cin >> n;
         vector<ll> a(n);
-        ll dup = 0;
-        set<ll> seen;
-        for (auto &x : a){
-            cin >> x;
-            if (seen.count(x) && x % 2 == 0) dup++;
-            seen.insert(x);
-        } 
+        for (auto &x : a) cin >> x, x = __builtin_ffs(x) - 1;
 
-        ll ans = 0;
-        for (auto x : a) {
-            ll y = 0;
-            while (x % 2 == 0) {
-                x /= 2;
-                y++;
-            }
-            ans = max(ans, y);
-        }
+        ll ans = max(*min_element(all(a)) - 1, 0ll);
+        for (auto x : a) ans += x > 0;
 
-        cout << ans+dup << '\n';
+        cout << ans << '\n';
     }    
     
     return 0;
