@@ -1,0 +1,13 @@
+constexpr ll MAX_FACT = 100000;
+vector<ll> fact(MAX_FACT+1, 1ll), inv(MAX_FACT+1, 1ll);
+
+
+ll C(ll n, ll k) {
+    if (n <= k) return 1;
+    ll res = (fact[n] * inv[k]) % MOD;
+    return (res * inv[n - k]) % MOD;
+}
+for (ll i = 1; i <= MAX_FACT; i++) {
+    fact[i] = (fact[i-1] * i) % MOD;
+    inv[i] = binpow(fact[i], MOD-2);
+}
