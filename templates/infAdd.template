@@ -1,0 +1,7 @@
+//INFF should be 1e17
+inline ll mul(ll a, ll b) {
+    return (INFF / a > b ? a * b : INFF);
+}
+inline ll add(ll a, ll b) {
+    return (a+b >= INFF ? INFF : a+b);
+}
