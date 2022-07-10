@@ -1,0 +1,28 @@
+struct node {
+    node *l, *r;
+    ll v;
+    node(node* tl, node* tr) {
+        l = tl;
+        r = tr;
+        v = gcd(tl->v, tr->v);
+    }
+    node(ll x) {
+        l = r = nullptr;
+        v = x;
+    }
+};
+node* build(ll tl, ll tr) {
+    if (tl == tr - 1) return new node(a[tl]);
+    else {
+        ll tm = (tl + tr) / 2;
+        return new node(build(tl, tm), build(tm, tr));
+    }
+};
+ll query(node* t, ll tl, ll tr, ll l, ll r) {
+    if (l >= r) return 0;
+    if (tl == l && tr == r) return t->v;
+    ll tm = (tl + tr) / 2;
+    ll r1 = query(t->l, tl, tm, l, min(r, tm));
+    ll r2 = query(t->r, tm, tr, max(l, tm), r);
+    return gcd(r1, r2);
+}
