@@ -24,9 +24,38 @@ int main() {
         vector<ll> a(n);
         for (auto& x : a) cin >> x;
 
-        vector<ll> b = a;
-        sort(all(b));
-        if (n <= 2 || )
+        auto check = [&](ll x) {
+            vector<ll> b = a;
+            ll kk = 0;
+            for (ll i = 0; i < n; i++){
+                if (b[i] < (x+1)/2) {
+                    kk++; b[i] = 1e9;
+                }
+            }
+            if (kk > k) return false;
+
+            ll s = 0;
+            for (ll i = 0; i < n; i++) {
+                if (b[i] >= x) s++;
+            }
+            for (ll i = 0; i < n-1; i++) {
+                if (b[i] >= x && b[i+1] >= x) return true;
+            }
+
+            if (s >= 1 && kk <= k-1) return true;
+            if (s == 0 && kk <= k-2) return true;
+            return false;
+        };
+
+        ll l = 0, r = 1e9;
+        while (l < r) {
+            ll mid = (l+r+1)/2;
+
+            if (check(mid)) l = mid;
+            else r = mid-1;
+        }
+
+        cout << r << '\n';
     }    
     
     return 0;
