@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+using namespace std;
+using pii = pair<int, int>;
+using pll = pair<long long, long long>;
+#define ll long long
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define len(a) (ll)((a).size())
+#define IN(A, B, C) assert(B <= A && A <= C)
+template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << ", " << p.second << ')'; }
+template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = ", "; return os << '}'; }
+
+constexpr int MOD = 1e9 + 7;
+constexpr int INF = 1e9;
+constexpr ll INFF = 1e18;
+constexpr ll MAXN = 2005;
+
+
+ll comp(char c, char d) {
+    return c < d ? -1 : (c> d ? 1:0);
+}
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int T; cin >> T; while (T--) {
+        string s; cin >> s;
+        ll n = s.size(), half = n/2;
+        vector<vector<ll>> dp(n+1, vector<ll>(n+1));
+
+        for (ll len = 2; len <= n; len += 2) {
+            for (ll l = 0; l <= n - len; l++) {
+                //[l; r)
+                ll r = l + len;
+                dp[l][r] = 1;
+
+                {
+                    ll res = -1;
+                    if (dp[l+1][r-1] != 0) res = max(res, dp[l+1][r-1]);
+                    else res = max(res, comp(s[l], s[r-1]));
+                    if (dp[l+2][r] != 0) res = max(res, dp[l+2][r]);
+                    else res = max(res, comp(s[l], s[l+1]));
+
+                    dp[l][r] = min(res, dp[l][r]);
+                }
+                {
+                    ll res = -1;
+                    if (dp[l+1][r-1] != 0) res = max(res, dp[l+1][r-1]);
+                    else res = max(res, comp(s[r-1], s[l]));
+                    if (dp[l][r-2] != 0) res = max(res, dp[l+2][r]);
+                    else res = max(res, comp(s[r-1], s[r-2]));
+
+                    dp[l][r] = min(res, dp[l][r]);
+                }
+            }
+        }
+
+        if (dp[0][n] == -1) cout << "Alice\n"; 
+        else if (dp[0][n] == 0) cout << "Draw\n"; 
+        else cout << "Bob\n";
+    }    
+    
+    return 0;
+}
+
