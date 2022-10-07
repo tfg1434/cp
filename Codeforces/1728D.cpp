@@ -48,7 +48,7 @@ int main() {
                     ll res = -1;
                     if (dp[l+1][r-1] != 0) res = max(res, dp[l+1][r-1]);
                     else res = max(res, comp(s[r-1], s[l]));
-                    if (dp[l][r-2] != 0) res = max(res, dp[l+2][r]);
+                    if (dp[l][r-2] != 0) res = max(res, dp[l][r-2]);
                     else res = max(res, comp(s[r-1], s[r-2]));
 
                     dp[l][r] = min(res, dp[l][r]);
