@@ -17,6 +17,7 @@ public:
     template<class ...Args> decltype(auto) operator()(Args &&...args) { return fun_(std::ref(*this), std::forward<Args>(args)...); }
 };
 template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
+#define gg(...) [](const auto&...x){ char c='='; cerr<<#__VA_ARGS__; ((cerr<<exchange(c,',')<<x),...); cerr<<endl; }(__VA_ARGS__);
 
 constexpr int MAX_SIEVE = 1000;
 vector<bool> isPrime(MAX_SIEVE, true);
@@ -48,6 +49,7 @@ int main() {
             cout << "NO\n";
             continue;
         }
+        gg(no);
         
         bool ok = true;
         for (ll p = 2; p <= n+1/2; p++) {
