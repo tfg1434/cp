@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+using namespace std;
+using pii = pair<int, int>;
+using pll = pair<long long, long long>;
+#define ll long long
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define len(a) (ll)((a).size())
+#define IN(A, B, C) assert(B <= A && A <= C)
+template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << ", " << p.second << ')'; }
+template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = ", "; return os << '}'; }
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0200r0.html
+template<class Fun> class y_combinator_result {
+    Fun fun_;
+public:
+    template<class T> explicit y_combinator_result(T &&fun): fun_(std::forward<T>(fun)) {}
+    template<class ...Args> decltype(auto) operator()(Args &&...args) { return fun_(std::ref(*this), std::forward<Args>(args)...); }
+};
+template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
+#define gg(...) [](const auto&...x){ char c='='; cerr<<#__VA_ARGS__; ((cerr<<exchange(c,',')<<x),...); cerr<<endl; }(__VA_ARGS__);
+
+
+constexpr int MOD = 1e9 + 7;
+constexpr int INF = 1e9;
+constexpr ll INFF = 1e18;
+
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int T; cin >> T; while (T--) {
+        ll n; cin >> n;
+        vector<vector<ll>> adj(n+1, vector<ll>());
+        vector<ll> r(n+1, 0);
+        queue<ll> q;
+        vector<ll> f(n+1, 0);
+        for (ll i = 1; i <= n; i++) {
+            ll k; cin >> k;
+            if (k == 0) {
+                q.push(i);
+                f[i] = 1;
+            }
+            for (ll j = 0; j < k; j++) {
+                ll x; cin >> x;
+                adj[x].push_back(i);
+                r[i]++;
+            }
+        }
+
+        auto toposort = [&]() -> ll {
+            if (q.empty()) {
+                return -1;
+            }
+            while (!q.empty()) {
+                ll x = q.front(); q.pop();
+                for (auto y: adj[x]) {
+                    f[y] = max(f[y], f[x]+(x>y));
+                    if (r[y] == 0) return -1;
+                    if (--r[y] == 0) q.push(y);
+                }
+            }
+            for (ll i = 1; i <= n; i++) if (r[i]) return -1;
+            ll ans = 0;
+            for (ll i = 1; i <= n; i++) ans = max(ans, f[i]);
+            return ans;
+        };
+
+        cout << toposort() << endl;
+    } 
+    
+    return 0;
+}
