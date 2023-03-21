@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-using pll = pair<long long, long long>;
 #define ll long long
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
