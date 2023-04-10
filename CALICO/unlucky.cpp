@@ -43,19 +43,17 @@ int main() {
         cin >> n >> d;
         vector<string> l(n); for (auto& x : l) cin >> x;
         vector<V> trie(1);
-        for (auto s : l) {
+        for (string s : l) {
             ll v = 0;
             for (char ch : s) {
                 ll c = ch - '0';
                 if (trie[v].next[c] == -1) {
                     trie[v].next[c] = trie.size();
                     trie.emplace_back();
-                    // trie[trie.size()-1].par = v;
                 }
                 v = trie[v].next[c];
             }
             trie[v].leaf = true;
-            // trie[trie[v].par].twig = true;
         }
 
         vector<string> dp(d+1);
@@ -63,17 +61,14 @@ int main() {
         vector<ll> v;
         v.pb(0);
         for (ll i = 1; i <= d; i++) {
-            // gg(v);
             ll ban = 0;
-            for (auto node : v) {
-                // if (trie[node].twig == false) continue;
+            for (ll node : v) {
                 for (ll k = 0; k < K; k++) {
                     if (trie[node].next[k] != -1 && trie[trie[node].next[k]].leaf) {
                         ban |= (1 << k);
                     }
                 }
             }
-            // gg(bitset<10>(ban));
             assert((ban & 3) == 0);
 
             ll j;
@@ -85,14 +80,11 @@ int main() {
             }
 
             vector<ll> b;
-            for (auto node : v) {
+            for (ll node : v) {
                 if (trie[node].next[j] == -1) {
                     continue;
                 }
-                if (!trie[trie[node].next[j]].leaf) {
-                    b.pb(trie[node].next[j]);
-                    // gg("yo");
-                }
+                b.pb(trie[node].next[j]);
             }
             b.pb(0);
             v = b;
