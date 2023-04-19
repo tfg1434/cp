@@ -49,6 +49,10 @@ int main() {
             add = (add*2*n)%P;
             ans = (ans+add)%P;
         }
+
+        for (ll i = 0; i < d; i++) {
+
+        }
         
     } 
     
