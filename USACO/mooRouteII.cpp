@@ -32,6 +32,12 @@ struct E {
     }
 };
 
+// struct Node {
+    // bestTime;
+    // adj;
+    // idx;
+// }
+
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
