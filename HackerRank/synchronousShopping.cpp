@@ -27,9 +27,8 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
-const ll K = (1<<10);
+const ll K = 10;
 const ll N=2e3+5, M = 2e3+5;
-using tp = tuple<ll, ll, ll>;
 
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
@@ -37,7 +36,6 @@ int main() {
     ll n,m,k; cin >> n >> m >> k;
     vector<ll> t(n+1);
     for (ll i = 1; i <= n; i++) {
-        t[i] = K;
         ll cnt; cin >> cnt;
         for (ll j = 0; j < cnt; j++) {
             ll fish; cin >> fish; fish--;
@@ -45,31 +43,34 @@ int main() {
         }
     }
 
-    vector<vector<ll>> adj(n+1), ws(n+1);
+    vector<vector<pll>> adj(n+1);
     for (ll i = 0; i < m; i++) {
-        ll w, u, v; cin >> w >> u >> v;
-        adj[u].pb(v); adj[v].pb(u);
-        ws[u][v] = ws[v][u] = w;
+        ll u, v, w; cin >> u >> v >> w;
+        adj[u].pb({w, v}); adj[v].pb({w, u});
     }
 
-    priority_queue<tp> pq;
-    vector<vector<ll>> dist(n+1, vector<ll>(K, INFF));
-    dist[1][0] = 0;
-    for (pq.emplace(0, 1, 0); !pq.empty(); ) {
-        auto [w, u, b] = pq.top(); pq.pop();
+    vector<vector<ll>> dist(n+1, vector<ll>(1 << k, INFF));
+    dist[1][1] = 0;
+    priority_queue<pair<ll, pll>> pq;
+    for (pq.push({0, {1, 1}}); !pq.empty(); ) {
+        auto x = pq.top(); pq.pop();
 
-        for (ll v : adj[u]) {
-            tp me(w+ws[u][v], v, b | t[v]); 
-            if (dist[v][b] > w+ws[u][v]) {
-                pq.push(me);
-            }
+        for (auto [w, v] : adj[x.s.f]) {
+            ll nb = t[v]|x.s.s;
+            if (dist[v][nb] > dist[x.s.f][x.s.s]+w) {
+                dist[v][nb] = dist[x.s.f][x.s.s]+w;
+                pq.push({ dist[v][nb], { v, nb } });
+            } 
         }
     }
 
     ll ans = INFF;
-    for (ll i = 0; i < K; i++) {
-        ll res = dist[n][i] + dist[n][~i];
-        ans = min(ans, res);
+    for (ll i = 0; i < (1<<k); i++) {
+        for (ll j = 0; j < (1<<k); j++) {
+            if ((i|j)==(1<<k)-1) {
+                ans = min(ans, max(dist[n][i],dist[n][j]));
+            }
+        }
     }
 
     cout << ans << endl;
