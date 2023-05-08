@@ -41,6 +41,7 @@ int main() {
             ll fish; cin >> fish; fish--;
             t[i] |= (1 << fish);
         }
+        // gg(i, bitset<5>(t[i]));
     }
 
     vector<vector<pll>> adj(n+1);
@@ -50,15 +51,17 @@ int main() {
     }
 
     vector<vector<ll>> dist(n+1, vector<ll>(1 << k, INFF));
-    dist[1][1] = 0;
+    dist[1][t[1]] = 0;
     priority_queue<pair<ll, pll>> pq;
-    for (pq.push({0, {1, 1}}); !pq.empty(); ) {
+    for (pq.push({0, {1, t[1]}}); !pq.empty(); ) {
         auto x = pq.top(); pq.pop();
 
         for (auto [w, v] : adj[x.s.f]) {
             ll nb = t[v]|x.s.s;
+            // gg(dist[v][nb], v, bitset<5>(nb), bitset<5>(x.s.s), bitset<5>(t[v]));
             if (dist[v][nb] > dist[x.s.f][x.s.s]+w) {
                 dist[v][nb] = dist[x.s.f][x.s.s]+w;
+                // gg(dist[v][nb], v, bitset<5>(nb), bitset<5>(x.s.s), bitset<5>(t[v]));
                 pq.push({ dist[v][nb], { v, nb } });
             } 
         }
@@ -77,3 +80,4 @@ int main() {
     
     return 0;
 }
+
