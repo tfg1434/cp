@@ -38,7 +38,7 @@ int main() {
         for (ll i = 1; i <= n; i++) p[i] = i;
         for (ll i = 0; i < m; i++) {
             ll l, r; cin >> l >> r;
-            reverse(p.begin()+l, p.begin()+r);
+            reverse(p.begin()+l, p.begin()+r+1);
         }
 
         vector<ll> ans(n+1, -1);
@@ -54,10 +54,12 @@ int main() {
                 x = p[x];
             }
             cnt++;
-
             for (auto [o, y] : a) {
-                ans[y] = off[(o+k)%cnt];
+                ans[y] = p[off[(o+k)%(cnt+1)]];
             }
+            gg(off);
+            gg(ans);
+            gg(i);
         }
 
         for (ll i = 1; i <= n; i++) {
