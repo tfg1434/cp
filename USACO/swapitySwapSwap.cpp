@@ -29,8 +29,8 @@ constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
 int main() {
-    // freopen("swap.in", "r", stdin);
-    // freopen("swap.out", "w", stdout);
+    freopen("swap.in", "r", stdin);
+    freopen("swap.out", "w", stdout);
     cin.tie(0) -> ios::sync_with_stdio(0);
     
     ll n, m, k; while (cin >> n >> m >> k) {
@@ -47,6 +47,7 @@ int main() {
             vector<ll> off(n+1);
             vector<pll> a;
             a.pb({0, i});
+            off[0] = i;
             ll x = p[i], cnt = 0;
             while (x != i) {
                 off[++cnt] = x;
@@ -55,19 +56,18 @@ int main() {
             }
             cnt++;
             for (auto [o, y] : a) {
-                //k mod x
-                //k mod cnt
-                ll m = (o+k)%cnt;
-                if (m == 0) {
-                    ans[y] = y;
-                } else {
-                    ans[y] = p[off[m]];
-                }
+                //p^k = p^(k mod cnt) where p^0(x)=x
+                //o=1 implies p[i]=y
+                //p^k(y)=p^(k mod cnt=m)(y)=p^(m+o)(i)
+                
+                ll m = (k+o)%cnt;
+                // cout << o << ' ' << y << ' ' << m<< endl;
+                ans[y] = off[m];
             }
         }
 
         for (ll i = 1; i <= n; i++) {
-            cout << ans[i] << ' ' << endl;
+            cout << ans[i] << endl;
         }
     } 
     
