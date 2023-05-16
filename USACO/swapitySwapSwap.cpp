@@ -55,11 +55,15 @@ int main() {
             }
             cnt++;
             for (auto [o, y] : a) {
-                ans[y] = p[off[(o+k)%(cnt+1)]];
+                //k mod x
+                //k mod cnt
+                ll m = (o+k)%cnt;
+                if (m == 0) {
+                    ans[y] = y;
+                } else {
+                    ans[y] = p[off[m]];
+                }
             }
-            gg(off);
-            gg(ans);
-            gg(i);
         }
 
         for (ll i = 1; i <= n; i++) {
