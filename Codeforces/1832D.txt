@@ -1,0 +1,13 @@
+k > n:
+    Lemma 1: At most one element will become smaller in the optimal answer
+    Lemma 2: If k = n (mod 2), we can increase all elements. Otherwise, we
+    decrease exactly one.
+
+    We apply (inc, dec) operations, then increase each element at most once. We
+    can swap the order of these for easier implementation
+    Obviously, we want these lone increases to be k, k-1, ..., k-t
+
+    Add k to min, k-1 to min2, ..., k-(n-(n+k) mod 2)-1 to max/max2 depend on
+    parity. Then apply all remaining (inc, dec) operations to the current max.
+
+    
