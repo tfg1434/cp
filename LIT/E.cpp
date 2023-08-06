@@ -38,33 +38,51 @@ int main() {
             swap(n, m);
             swap(a, b);
         }
-        sort(all(a)); sort(rall(b));
-        ll s1 = 0, s2 = 0;
-        for (ll i = 0; i < n; i++) {
-            s1 += a[i];
-            s2 += b[i];
-        }
+        sort(all(a)); sort(all(b));
         vector<ll> prea(n+1);
         partial_sum(all(a), prea.begin()+1);
         vector<ll> preb(m+1);
         partial_sum(all(b), preb.begin()+1);
+        ll sa = prea[n], sb = preb[m];
 
-        gg(prea, preb);
-        // ll t1 = s1, t2 = s2;
         double ans = 0;
-        for (ll i = 1; i <= k; i++) {
-            ll x = preb[i+1];
-            ll y = prea[k-i+1];
-            //A, B
-            ll da = i-(k-i);
-            double res = ((double)(s1 + x-y) / (double)(n+da)) + (double)((s2 + y - x) / (double)(m-da));
-            res /= 2;
+        for (ll p = 0; p <= k; p++) {
+            ll n1 = n-2*p+k, n2 = m+2*p-k;
+            ll ta = sa, tb = sb;
+
+            //move smallest from A to B
+            if (n1 < n2) {
+                ta -= prea[p];
+                tb -= preb[m] - preb[m-(k-p)];
+                // tb += sa-ta;
+                // ta += sb-tb;
+                // gg(prea[p], preb[m] - preb[m-(k-p)]);
+                ta += preb[m] - preb[m-(k-p)];
+                tb += prea[p];
+            //move smallest from B to A
+            //n1 > n2. move p smallest in B to A, then (k-p) largest in A to B.
+            //WRONG. k-p smallest in B to A, then p largest in A to B
+            } else {
+                tb -= preb[k-p];
+                ta += preb[k-p];
+                ta -= prea[n] - prea[n-p];
+                tb += prea[n] - prea[n-p];
+                // gg(prea[p], preb[m] - preb[m-(k-p)], sa, ta, sb, tb); really wrong
+                // ta += sb-tb;
+                // tb += sa-ta;
+            }
+
+            double res = (ta*1.0/(n1*1.0) + tb*1.0/(n2*1.0))/2.0;
+            // gg(p, res);
             if (res > ans) {
-                gg(x, y, da);
+                // gg(p, k, n1, n2, ta, tb);
+                // gg(ta*1.0/(n1*1.0) + tb*1.0/(n2*1.0));
+                // gg(prea, preb);
+                ans = max(ans, res);
             }
         }
 
-        cout << setprecision(6) << ans << endl;
+        cout << fixed << setprecision(6) << ans << endl;
     } 
     
     return 0;
