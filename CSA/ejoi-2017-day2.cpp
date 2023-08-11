@@ -32,39 +32,37 @@ int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
     ll n,k; while (cin >> n >> k) {
-        vector<ll> a(n), p(k);
-        for (auto&x:a)cin >> x; for (auto&x:p) cin >> x;
+        vector<ll> a(n);
+        for (auto&x:a)cin >> x; 
         for (ll i = 0; i < k; i++) {
+            ll p; cin >> p;
             vector<ll> freq(n+1);
-            auto mxx = max_element(p.begin(), p.begin()+p[i]-1);
-            ll score = *mxx;
+            auto mx = max_element(a.begin(), a.begin()+p-1);
+            ll score = *mx;
             ll b = -1;
-            ll mx = 0;
-            for (ll j = 0; j < p[i]; j++) {
+            ll mxx = 0; //0 means nothing left
+            for (ll j = 0; j < p; j++) {
+                if (j == mx - a.begin()) continue;
                 freq[a[j]]++;
-                if (j != mxx - p.begin()) {
-                    mx = max(mx, a[j]);
-                }
+                mxx = max(mxx, a[j]);
             }
-            for (ll j = p[i]; j < n; j++) {
-                gg(a[j]);
-                if (a[j] >= mx) {
+            for (ll j = p; j < n; j++) {
+                if (a[j] >= mxx) {
                     score += a[j] * b;
                     b *= -1;
                 } else {
-                    score += mx * b;
+                    score += mxx * b;
                     b *= -1;
-                    if (--freq[mx] == 0) {
-                        while (freq[mx] == 0 && mx > 0) mx--;
+                    if (--freq[mxx] == 0) {
+                        while (mxx > 0 && freq[--mxx] == 0) {}
                     }
                 }
             }
-            while (freq[mx] > 0) {
-                gg(mx);
-                score += mx * b;
+            while (freq[mxx] > 0) {
+                score += mxx * b;
                 b *= -1;
-                if (--freq[mx] == 0) {
-                    while (freq[--mx] == 0 && mx > 0) {}
+                if (--freq[mxx] == 0) {
+                    while (mxx > 0 && freq[--mxx] == 0) {}
                 }
             }
 
