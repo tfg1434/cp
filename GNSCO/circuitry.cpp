@@ -32,24 +32,11 @@ int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
     ll n, m; while (cin >> n >> m) {
-        //g2 is all edges, g is maintaining only one directed edge 
-        //between nodes
-        vector<vector<pll>> g(n+1), g2(n+1);
-        map<pll, vector<ll>> indices;
-        for (ll i = 1; i <= m; i++) {
-            ll u, v; cin >> u >> v;
-            indices[ {u, v} ].pb(i);
-            if (count(indices[ {u, v} ]) + count(indices[ {v, u} ]) > 1) {
-                continue;
-            }
-            g[u].pb({ 1, v });
-            g[v].pb({ -1, u });
+        vector<ll> a(n+1);
+        for (ll i = 0; i < m; i++) {
+            ll x, y; cin >> x >> y;
+            cout << x-y << endl;
         }
-
-        y_combinator([&](auto rec, ll u, ll p) -> void {
-            
-        })(1, 0);
-
     }
 
     
