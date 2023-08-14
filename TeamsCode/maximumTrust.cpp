@@ -6,13 +6,9 @@ using pll = pair<long long, long long>;
 #define rall(x) (x).rbegin(), (x).rend()
 #define pb push_back
 #define eb emplace_back
-#define vi vector<ll>
-#define vb vector<bool>
-#define f0(i,a) for(ll i=0;i<(a);i++)
-#define rep(i,a,b) for(int i=(a);i<=(b);++i)
-#define per(i,a,b) for(int i=(a);i>=(b);--i)
 #define f first
 #define s second
+#define f1(i, a) for (ll (i)=1; (i) < (a); (i)++)
 template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << ", " << p.second << ')'; }
 template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = ", "; return os << '}'; }
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0200r0.html
@@ -38,7 +34,14 @@ int main() {
     
     int T; cin >> T; while (T--) {
         ll n; cin >> n;
-        vector<ll> 
+        vector<vector<ll>> dp(n+1, vector<ll>(2, 0));
+        f1(i, n+1) {
+            ll x; cin >> x;
+            dp[i][0] = min({ dp[i-1][0]+x, dp[i-1][1]+x, dp[i-1][0]*x, dp[i-1][1]*x });
+            dp[i][1] = max({ dp[i-1][0]+x, dp[i-1][1]+x, dp[i-1][0]*x, dp[i-1][1]*x });
+        }
+
+        cout << dp[n][1] << endl;
     } 
     
     return 0;
