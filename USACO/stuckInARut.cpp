@@ -34,29 +34,63 @@ constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
+struct Cow {
+    ll x,y, id;
+    char t;
+};
+
+bool byX(Cow a, Cow b) {
+    if (a.x == b.x) return a.y < b.y;
+    return a.x < b.x;
+}
+bool byY(Cow a, Cow b) {
+    if (a.y == b.y) return a.x < b.x;
+    return a.y < b.y;
+}
+
+// Realised ordering of timestamp of collisions
+// Didn't think to impose ordering to avoid sort
+// Initially didn't think to put N and E in separate vectors
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n; cin >> n;
-        vector<pair<pll, char>> a(n+1);
+    ll n; while (cin >> n) {
+        vector<Cow> E, N;
         f1(i, n+1) {
-            cin >> a[i].f.f >> a[i].f.s >> a[i].s;
+            Cow c; cin >> c.t >> c.x >> c.y;
+            c.id = i;
+            (c.t == 'E' ? E : N).pb(c);
         }
+        sort(all(N), byX);
+        sort(all(E), byY);
 
-        vector<pll> points;
-        f1(i, n+1) {
-            f1(j, n+1) {
-                if (i == j) continue;
-                if (a[i].s == 'E') {
-                    if (a[j].s == 'N' && a[j].f.f > a[i].f.f && a[j].f.s < a[i].f.s) {
-                        points.eb(min())
+        vi blame(n+1);
+        vb collided(n+1);
+        f0(i, E.size()) {
+            f0(j, N.size()) {
+                //VERY IMPORTANT to check here instead of i in outer loop
+                //b/c you update collided in inner loop
+                if (collided[E[i].id] || collided[N[j].id]) continue;
+                ll x1 = E[i].x, y1 = E[i].y, x2 = N[j].x, y2 = N[j].y;
+                if (x2 >= x1 && y2 <= y1) {
+                    ll dx = x2-x1, dy = y1 - y2;
+                    if (dx == dy) continue;
+                    //---> |
+                    if (dy < dx) {
+                        blame[N[j].id] += 1 + blame[E[i].id];
+                        collided[E[i].id] = true;
+                    } else if (dy > dx){
+                        blame[E[i].id] += 1 + blame[N[j].id];
+                        collided[N[j].id] = true;
                     }
                 }
             }
         }
 
-    } 
+        f1(i, n+1) {
+            cout << blame[i] << endl;
+        }
+    }
     
     return 0;
 }
