@@ -34,52 +34,14 @@ int main() {
     int T; cin >> T; while (T--) {
         ll n; cin >> n;
         ll ans = 0;
-        for (ll i = 1; i <= n; i++) {
-            for (ll j = 1; j <= n; j++) {
-                ll mx = i*j;
-                ll sum = 0;
-
-                bool ok = true;
-                ll p = 0;
-                for (ll k = n; k >= 1; k--) {
-                    if (k == i) continue;
-
-                    while (p+1 <= mx/k) {
-                        p++;
-                        if (p == j) p++;
-                        if (p > mx/k) {
-                            p -= 2;
-                            break;
-                        }
-                    }
-                    if (p == 0) {
-                        ok = false;
-                        break;
-                    }
-                    sum += k*p;
-                    p++;
-                    if (!ok) break;
-                }
-                if (!ok) continue;
-                if (sum > ans) {
-                    ans = sum;
-                }
-            }
+        ll m = 0, cnt = 0;
+        for(ll l=2;l<=n;l++) {
+            cnt = m = 0;
+            for(ll i=1;i<=n-l;i++)cnt+=i*i;
+            for(ll i=n-l+1,j=n;i<=n;i++,j--)cnt+=i*j,m=max(m,i*j);
+            ans = max(ans,cnt-m);
         }
         cout << ans << endl;
-
-        // vector<ll> a(n+1);
-        // iota(all(a), 0);
-        // swap(a[n-1], a[n]);
-        // gg(a);
-        // ll ans = 0;
-        // ll mx = 0;
-        // for (ll i = 1; i <= n; i++) {
-            // ans += i*a[i];
-            // mx = max(mx, i*a[i]);
-        // }
-        // ans -= mx;
-        // cout << ans << endl;
     } 
     
     return 0;
