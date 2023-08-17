@@ -6,6 +6,12 @@ using pll = pair<long long, long long>;
 #define rall(x) (x).rbegin(), (x).rend()
 #define pb push_back
 #define eb emplace_back
+#define vi vector<ll>
+#define vb vector<bool>
+#define f0(i,a) for(ll i=0;i<(a);i++)
+#define f1(i,a) for(ll i=1;i<(a);i++)
+#define rep(i,a,b) for(int i=(a);i<=(b);++i)
+#define per(i,a,b) for(int i=(a);i>=(b);--i)
 #define f first
 #define s second
 template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << ", " << p.second << ')'; }
@@ -27,18 +33,6 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
-//
-auto is_there(std::string haystack, std::vector<std::string> needles) -> std::string::size_type {
-
-  for(auto needle : needles ){
-    auto pos = haystack.find(needle);
-    if(pos != std::string::npos){
-      return pos;
-    }
-
-  }  
-  return std::string::npos;
-}
 
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
@@ -46,21 +40,17 @@ int main() {
     int T; cin >> T; while (T--) {
         ll n; cin >> n;
         string s; cin >> s;
-
-        ll curr = 0;
-        ll ans1 = 0, ans2 = 0;
-        ll flag = 0;
-        for (ll i = 0; i < n; i++) {
-            if (s[i] == '<') curr--;
-            else curr++;
-            // gg(curr);
-            ans1 = max(ans1, curr);
-            ans2 = min(ans2, curr);
-            if (curr <= 0) flag=1;
+        vi a;
+        ll ans = 0;
+        f0(i, n) {
+            ll j;
+            for (j = i; j < n; j++) {
+                if (s[i] != s[j]) break;
+            }
+            ans = max(ans, j-i);
         }
-        // if (ans2 )
 
-        cout << ans1-ans2+1 << endl;
+        cout << ans+1 << endl;
     } 
     
     return 0;
