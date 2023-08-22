@@ -47,29 +47,42 @@ constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 constexpr ll Y = 61;
 
+//The maximum value of dp(j, y) on y = 1..i 
+//dp(i, y) = max score with 1..i cards and max val y
+//dp(i, y) is the maximum of the following
+//dp(i, y) = max dp(i-1, m <= a_i) if a_i is new max
+//dp(i, y) = max dp(i-1, m > a_i) + a_i if a_i is not max
+//60n states, O(1) transitions?
+//
+// Thinking
+// Threw dp at it and it worked, maybe a bit sketchy
+// The transitions are O(1) here because we need a contiguous subarray
+// (Didn't think of contiguous subarray initially)
+//
+// Implementation
+// Made a stupid mistake taking dp[i][j] instead of dp[i][a[i]]
+// Rubber ducky, and if it doesn't work, rewrite again from memory
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
     ll n; while (cin >> n) {
         vi a(n); for(auto&x : a) cin >> x;
         vector<vi> dp(n, vi(Y, -INFF));
-        //dp(1, _) = 0
-        //The maximum value of dp(j, y) on y = 1..(i-1) 
-        vector<vi> maxdp(n, vi(Y, -INFF));
-        for (ll i = 2; i < n; i++) {
-            f0(j, 60) {
-                if (a[i] <= j) {
-                    dp[i][j] = dp[i-1][j] + a[i];
-                } else {
-                    dp[i][j] = maxdp[i][j];
-                }
-                if (i+1 < n) maxdp[i+1][j] = max(maxdp[i-1][j], dp[i][j]);
+        dp[0][a[0]+30] = 0;
+        f1(i, n) {
+            a[i] += 30;
+            dp[i][a[i]] = 0;
+            f0(j, a[i]+1) {
+                dp[i][a[i]] = max(dp[i][a[i]], dp[i-1][j] + j - 30);
+            }
+            for (ll j = a[i]+1; j < Y; j++) {
+                dp[i][j] = max(dp[i][j], dp[i-1][j] + a[i] - 30);
             }
         }
 
         ll ans = 0;
         f0(i, n) {
-            f0(j, n) {
+            f0(j, Y) {
                 ans = max(ans, dp[i][j]);
             }
         }
