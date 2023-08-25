@@ -48,29 +48,28 @@ bool is_last(Iter iter, const Cont& cont) {
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
-constexpr ll N = 2e5+5;
-ll par[N];
-ll find(ll v) {
-    if (v == par[v]) return v;
-    return par[v] = find(par[v]);
-}
-void unite(ll a, ll b) {
-    ll x = find(a), y = find(b);
-    if (x != y) {
-        par[y] = x;
-    }
-}
 
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, m; while (cin >> n >> m) {
-            f1(i, n) par[i] = i;
-            vi h(n); for(auto&x : h) cin >> x;
+    ll n; cin >> n;
+    vi a(n);
+    for (auto&x : a) cin >> x;
+    if(a[n-1]==15){
+		cout<<"DOWN";
+	}
+    else if(a[n-1]==0){
+		cout<<"UP";
+	}
+    else if(n==1){
+		cout<<-1;
+	}
+    else if(a[n-2]>a[n-1]){
+		cout<<"DOWN";
+	}
+    else cout<<"UP";
 
-        }
-    } 
+    cout << endl;
     
     return 0;
 }
