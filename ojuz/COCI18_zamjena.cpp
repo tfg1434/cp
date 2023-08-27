@@ -1,6 +1,3 @@
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
-using namespace __gnu_pbds;
 #include <bits/stdc++.h>
 using namespace std;
 using pll = pair<long long, long long>;
@@ -32,45 +29,62 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
-constexpr ll N = 2e5+5;
-ll par[N];
-ll find(ll v) {
-    if (v == par[v]) return v;
-    return par[v] = find(par[v]);
-}
-void unite(ll a, ll b) {
-    ll x = find(a), y = find(b);
-    if (x != y) {
-        par[y] = x;
-    }
-}
+
+// Thinking
+// Did try to simplify
+// Didn't realize that the order doesn't matter, was trying to find some ordering
+// We just need to satisfy both ends of each condition.
+//
+// Implementation
+// Accidentally made a stack overflow by forgetting to erase before
+// recurse on line 61
 
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, m; while (cin >> n >> m) {
-            f1(i, n) par[i] = i;
-            vi h(n); for(auto&x : h) cin >> x;
+    ll n; cin >> n;
+    vector<string> a(n); for(auto&x:a) cin >> x;
+    map<string, set<string>> eq;
+    map<string, ll> mp;
+    bool ok = true;
+    f0(i, n) {
+        string x; cin >> x;
+        auto get = [&](string s) -> ll {
+            return isdigit(s[0]) ? stoi(s) : mp[s];
+        };
+        auto assign = y_combinator([&](auto rec, string k, ll v) -> void {
+            mp[k] = v;
+            string e;
+            while (!eq[k].empty()) {
+                e = *prev(eq[k].end());
+                eq[k].erase(prev(eq[k].end()));
+                rec(e, v);
+            }
+        });
 
+        if (x == a[i]);
+        else if (get(a[i]) && get(x)) {
+            if (get(x) != get(a[i])) {
+                cout << "NE" << endl;
+                ok = false;
+                break;
+            }
+        } else if (get(x)) {
+            assign(a[i], get(x));
+        } else if (get(a[i])) {
+            assign(x, get(a[i]));
+        } else {
+            eq[a[i]].insert(x); eq[x].insert(a[i]);
         }
-    } 
+    }
+
+    if (ok) {
+        cout << "DA" << endl;
+    }
     
     return 0;
 }
