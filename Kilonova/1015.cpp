@@ -42,33 +42,23 @@ int main() {
         vi PGE(n, -INFF), NGE(n, INFF);
         vi stk;
         f0(i, n) {
-            while (!stk.empty()) {
-                if (a[stk.back()] <= a[i]) stk.pop_back();
-                else break;
-            }
+            while (!stk.empty() && a[stk.back()] <= a[i]) stk.pop_back();
             if (!stk.empty()) PGE[i] = stk.back();
             stk.pb(i);
         }
         stk.clear();
         for (ll i = n-1; i >= 0; i--) {
-            while (!stk.empty()) {
-                if (a[stk.back()] <= a[i]) stk.pop_back();
-                else break;
-            }
+            while (!stk.empty() && a[stk.back()] <= a[i]) stk.pop_back();
             if (!stk.empty()) NGE[i] = stk.back();
             stk.pb(i);
         }
 
-        // gg(PGE);
         f0(i, q) {
             ll l, r, p; cin >> l >> r >> p;
             l--; r--; p--;
-            // gg(l, r, p, a);
-            auto iter = lower_bound(a.begin()+l, a.begin()+r+1, a[p]);
-            // gg(l, r);
-            // gg(*iter, PGE[iter-a.begin()], NGE[iter-a.begin()]);
-            if (*iter > a[p] || PGE[iter-a.begin()] >= l 
-                    || NGE[iter-a.begin()] <= r) {
+            // auto iter = lower_bound(a.begin()+l, a.begin()+r+1, a[p]);
+            // if (*iter > a[p] || PGE[iter-a.begin()] >= l || NGE[iter-a.begin()] <= r) {
+            if (NGE[p] <= r || PGE[p] >= l) {
                 cout << '0'; 
             } else {
                 cout << '1';
