@@ -46,6 +46,8 @@ ll c2(ll x) {
 // also make it even more unreadable :)))
 // I thought you need a set to access the next one. But you
 // already sorted it... think clearly.
+//
+// If fopen trick
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
@@ -59,31 +61,33 @@ int main() {
         }
 
         ll ans = 0;
-        vi h(n+1);
+        vi h(m+1);
         f1(i, n+1) {
             f1(j, m+1) {
                 if (ma[i][j] == ma[i-1][j]) h[j]++;
                 else h[j] = 1;
             }
 
-            vi e(m+1); 
+            vi e(m+2); 
             ll cnt = 0;
             auto make = [&](ll u) -> void {
                 cnt++;
                 e[u] = -1;
             };
             auto find = y_combinator([&](auto rec,ll u) -> ll {
+                // u is apparently 0 and so e[u] is also 0
+                assert(e[u] != 0);
                 return e[u] < 0 ? u : e[u] = rec(e[u]);
             });
             auto unite = [&](ll u, ll v) -> void {
-                if (find(u) == find(v)) return;
+                u = find(u);
+                v = find(v);
+                assert(u != v);
                 if (e[u] > e[v]) swap(u, v);
                 cnt -= c2(-e[u]);
                 cnt -= c2(-e[v]);
-                // gg(cnt);
                 e[u] += e[v];
                 cnt += c2(-e[u]);
-                // gg(cnt);
                 e[v] = u;
             };
 
@@ -97,9 +101,8 @@ int main() {
                 while (j < m && b[j].f >= mx) {
                     ll p = b[j].s;
                     make(p);
-                    // gg(b);
                     if (e[p-1] != 0 && ma[i][p] == ma[i][p-1]) unite(p-1, p);
-                    if (p+1 <= m && e[p+1] != 0 && ma[i][p+1] == ma[i][p]) unite(p, p+1);
+                    if (e[p+1] != 0 && ma[i][p+1] == ma[i][p]) unite(p, p+1);
                     ++j;
                 }
                 ans += cnt;
