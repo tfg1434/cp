@@ -34,36 +34,30 @@ constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
+// you can use iter->f in the future
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
+    multimap<ll, ll> mp;
     ll n, q; cin >> n >> q;
-    vector<pll> temp(n);
     f0(i, n) {
-        cin >> temp[i].f >> temp[i].s;
-        temp[i].f = abs(temp[i].f);
-    }
-    sort(all(temp));
-
-    vi t(n);
-    auto mn = [&](ll r) -> ll {
-        ll res = 0;
-        for (; r >= 0; r = r&(r+1)-1) res = min(res, t[r]);
-        return res;
-    };
-    auto put = [&](ll r, ll x) -> void {
-        for (; r < n; r |= r+1) t[r] = min(t[r], x);
-    };
-
-    ll cur = 0;
-    vector<pll> a(n);
-    f0(i, n) {
-        if (i > 0 && temp[i-1].f != temp[i].f) cur++;
-        put(i)
-        a[i] = { cur, temp[i].s };
+        ll pos, sz; cin >> pos >> sz;
+        mp.insert({ sz, abs(pos) });
     }
 
-
+    ll ans = 0;
+    f0(i, q) {
+        ll f; cin >> f;
+        auto iter = mp.lower_bound(f);
+        if (iter == mp.end()) {
+            break;
+        }
+        assert((*iter).f >= f);
+        mp.insert({ (*iter).f - f, (*iter).s });
+        mp.erase(iter);
+        ans += f;
+    }
+    cout << ans << endl;
     
     return 0;
 }
