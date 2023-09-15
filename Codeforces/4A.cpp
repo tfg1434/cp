@@ -34,30 +34,11 @@ constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
-// you can use iter->f in the future
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    multimap<ll, ll> mp;
-    ll n, q; cin >> n >> q;
-    f0(i, n) {
-        ll pos, sz; cin >> pos >> sz;
-        mp.insert({ sz, abs(pos) });
-    }
-
-    ll ans = 0;
-    f0(i, q) {
-        ll f; cin >> f;
-        auto iter = mp.lower_bound(f);
-        if (iter == mp.end()) {
-            break;
-        }
-        assert((*iter).f >= f);
-        mp.insert({ (*iter).f - f, (*iter).s });
-        mp.erase(iter);
-        ans += f;
-    }
-    cout << ans << endl;
+    ll x; cin >> x;
+    cout <<( (x%2==0) ?"YES":"NO") << endl;
     
     return 0;
 }

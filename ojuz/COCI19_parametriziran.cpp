@@ -33,31 +33,34 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
+constexpr ll N = 5e4+5;
 
-// you can use iter->f in the future
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    multimap<ll, ll> mp;
-    ll n, q; cin >> n >> q;
-    f0(i, n) {
-        ll pos, sz; cin >> pos >> sz;
-        mp.insert({ sz, abs(pos) });
-    }
-
-    ll ans = 0;
-    f0(i, q) {
-        ll f; cin >> f;
-        auto iter = mp.lower_bound(f);
-        if (iter == mp.end()) {
-            break;
+    ll n, m; while (cin >> n >> m) {
+        //idx, letter
+        vector<vector<bitset<N>>> mask(m, vector<bitset<N>>(26));
+        ll ans = 0;
+        f0(i, n) {
+            string s; cin >> s;
+            bitset<N> res; res.set();
+            f0(j, m) {
+                ll c = s[j] - 'a';
+                if (s[j] != '?') {
+                    res &= mask[j][c];
+                    mask[j][c].set(i);
+                } else {
+                    for (ll k = 0; k < 26; k++) mask[j][k].set(i);
+                }
+            }
+            f0(j, i) {
+                ans += res[j];
+            }
         }
-        assert((*iter).f >= f);
-        mp.insert({ (*iter).f - f, (*iter).s });
-        mp.erase(iter);
-        ans += f;
-    }
-    cout << ans << endl;
+
+        cout << ans << endl;
+    } 
     
     return 0;
 }

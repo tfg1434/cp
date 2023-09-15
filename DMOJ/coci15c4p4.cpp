@@ -33,31 +33,56 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
+ll binpow(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a;
+        b >>= 1;
+        a = a * a;
+    }
 
-// you can use iter->f in the future
+    return res;
+}
+
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    multimap<ll, ll> mp;
-    ll n, q; cin >> n >> q;
-    f0(i, n) {
-        ll pos, sz; cin >> pos >> sz;
-        mp.insert({ sz, abs(pos) });
-    }
-
-    ll ans = 0;
-    f0(i, q) {
-        ll f; cin >> f;
-        auto iter = mp.lower_bound(f);
-        if (iter == mp.end()) {
-            break;
+    ll n, k, q; while (cin >> n >> k >> q) {
+        ll cur = 1, p = 1;
+        vi a; a.pb(0);
+        while (cur <= k*n) {
+            a.pb(cur);
+            p *= k;
+            cur += p;
         }
-        assert((*iter).f >= f);
-        mp.insert({ (*iter).f - f, (*iter).s });
-        mp.erase(iter);
-        ans += f;
-    }
-    cout << ans << endl;
+        f0(i, q) {
+            ll ans = 0;
+            ll x, y; cin >> x >> y;
+            if (x > y) swap(x, y);
+            auto la = prev(lower_bound(all(a), x));
+            auto lb = prev(lower_bound(all(a), y));
+            //Scale x to 0..*la-1
+            x -= *la+1;
+            y -= *lb+1;
+            ll posA = y;
+            if (la < lb) {
+                ll nA = la - a.begin();
+                ll nB = lb - a.begin();
+                ll d = nB - nA;
+                posA /= binpow(k, d); // floor(yy/*lb * la). well dividing lb by la is always clean
+                ans += d;
+            }
+            
+            while (x != posA) {
+                x /= k;
+                posA /= k;
+                ans += 2;
+            }
+
+            cout << ans << endl;
+        }
+    } 
     
     return 0;
 }
+
