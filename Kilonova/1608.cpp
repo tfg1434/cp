@@ -1,6 +1,3 @@
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
-using namespace __gnu_pbds;
 #include <bits/stdc++.h>
 using namespace std;
 using pll = pair<long long, long long>;
@@ -53,33 +50,46 @@ int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
     ll n, m, k; while (cin >> n >> m >> k) {
-        vector<vi> a(n+1, vi(m+1));
-        f1(i, n+1) {
-            f1(j, m+1) {
+        //stage, team
+        vector<vi> a(m+1, vi(n+1));
+        f1(j, n+1) {
+            f1(i, m+1) {
                 cin >> a[i][j];
             }
         }
 
-        vector<vector<vi>> dp(n+1, vector<vi>(m+1, vi(k+1)));
+        //stage, team, swaps
+        vector<vector<vi>> dp(m+1, vector<vi>(n+1, vi(k+1)));
+        // The maximum from last stage with k changes
         vi mx(k+1);
-        f1(j, m+1) {
+        f1(j, n+1) {
             dp[1][j][0] = a[1][j];
-            mx[0] = max(mx[0], dp[1][j][0]);
+            mx[0] = dp[1][j][0];
         }
-        for (ll i = 2; i <= n; i++) {
-            f1(j, m+1) {
+        for (ll i = 2; i <= m; i++) {
+            f1(j, n+1) {
                 f0(ki, k+1) {
                     if (ki > 0) dp[i][j][ki] = max(mx[ki-1], dp[i-1][j][ki]) + a[i][j];
                     else dp[i][j][ki] = dp[i-1][j][ki] + a[i][j];
+                }
+            }
+            f0(ki, k+1) {
+                f1(j, n+1) {
                     mx[ki] = max(mx[ki], dp[i][j][ki]);
                 }
             }
         }
 
-        gg(dp);
+        f1(i, m+1) {
+            ll mx = 0;
+            f1(j, n+1) f0(ki, k+1) {
+                mx = max(mx, dp[i][j][ki]);
+            }
+            gg(mx);
+        }
         ll ans = 0;
-        f1(j, m+1) f0(ki, k+1) {
-            ans = max(ans, dp[n][j][ki]);
+        f1(j, n+1) f0(ki, k+1) {
+            ans = max(ans, dp[m][j][ki]);
         }
 
         cout << ans << endl;
