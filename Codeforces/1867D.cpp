@@ -1,6 +1,3 @@
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
-using namespace __gnu_pbds;
 #include <bits/stdc++.h>
 using namespace std;
 using pll = pair<long long, long long>;
@@ -54,34 +51,36 @@ int main() {
     
     int T; cin >> T; while (T--) {
         ll n, k; cin >> n >> k;
-        vector<vi> g(n+1);
-        vi b(n+1); f1(i, n+1) {
-            cin >> b[i];
-            g[i].pb(b[i]); 
-        };
-        vi lvl(n+1);
+
         bool ok = true;
-        auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-            lvl[u] = lvl[p]+1;
-            for (auto v : g[u]) {
-                if (v == p) continue;
-                if (lvl[v]) {
-                    ll d = lvl[u] - lvl[v]+1;
-                    gg(u,v,d);
-                    if (d != k) {
-                        ok = false;
-                    }
+        if (k == 1) {
+            vi b(n+1); f1(i, n+1) cin >> b[i];
+            f1(i, n+1) {
+                ok &= b[i] == i;
+            }
+        } else {
+            vi b(n+1); f1(i, n+1) cin >> b[i];
+            vi lvl(n+1), cc(n+1);
+            ll cur = 1;
+            auto dfs = y_combinator([&](auto rec, ll u) -> void {
+                cc[u] = cur;
+                ll v = b[u];
+                if (!cc[v]) {
+                    lvl[v] = lvl[u]+1;
+                    rec(v);
                 } else {
-                    rec(v, u);
+                    ll d = lvl[u] - lvl[v]+1;
+                    ok &= (d == k);
+                }
+            });
+            f1(i, n+1) {
+                if (!lvl[i]) {
+                    lvl[i] = 1;
+                    cur++;
+                    dfs(i);
                 }
             }
-        });
-        f1(i, n+1) {
-            if (!lvl[i]) {
-                dfs(i, i);
-            }
         }
-        gg(lvl);
 
         cout << (ok ? "YES" : "NO") << endl;
     } 
