@@ -53,31 +53,27 @@ int main() {
         ll n, k; cin >> n >> k;
 
         bool ok = true;
+        vi b(n+1); f1(i, n+1) cin >> b[i];
         if (k == 1) {
-            vi b(n+1); f1(i, n+1) cin >> b[i];
-            f1(i, n+1) {
-                ok &= b[i] == i;
-            }
+            f1(i, n+1) ok &= b[i] == i;
+
         } else {
-            vi b(n+1); f1(i, n+1) cin >> b[i];
-            vi lvl(n+1), cc(n+1);
-            ll cur = 1;
-            auto dfs = y_combinator([&](auto rec, ll u) -> void {
-                cc[u] = cur;
+            vi lvl(n+1);
+            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
+                lvl[u] = lvl[p]+1;
                 ll v = b[u];
-                if (!cc[v]) {
-                    lvl[v] = lvl[u]+1;
-                    rec(v);
+                if (!lvl[v]) {
+                    rec(v, u);
                 } else {
+                    if (lvl[v] >= lvl[u]) return;
                     ll d = lvl[u] - lvl[v]+1;
                     ok &= (d == k);
                 }
             });
+
             f1(i, n+1) {
                 if (!lvl[i]) {
-                    lvl[i] = 1;
-                    cur++;
-                    dfs(i);
+                    dfs(i, i);
                 }
             }
         }
