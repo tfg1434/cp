@@ -55,9 +55,40 @@ int main() {
     
     int T; cin >> T; while (T--) {
         ll n; cin >> n;
-        vl a(n+1);
+        vl a(n+1), pro(n+1), pre(n+1);
+        pro[0] = 1;
+        vl nz;
+        bool one = true;
         f1(i, n+1) {
-            cin >> 
+            cin >> a[i];
+            one &= a[i] == 1;
+            pro[i] = min((ll)1e9, pro[i-1] * a[i]);
+            pre[i] = pre[i-1] + a[i];
+            if (a[i] != 1) nz.pb(i);
+        }
+        if (one) {
+            cout << 1 << ' ' << 1 << endl;
+            continue;
+        }
+
+        if (pro.bk > 1e6) {
+            auto l = a.begin()+1; while (*l == 1) l++;
+            auto r = a.end()-1; while (*r == 1) r--;
+            cout << l-a.begin() << ' ' << r-a.begin() << endl;
+        } else {
+            ll best = 0, ansLo, ansHi;
+            f0(i, nz.size()) rep(j, i, nz.size()-1) {
+                ll lo = nz[i], hi = nz[j];
+                ll res = pro[hi] / pro[lo-1];
+                res += pre[lo-1];
+                res += pre[n] - pre[hi];
+
+                if (res > best) {
+                    ansLo = lo, ansHi = hi;
+                    best = res;
+                }
+            }
+            cout << ansLo << ' ' << ansHi << endl;
         }
     } 
     
