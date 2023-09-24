@@ -29,56 +29,63 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
+// Important observation in functional graph:
+// Once you find the cycle, everything attached to it is a tree.
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
-
-        bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
-
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
-                }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
-            }
+    ll n; while (cin >> n) {
+        vi f(n+1);
+        vector<vi> g(n+1);
+        f1(i, n+1) {
+            ll x; cin >> x;
+            f[i] = x;
+            g[x].pb(i);
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
+        ll ans = 0, comp = 1;
+        vi vis(n+1);
+        f1(i, n+1) {
+            if (vis[i]) continue;
+            ll u = i, v = f[i];
+            while (u != v) u = f[u], v = f[f[v]];
+            vi cyc = { u };
+            while (f[cyc.back()] != u) cyc.pb(f[cyc.back()]);
+            for (auto t : cyc) vis[t] = true;
+
+            vb used(n+1);
+            auto dfs = y_combinator([&](auto rec, ll u) -> void {
+                vis[u] = 1;
+                for (auto v : g[u]) if (!vis[v]) {
+                    rec(v);
+                    if (!used[v]) used[u] = true;
+                }
+                ans += used[u];
+            });
+
+            vb a;
+            for (auto t : cyc) {
+                dfs(t);
+                a.pb(used[t]);
+            }
+
+            f0(j, a.size()) if (a[j] == 1){
+                rotate(a.begin(), a.begin() + j, a.end());
+            }
+            ll cur = 0;
+            f0(j, a.size()) {
+                if (a[j] == 0) cur++;
+                else ans += cur/2, cur = 0;
+            }
+            ans += cur/2;
+        }
+
+        cout << ans << endl;
     } 
     
     return 0;

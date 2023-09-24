@@ -29,18 +29,6 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
@@ -49,36 +37,62 @@ constexpr ll P = 1e9+7;
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
+    ll n, m; while (cin >> n >> m) {
+        vector<vi> g(n+1);
+        set<pll> es;
+        f0(i, m) {
+            ll u, v; cin >> u >> v;
+            g[u].pb(v); g[v].pb(u);
+        }
+
+        vi vis(n+1), dp(n+1), lvl(n+1);
+        vector<vi> span(n+1), back(n+1);
+        y_combinator([&](auto rec, ll u, ll p) -> void {
+            vis[u] = 1;
+            lvl[u] = lvl[p]+1;
+            for (auto v : g[u]) {
+                if (v == p) continue;
+                if (vis[v]) {
+                    if (lvl[v] < lvl[u]) back[v].pb(u);
+                    continue;
+                }
+                span[u].pb(v);
+                rec(v, u);
+            }
+        })(1, 1);
 
         bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
-
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
+        for (auto&x:vis) x = 0;
+        y_combinator([&](auto rec, ll u, ll p) -> ll {
+            ll cnt = 0;
+            vis[u] = 1;
+            for (auto v : g[u]) {
+                if (v == p) continue;
+                if (vis[v]) {
+                    if (lvl[v] < lvl[u]) cnt++;
+                    if (lvl[v] > lvl[u]) cnt--;
+                    continue;
                 }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
+                cnt += rec(v, u);
+            }
+            if (u != 1) ok &= cnt != 0;
+            gg(cnt);
+            return cnt;
+        })(1, 1);
+        
+        if (!ok) cout << 0 << endl;
+        else {
+            f1(u, n+1) {
+                for (auto v : span[u]) {
+                    cout << u << ' ' << v << endl;
+                }
+            }
+            f1(u, n+1) {
+                for (auto v : back[u]) {
+                    cout << v << ' ' << u << endl;
                 }
             }
         }
-
-        cout << (ok ? "YES" : "NO") << endl;
     } 
     
     return 0;

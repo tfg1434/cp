@@ -29,18 +29,6 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
@@ -49,37 +37,50 @@ constexpr ll P = 1e9+7;
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
+    if (fopen("deleg.in", "r")) {
+        freopen("deleg.in", "r", stdin);
+        freopen("deleg.out", "w", stdout);
+    } 
 
-        bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
-
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
-                }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
-            }
+    ll n; while (cin >> n) {
+        vector<vi> g(n+1);
+        f0(i, n-1) {
+            ll u, v; cin >> u >> v;
+            g[u].pb(v); g[v].pb(u);
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
-    } 
+        vi dp(n+1);
+        auto dfs = y_combinator([&](auto rec, ll u, ll p, ll k) -> bool {
+            dp[u] = 1;
+            vi num;
+            for (auto v : g[u]) {
+                if (v == p) continue;
+                if (!rec(v, u, k)) return false;
+                dp[u] += dp[v];
+                num.pb(dp[v]);
+            }
+            if (dp[u] != n) num.pb(n - dp[u]);
+
+            ll cnt = 0;
+            vi vis(n+1);
+            for (auto x : num) {
+                ll z = x % k; if (z == 0) continue;
+                if (vis[k-z]) cnt--, vis[k-z]--;
+                else cnt++, vis[z]++;
+            }
+
+            if (cnt) return false; 
+            return true;
+        });
+
+        string ans(n-1, '0');
+        f1(i, n) {
+            if ((n-1) % i != 0) continue;
+            ans[i-1] = dfs(1, 1, i) ? '1' : '0';
+        }
+
+        cout << ans << endl;
+    }
     
     return 0;
 }

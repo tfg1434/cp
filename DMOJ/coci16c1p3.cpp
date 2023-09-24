@@ -29,18 +29,6 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
@@ -49,36 +37,70 @@ constexpr ll P = 1e9+7;
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
+    ll n; while (cin >> n) {
+        vector<pair<ll, string> > a(n+1);
+        f1(i, n+1) cin >> a[i].s;
+        f1(i, n+1) {
+            ll x; cin >> x;
+            a[x].f = i;
+        }
+        vector<vi> g(26);
+        sort(1+all(a));
 
         bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
+        f1(i, n+1) for (ll j = i+1; j < n+1; j++) {
+            //x < y
+            string x = a[i].s, y = a[j].s;
+            assert(x != y);
+            //check if y is a prefix of x. if so x cannot be < y
+            //and we have a contradiction
+            if (y.size() < x.size() && mismatch(all(y), x.begin()).first == y.end()) {
+                ok = false;
+                continue;
+            } 
 
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
-                }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
+            for (ll k = 0; k < min(x.size(), y.size()); k++) {
+                if (x[k] == y[k]) continue;
+                g[x[k]-'a'].pb(y[k]-'a');
             }
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
+        vb black(26), grey(26);
+        vi topo;
+        auto dfs = y_combinator([&](auto rec, ll u) -> void {
+            if (black[u]) return;
+            if (grey[u]) {
+                ok = false;
+                return;
+            }
+
+            grey[u] = true;
+            for (auto v : g[u]) {
+                rec(v);    
+            }
+
+            topo.pb(u);
+            grey[u] = false;
+            black[u] = true;
+        });
+        f0(i, 26) {
+            if (black[i]) continue;
+            dfs(i);
+        }
+        reverse(all(topo));
+
+        if (!ok) {
+            cout << "NE" << endl;
+            continue;
+        }
+        vi p(26); 
+        f0(i, 26) {
+            p[topo[i]] = i;
+        }
+
+        cout << "DA\n";
+        f0(i, 26) cout << (char)('a'+p[i]);
+        cout << endl;
     } 
     
     return 0;

@@ -29,56 +29,57 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
+template<int n>
+bool compare(bitset<n>& l, bitset<n>& r){
+  if(n > 64){
+  typedef array<long, (n/64)> AsArray;
+  return *reinterpret_cast<AsArray*>(&l)
+       < *reinterpret_cast<AsArray*>(&r);
+    }//else
+  return l.to_ulong() < r.to_ulong();
+}
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
+    if (fopen("tomi.in", "r")) {
+        freopen("tomi.in", "r", stdin);
+        freopen("tomi.out", "w", stdout);
+    }
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
-
-        bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
-
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
+    ll n, k; while (cin >> n >> k) { k--;
+        vector<bitset<60> > a;
+        f0(i, n) cin >> a[i];
+        ll hi = n;
+        bitset<60> ans = 0;
+        f0(j, 60) {
+            sort(a.begin(), a.begin()+hi, compare);
+            //iter == a.end()?
+            // auto iter = lower_bound(all(a), x);
+            ll pos = n;
+            for (ll i = 0; i < n; i++) {
+                if (a[i].test(j)) {
+                    pos = i;
+                    break;
                 }
-            });
+            }
 
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
+            //enough zeros
+            if (pos >= k) {
+                hi = pos;
+            } else {
+                ans.set(j);
+            }
+
+            f0(i, hi) {
+                a[i].set(j, 0);
             }
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
+        cout << ans << endl;
     } 
     
     return 0;

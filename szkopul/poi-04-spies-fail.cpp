@@ -29,18 +29,6 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
@@ -49,36 +37,48 @@ constexpr ll P = 1e9+7;
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
-
-        bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
-
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
-                }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
-            }
+    ll n; while (cin >> n) {
+        vi f(n+1);
+        vector<vi> g(n+1);
+        f1(i, n+1) {
+            ll x; cin >> x;
+            f[i] = x;
+            g[x].pb(i);
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
+        vector<vi> dp(n+1, vi(2));
+        vi vis(n+1);
+        ll comp = 1;
+        auto dfs = y_combinator([&](auto rec, ll u) -> void {
+            vis[u] = comp;
+            ll sum = 0, minDelta = INFF;
+            bool usedOff = false;
+            for (auto v : g[u]) {
+                if (vis[v]) continue;
+                rec(v);
+                if (dp[v][0] >= dp[v][1]) {
+                    usedOff = true;
+                    sum += dp[v][0];
+                } else {
+                    sum += dp[v][1];
+                }
+                minDelta = min(minDelta, abs(dp[v][0] - dp[v][1]));
+            }
+            dp[u][0] = sum;
+            if (usedOff) dp[u][1] = sum+1;
+            else dp[u][1] = max(dp[u][1], sum - minDelta+1);
+        });
+
+        ll ans = 0;
+        f1(i, n+1) {
+            if (vis[i]) continue;
+            dp[f[i]][1] = 1;
+            dfs(i);
+            ans += max(dp[i][0], dp[i][1]);
+            comp++;
+        }
+
+        cout << ans << endl;
     } 
     
     return 0;

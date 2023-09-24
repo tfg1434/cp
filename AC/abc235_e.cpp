@@ -29,56 +29,68 @@ template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator
 #else
 #define gg(...) 777771449
 #endif
-ll LOG2(ll x){ return __builtin_clzll(1ll) - __builtin_clzll(x); }
-bool isPow2(ll n) {
-    return n && ((n & (n-1)) == 0);
-}
-ll LOG2C(ll x) {
-    if (isPow2(x)) return LOG2(x);
-    return LOG2(x)+1;
-}
-template <typename Iter, typename Cont>
-bool is_last(Iter iter, const Cont& cont) {
-    return (iter != cont.end()) && (next(iter) == cont.end());
-}
 
 constexpr ll INFF = 1e18;
 constexpr ll P = 1e9+7;
 // constexpr ll P = 998244353;
 
+struct Edge {
+    ll w, u, v;
+    bool isG;
+    ll idx;
+    bool operator <(Edge e) const {
+        return w < e.w;
+    }
+};
+
+// Thinking
+// Did not think of offline technique considering all queries at once
+// You can do this because queries are not persistent, and query depends
+// only on G. When to use this technique it's a question of when does
+// it help
 int main() {
     cin.tie(0) -> ios::sync_with_stdio(0);
     
-    int T; cin >> T; while (T--) {
-        ll n, k; cin >> n >> k;
+    ll n, m, q; while (cin >> n >> m >> q) {
+        vi me(n+1);
+        auto make = [&](ll u) -> void {
+            me[u] = -1;
+        };
+        auto find = y_combinator([&](auto rec, ll u) -> ll {
+            return me[u] < 0 ? u : me[u] = rec(me[u]);
+        });
+        auto unite = y_combinator([&](auto rec, ll u, ll v) -> void {
+            u = find(u), v = find(v);
+            if (me[u] > me[v]) swap(u, v);
+            me[u] += me[v];
+            me[v] = u;
+        });
+        f1(i, n+1) make(i);
 
-        bool ok = true;
-        vi b(n+1); f1(i, n+1) cin >> b[i];
-        if (k == 1) {
-            f1(i, n+1) ok &= b[i] == i;
+        vector<Edge> es;
+        f0(i, m) {
+            ll u, v, w; cin >> u >> v >> w;
+            Edge e = { w, u, v, true};
+            es.pb(e);
+        }
+        f0(i, q) {
+            ll u, v, w; cin >> u >> v >> w;
+            Edge e = { w, u, v, false, i };
+            es.pb(e);
+        }
+        sort(all(es));
 
-        } else {
-            vi lvl(n+1);
-            auto dfs = y_combinator([&](auto rec, ll u, ll p) -> void {
-                lvl[u] = lvl[p]+1;
-                ll v = b[u];
-                if (!lvl[v]) {
-                    rec(v, u);
-                } else {
-                    if (lvl[v] >= lvl[u]) return;
-                    ll d = lvl[u] - lvl[v]+1;
-                    ok &= (d == k);
-                }
-            });
-
-            f1(i, n+1) {
-                if (!lvl[i]) {
-                    dfs(i, i);
-                }
+        vb ans(q);
+        for (auto [w, u, v, isG, idx] : es) {
+            if (find(u) == find(v)) {
+                if (!isG) ans[idx] = false;
+                continue;
             }
+            if (isG) unite(u, v);
+            else ans[idx] = true;
         }
 
-        cout << (ok ? "YES" : "NO") << endl;
+        for (auto x : ans) cout << (x ? "Yes" : "No") << endl;
     } 
     
     return 0;
