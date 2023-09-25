@@ -73,6 +73,16 @@ constexpr ll msk2(ll x) { return p2(x)-1; }
 
 ll cdiv(ll a, ll b) { return a/b+((a^b)>0&&a%b); } // divide a by b rounded up
 ll fdiv(ll a, ll b) { return a/b-((a^b)<0&&a%b); } // divide a by b rounded down
+ll binpow(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % P;
+        b >>= 1;
+        a = a * a % P;
+    }
+
+    return res;
+}
 
 tcT> bool ckmin(T& a, const T& b) {
     return b < a ? a = b, 1 : 0; } // set a = min(a,b)
@@ -254,7 +264,7 @@ inline namespace FileIO {
         // cin.exceptions(cin.failbit);
         // throws exception when do smth illegal
         // ex. try to read letter into int
-        if (sz(s)) setIn(s+".in"), setOut(s+".out"); // for old USACO
+        if (sz(s) && fopen((s+".in").c_str(), "r")) setIn(s+".in"), setOut(s+".out"); // for old USACO
     }
 }
 
@@ -267,14 +277,32 @@ public:
 };
 template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
 
-void solve(ll tc) {
+// This is a combo problem
+// You need to count the contribution of each segment,
+// and count it each time you see a starting point.
+void solve() {
     ll n; re(n);
+    vl open(2*n+1), clos(2*n+1);
+    f1(i, n) {
+        ll x, y; cin >> x >> y;
+        open[x] = 1;
+        clos[y] = 1;
+    }
+
+    ll ans = 0, cur = 0;
+    f1(i, 2*n) {
+        cur += open[i];
+        if (open[i]) (ans += binpow(2, n-cur)) %= P;
+        cur -= clos[i];
+    }
+
+    cout << ans << endl;
 }
 
 int main() {
-    setIO();
+    setIO("help");
 
-    ll TC; re(TC); f1(i, TC) solve(TC);
+    solve();
     
     return 0;
 }
