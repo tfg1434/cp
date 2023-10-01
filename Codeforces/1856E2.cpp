@@ -278,7 +278,37 @@ public:
 };
 template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
 
-ll N = 5005;
+constexpr ll N = 1e6+5;
+vl a;
+ll res;
+
+template<ll len = 1>
+void sss(ll n) {
+    if (n > len) {
+        sss<std::min(N, len*2)>(n);
+        return;
+    }
+
+    sort(rall(a));
+    if (a.empty()) return;
+    if (2*a[0] > n) {
+        res = a[0] * (n-a[0]);
+        return;
+    }
+
+    bitset<len> dp;
+    dp[0] = 1;
+    ll sum = 0;
+    each(x, a) {
+        dp |= (dp << x);
+        sum += x;
+    }
+
+    gg(dp);
+    f0(i, len) if (dp[i]) {
+        res = max(res, (i+1) * (n-i-1));
+    }
+}
 
 void solve() {
     ll n; re(n);
@@ -290,7 +320,7 @@ void solve() {
 
     vl e(n+1), dp(n+1);
     auto dfs = yy([&](auto rec, ll u) -> void {
-        vl a;
+        a.clear();
         e[u] = 1;
         each(v, g[u]) {
             rec(v);
@@ -299,26 +329,13 @@ void solve() {
             dp[u] += dp[v];
         }
 
-        vl dp2(N);
-        dp2[0] = 1;
-        f0(i, sz(a)){ 
-            ROF(j, 0, N - a[i]) {
-                dp2[j+a[i]] += dp2[j];
-            }
-        }
-
-        ll res = 0;
-        f0(i, N) {
-            if (dp2[i]) {
-                res = max(res, i * (e[u] - i -1));
-            }
-        }
-
+        res = 0;
+        sss(e[u]-1);
         dp[u]+=res;
     });
 
+
     dfs(1);
-    gg(dp);
     ps(dp[1]);
 }
 
