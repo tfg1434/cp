@@ -285,10 +285,21 @@ void solve() {
     vl b(n-1); FOR(i, 2, n+1) b[i-2] = a[i] - a[i-1], sum += b[i-2];
     sort(rall(b));
 
-    auto check1 = [&](ll r) -> ll {
+    auto check1 = [&](ll r, bool flag=false) -> ll {
         ll bb = b;
         ll res = sum;
-        for (ll i = 0; i < n-1 && bb >= r; i++) {
+
+        ll i = 0;
+        if (flag) {
+            bb -= r;
+            res -= min(r, b[0]);
+            if (b[0] - r > b[1]) {
+                bb -= r;
+                res -= min(r, b[0]-r);
+            }
+            i++;
+        }
+        for (; i < n-1 && bb >= r; i++) {
             bb -= r;
             res -= min(r, b[i]);
         }

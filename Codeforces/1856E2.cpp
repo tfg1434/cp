@@ -280,33 +280,31 @@ template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<st
 
 constexpr ll N = 1e6+5;
 vl a;
-ll res;
+ll closest;
 
 template<ll len = 1>
 void sss(ll n) {
-    if (n > len) {
+    if (n >= len) {
         sss<std::min(N, len*2)>(n);
         return;
     }
 
-    sort(rall(a));
-    if (a.empty()) return;
-    if (2*a[0] > n) {
-        res = a[0] * (n-a[0]);
-        return;
-    }
+    // sort(rall(a));
+    // if (a.empty()) return;
+    // if (2*a[0] > n) {
+        // return a[0];
+    // }
 
     bitset<len> dp;
     dp[0] = 1;
-    ll sum = 0;
     each(x, a) {
         dp |= (dp << x);
-        sum += x;
     }
 
-    gg(dp);
-    f0(i, len) if (dp[i]) {
-        res = max(res, (i+1) * (n-i-1));
+    ll cv = n;
+    f0(i, n+1) if (dp[i] && abs(i - (n-i)) < cv) {
+        closest = i;
+        cv = abs(i-(n-i));
     }
 }
 
@@ -319,6 +317,10 @@ void solve() {
     }
 
     vl e(n+1), dp(n+1);
+
+    auto f = [&](vl& a) {
+
+    }
     auto dfs = yy([&](auto rec, ll u) -> void {
         a.clear();
         e[u] = 1;
@@ -329,6 +331,7 @@ void solve() {
             dp[u] += dp[v];
         }
 
+        solve()
         res = 0;
         sss(e[u]-1);
         dp[u]+=res;
