@@ -282,26 +282,30 @@ void solve() {
     ll n; re(n);
     vl a(n); re(a);
     V<vl> dp(n, vl(n, BIG));
-    // ll px = a[0], pi = 0;
-    // f0(i, n) {
-        // if (i+1 == n || a[i+1] != px) {
-            // dp[pi][i] = 1;
-            // if (i+1 < n) {
-                // pi = i+1;
-                // px = a[i+1];
-            // }
-        // } 
-    // }
+
     FOR(len, 1, n+1) f0(l, n) {
         ll r = l + len-1;
         if (r >= n) break;
-        if (l == r) dp[l][r] = 1;
+        if (len == 1) {
+            dp[l][r] = 1;
+            continue;
+        }
+        if (len == 2) {
+            dp[l][r] = (a[l] == a[r]) ? 1 : 2;
+            continue;
+        } 
 
-        FOR(x, l, r) {
-            if (a[l] == a[r]) {
-                ckmin(dp[l][r], dp[l][x] + dp[x+1][r]-1);
+        FOR(x, l, r+1) {
+            if (a[l] != a[x]) continue;
+            // considering FPs a[l] == a[x]
+            ll L = l; while (L+1 < n && a[L] == a[l]) L++;
+            ll X = x; while (X-1 > 0 && a[X] == a[x]) X--;
+            if (L > X) {
+                if (x == r) ckmin(dp[l][r], 1ll);
+                else ckmin(dp[l][r], 1+dp[x+1][r]);
             } else {
-                ckmin(dp[l][r], dp[l][x] + dp[x+1][r]);
+                if (x == r) ckmin(dp[l][r], 1+dp[L][X]);
+                else ckmin(dp[l][r], 1+dp[L][X]+dp[x+1][r]);
             }
         }
     }
