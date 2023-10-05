@@ -286,9 +286,9 @@ signed main(int argc, char* argv[]) {
     mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
     ll seed = stoll(argv[1]); srand(seed);
-    ll n = 8; ps(n);
+    ll n = 10; ps(n);
     for (ll i = 0; i < n; i++) {
-        pr(rnd(1, 3), " ");
+        pr(rnd(1, 4), " ");
     }
     
     return 0;

@@ -278,6 +278,9 @@ public:
 };
 template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
 
+// This doesn't work. Consider
+// 5
+// 3 1 3 2 3
 void solve() {
     ll n; re(n);
     vl a(n); re(a);
@@ -300,6 +303,7 @@ void solve() {
             // considering FPs a[l] == a[x]
             ll L = l; while (L+1 < n && a[L] == a[l]) L++;
             ll X = x; while (X-1 > 0 && a[X] == a[x]) X--;
+            bool flag = a[l] == a[r];
             if (L > X) {
                 if (x == r) ckmin(dp[l][r], 1ll);
                 else ckmin(dp[l][r], 1+dp[x+1][r]);
