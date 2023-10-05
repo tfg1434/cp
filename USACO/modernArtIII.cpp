@@ -291,7 +291,7 @@ void solve() {
             continue;
         }
         if (len == 2) {
-            dp[l][r] = (a[l] == a[r]) ? 1 : 2;
+            dp[l][r] = a[l] == a[r] ? 1 : 2;
             continue;
         } 
 

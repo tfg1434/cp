@@ -1,12 +1,12 @@
 set -e
-g++ pareidolia.cpp -o code
-g++ gen.cpp -o gen
-g++ brute.cpp -o brute
+g++ modernArtIII.cpp -std=c++17 -o code
+g++ gen.cpp -std=c++17 -o gen
+g++ brute.cpp -std=c++17 -o brute
 for((i = 1; ; ++i)); do
     ./gen $i > input_file
     ./code < input_file > myAnswer
     ./brute < input_file > correctAnswer
-    diff -Z myAnswer correctAnswer > /dev/null || break
+    cmp --silent myAnswer correctAnswer || break
     echo "Passed test: "  $i
 done
 echo "WA on the following test:"
