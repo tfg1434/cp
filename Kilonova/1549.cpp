@@ -277,62 +277,70 @@ public:
     template<class ...Args> decltype(auto) operator()(Args &&...args) { return fun_(std::ref(*this), std::forward<Args>(args)...); }
 };
 template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
+ll n, B;
+vl a;
 
-void solve() {
+ll solve(bool flag=false) {
     ll sum = 0;
-    ll n, b; re(n, b);
-    vl a(n+1); f1(i, n) cin >> a[i];
-    vl b(n-1); FOR(i, 2, n+1) b[i-2] = a[i] - a[i-1], sum += b[i-2];
-    sort(rall(b));
+    vl d(n+1); FOR(i, 2, n+1) {
+        d[i] = a[i] - a[i-1], sum += d[i];
+    } 
+    sort(2+all(d), greater<ll>());
+    gg(d);
 
-    auto check1 = [&](ll r, bool flag=false) -> ll {
-        ll bb = b;
-        ll res = sum;
-
-        ll i = 0;
-        if (flag) {
-            bb -= r;
-            res -= min(r, b[0]);
-            if (b[0] - r > b[1]) {
-                bb -= r;
-                res -= min(r, b[0]-r);
+    vl test1, test2;
+    auto check = [&](ll r) -> ll {
+        auto help = [&]() -> ll {
+            ll res = sum;
+            ll b = B;
+            FOR(i, 2, sz(d)) {
+                if (b < r) break;
+                if (d[i] > r) continue;
+                b -= r;
+                res -= d[i];
             }
-            i++;
-        }
-        for (; i < n-1 && bb >= r; i++) {
-            bb -= r;
-            res -= min(r, b[i]);
-        }
+            gg(r, res);
+            return res;
+        };
 
-        return res;
-    };
-    ll p = 0;
-    ll best = BIG;
-    for (ll b = 1e18; b > 0; b /= 2) {
-        ll x; 
-        while ((x = check1(p+b)) < best) {
-            p += b;
-            best = x;
+        if (!flag) {
+            return help();
+        } else {
+            vl copy = d;
+            FOR(i, 2, sz(d)) {
+                if (d[i]>r) {
+                    d.insert(end(d), { r, d[i]-r });
+                    d.erase(bg(d)+i);
+                    break;
+                }
+            }
+            sort(2+all(d), greater<ll>());
+            ll ret = help();
+            d = copy;
+            return ret;
         }
+    };
+
+    ll lo = 0, hi = 1e9;
+    while (hi-lo > 4) {
+        ll m1 = (lo + hi) / 2;
+        ll m2 = (lo + hi) / 2 + 1;
+
+        if(check(m1) > check(m2)) lo = m1;
+        else hi = m2;
     }
+    ll best = BIG;
+    FOR(i, lo, hi+1) ckmin(best, check(i));
 
-
-    auto check2 = [&](ll r) -> ll {
-        ll bb = b;
-        ll res = sum;
-        for (ll i = 0; i < n-1 && bb >= r; i++) {
-            bb -= r;
-            res -= min(r, b[i]);
-        }
-
-        return res;
-    };
+    return best;
 }
 
 int main() {
     setIO("telefon");
     
-    solve(); 
+    re(n, B);
+    a.resize(n+1); f1(i, n) re(a[i]);
+    pr(solve(), ' ', solve(true));
 
     return 0;
 }
