@@ -292,44 +292,38 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll L = 105;
-const ll N = 1e5+5;
-ll dp[N][L+1];
-ll indeg[N];
+const int L = 105;
+const int N = 1e5+5;
+int dp[N][L];
+int indeg[N], vis[N], topo[N];
+vi g[N];
+ll id;
 
-int inv(int a) {
-  return a <= 1 ? a : P - (long long)(P/a) * inv(P % a) % P;
+void top(ll u) {
+    vis[u]=1;
+    each(v, g[u]) if (!vis[v]) top(v);
+    topo[id--] = u;
 }
 
 void solve() {
     int n, m, l; re(n,m,l);
-    V<vi> g(n+1), r(n+1);
+    id = n;
     f1(i, m) {
         int u, v; re(u, v);
         g[u].pb(v);
         indeg[v]++;
-        r[v].pb(u);
     }
 
-    vi vis(n+1);
     f1(i, n) if (!vis[i] && !indeg[i]) {
-        vi topo;
-        yy([&](auto rec, int u) -> void {
-            vis[u] = 1;
-            each(v, g[u]) if (!vis[v]) rec(v);
-            topo.pb(u);
-        })(i);
-        reverse(all(topo));
-
-        FOR(i, 0, sz(topo)) {
-            int u = topo[i];
-            dp[u][0] = 1;
-            each(v, g[u]) FOR(j, 0, l) {
-                (dp[v][j+1] += dp[u][j]) %= P;
-            } 
-        }
+        top(i);
     }
-    // gg(dp[n][1], dp[n][2], dp[n][3]);
+    FOR(i, 1, n+1) {
+        int u = topo[i];
+        dp[u][0] = 1;
+        each(v, g[u]) FOR(j, 0, l) {
+            (dp[v][j+1] += dp[u][j]) %= P;
+        } 
+    }
 
     int p = 0, q = 0;
     FOR(j, 0, l+1) (p += dp[n][j]) %= P;
