@@ -308,39 +308,20 @@ void init() {
 void solve() {
     ll n, m; re(n, m);
     string s; re(s);
-    s = ' ' + s;
-    if (s[1] == '?') {
-        cout << 0 << endl;
-        return;
+
+    ll ans = 1;
+    FOR(i, 1, n-1) if (s[i] == '?') {
+        (ans *= i) %= P;
     }
 
-    vl a(n);
-    // ll gmx=0, gmn=0;
-    ll cur = n;
-    ll numMx = 0, numMn = 0;
-    ROF(i, 1, n) {
-        if (s[i] == '>') {
-            // if (cur == n) gmx = i;
-            a[i] = cur--;
-            numMx++;
-        } else if (s[i] == '<') {
-            numMn++;
-        }
+    ps(s[0] == '?' ? 0 : ans);
+    f0(i, m) {
+        ll idx; char t; re(idx); re(t); idx--;
+        if (s[idx] == '?' && idx != 0) (ans *= binpow(idx, P-2)) %= P;
+        s[idx] = t;
+        if (t == '?' && idx != 0) (ans *= idx) %= P;
+        ps(s[0] == '?' ? 0 : ans);
     }
-    if (s[1] == '<') {
-        numMx++;
-        a[0] = cur--;
-    }
-    if (s[1] == '>') {
-        numMn++;
-    }
-
-    ll x = 1;
-    if (numMn > 0) {
-        x = C(n - numMx-1, numMn-1);
-        x *= f[numMn-1];
-    }
-    x *= f[numQ];
 }
 
 signed main() {
