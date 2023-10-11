@@ -299,27 +299,29 @@ void solve() {
     vl a(3), r(3), n(3);
     f0(i, 3) re(a[i], r[i], n[i]);
 
-
-
     ll ans = 0;
     ll ba, br, bn;
     f0(i, 3) f0(j, 3) if (j != i) {
-        ll aa = a[j];
-        ll sj = 0;
-        while (aa % a[i]) aa += r[j], sj++;
-        ll si = aa - a[i]; si /= r[i];
-        ll g = lcm(si, sj);
-        ll x = min((n[i] - si) / g, (n[j] - sj) / g);
-        if (i == 0 && j == 1) {
-            ba = aa;
-            br = g * a[i];
-            bn = n[i] / g;
-        }
-        ans += x;
+        ll cur = a[j];
+        ll cntJ = 0;
+        while (cur % r[i] != a[i] % r[i]) cur += r[j], cntJ++;
+        ll x = lcm(r[i], r[j]) / r[i], y = lcm(r[i], r[j]) / r[j];
+
+        ll cnt = (cur - a[i]) / r[i]; // +/-
+        ll ni = n[i], nj = n[j];
+        if (cur > a[j]) nj -= (cur - a[i]) / r[i];
+        else (ni -= (a[i] - cur]))
+        ll cnt = (cur - a[i]) / r[i];
+
+        ll z = (n[i] - cnt) / x + 1;
+        ll w = (n[j] - cntJ) / y + 1;
+        ans += min(w, z);
     }
 
+    ll curB = a[1], curC = a[2];
+    while (curB % r[0] != a[0] % r[0]) curB += r[1];
+    while (curC % r[0] != a[0] % r[0]) curC += r[2];
 
-    ll s2 = 0, s3 = 0;
 
 
 
