@@ -292,105 +292,61 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-// struct BIT {
-    // ll n;
-    // vl bit;
-    // BIT(ll _n) {
-        // n = _n;
-        // bit.resize(n);
-    // }
-    // void add(int idx, int val) {
-        // for (++idx; idx < n; idx += idx & -idx) (bit[idx] += val) %= 26;
-    // };
+const ll N = 2e5+5;
 
-    // void upd(int l, int r, int val) {
-        // add(l, val);
-        // add(r + 1, -val);
-    // };
-
-    // ll ask(int idx) {
-        // ll ret = 0;
-        // for (++idx; idx > 0; idx -= idx & -idx)
-            // (ret += bit[idx]) %= 26;
-        // return ret;
-    // };
-// };
-constexpr ll N = 2e5+5;
-#define LSOne(S) (S & (-S))
 struct BIT {
-    vl B1, B2;
-    BIT() {
-        B1.resize(N);
-        B2.resize(N);
+    ll n;
+    vl bit;
+    BIT(ll n) {
+        this->n = n;
+        bit.resize(n);
     }
+    
+    void add(ll idx, ll val) {
+        for (; idx < n; idx = (idx+1)|idx) bit[idx] += val;
+    };
 
-    // Point query
-    // Returns value at position b in the array for ft = B1
-    // Returns value to be subtracted from query(B1, b) * b for ft = B2
-    ll query(ll t, int b)	{
-        ll sum = 0;
-        for (; b; b -= LSOne(b)) sum += (t == 1 ? B1 : B2)[b];
-        return sum;
-    }
+    void upd(ll l, ll r, ll val) {
+        add(l, val);
+        add(r + 1, -val);
+    };
 
-    // Range query: Returns the sum of all elements in [1...b]
-    ll query(int b) {
-        return query(1, b) * b - query(2, b);
-    }
-
-    // Range query: Returns the sum of all elements in [i...j]
-    ll range_query(int i, int j)    {
-        return query(j) - query(i - 1);
-    }
-
-    // Point update: Adds v to the value at position k in the array
-    // ft is the fenwick tree which represents that array
-    void update(ll t, int k, ll v) {
-        for (; k <= N; k += LSOne(k)) (t == 1 ? B1 : B2)[k] += v;
-    }
-
-    // Range update: Adds v to each element in [i...j]
-    void range_update(int i, int j, ll v)	{
-        update(1, i, v);
-        update(1, j + 1, -v);
-        update(2, i, v * (i - 1));
-        update(2, j + 1, -v * j);
-    }
+    ll ask(ll idx) {
+        ll ret = 0;
+        for (; idx >= 0; idx = (idx & (idx+1)) - 1)
+            ret += bit[idx];
+        return ret;
+    };
 };
 
 void solve() {
     ll n, m; re(n, m);
 
-    BIT a,b;
+    BIT a(n);
     string s; re(s);
-    V<vb> p(n, vb(4));
+    set<pl> st;
 
-    V<vl> has(n, vl(4));
     auto f = [&](ll l, ll r) {
         ll k = r-l+1;
-        if (a.range_query(r, r)%26 == a.range_query(l, l)%26) {
-            b.range_update(l, r, 1);
-            has[l][k] = 1;
+        if (a.ask(r)%26 == a.ask(l)%26) {
+            st.insert({ l, k });
         } else {
-            if (has[l][k]) {
-                b.range_update(l, r, -1);
-                has[l][k] = 0;
+            if (st.count({l, k})) {
+                st.erase({l, k});
             }
         }
     };
     f0(i, n) {
-        a.range_update(i, i, s[i] - 'a');
-        gg(s);
+        a.upd(i, i, s[i] - 'a');
         if (i-1 >= 0) f(i-1, i);
         if (i-2 >= 0) f(i-2, i);
     }
 
     f0(i, m) {
         ll t, l, r; re(t, l, r); l--, r--;
-        gg(t, l, r);
         if (t == 1) {
             ll x; re(x); x %= 26; if (!x) continue;
-            a.range_update(l, r, x);
+            a.upd(l, r, x);
 
             //invalidated permutations
             //with one on the boundary
@@ -405,8 +361,9 @@ void solve() {
             }
 
         } else {
-            gg(l,r);
-            ps(b.range_query(l, r) ? "YES" : "NO");
+            auto it = st.lower_bound({l, 2});
+            if (it != st.end() && it->f <= r) ps("NO");
+            else ps("YES");
         }
     }
 }
