@@ -292,110 +292,13 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-// const ll N = 1005;
-// ll _dp[3*N + 1][3*N + 1];
-// ll _minr[3*N + 1][3*N + 1];
-// ll _minc[3*N + 1][3*N + 1];
-// auto dp = reinterpret_cast<ll (*)[3*N + 1]>(&_dp[N][N]);
-// auto minr = reinterpret_cast<ll (*)[3*N + 1]>(&_minr[N][N]);
-// auto minc = reinterpret_cast<ll (*)[3*N + 1]>(&_minc[N][N]);
+// Array [-N..N][-N..N][-N..N]
+const int N = 1005;
+int _arr[3*N + 1][3*N + 1];
+auto a = reinterpret_cast<int (*)[3*N + 1]>(&_arr[N][N]);
 
-struct RMQ {
-    deque<pair<ll,ll>> d;
-    ll l, r;
-    
-    RMQ(){
-        l = r = 0;
-    }
-    
-    void push_back(ll x){
-        while(!d.empty() && d.back().first >= x) d.pop_back();
-        d.emplace_back(x,r);
-        ++r;
-    }
-    
-    void pop_front(){
-        if(d.front().second == l) d.pop_front();
-        ++l;
-    }
-    
-    ll get_min(){
-        return d.empty() ? BIG : d.front().first;
-    }
-};
-
-void solve() {
-    ll C; re(C);
-    ll n, m; re(n, m);
-    ll p, q, r; re(p, q, r);
-    V<vl> dp(n+1, vl(m+1, BIG));
-    if (C == 1) {
-        V<RMQ> col(m+1), dig(m+1);
-        dp[1][1] = 0;
-        f1(i, n){
-            RMQ row;
-            f1(j, m) {
-                if (i > 1 && j > 2) ckmin(dp[i][j], dp[i-1][j-2]+1);
-                if (i > 2 && j > 1) ckmin(dp[i][j], dp[i-2][j-1]+1);
-                if (p > 0) ckmin(dp[i][j], row.get_min()+1);
-                if (q > 0) ckmin(dp[i][j], col[j].get_min()+1);
-                //should be r squares in the mask
-                if (r > 0 && i > 1 && j > 1) ckmin(dp[i][j], dig[j-1].get_min()+1);
-
-                //update our sliding windows
-                //
-                row.pb(dp[i][j]);
-                //p elements in window
-                if (j - p >= 1) row.pop_front();
-                
-                col[j].pb(dp[i][j]);
-                if (i - q >= 1) col[j].pop_front();
-            }
-            ROF(j, 1, m+1) {
-                dig[j] = dig[j-1];
-                dig[j].pb(dp[i][j]);
-                //r elements in window
-                if (min(i, j) - r >= 1) dig[j].pop_front();
-            }
-        }
-    } else {
-        V<ll> col(m+1), dig(m+1);
-        f1(i, n) f1(j, m) dp[i][j] = 0;
-        dp[1][1] = 1;
-        f1(i, n){
-            ll row = 0;
-            f1(j, m) {
-                if (i > 1 && j > 2) (dp[i][j] += dp[i-1][j-2]) %= P;
-                if (i > 2 && j > 1) (dp[i][j] += dp[i-2][j-1]) %= P;
-                if (p > 0) (dp[i][j] += row) %= P;
-                if (q > 0) (dp[i][j] += col[j]) %= P;
-                //should be r squares in the mask
-                if (r > 0 && i > 1 && j > 1) (dp[i][j] += dig[j-1]) %= P;
-
-                //update our sliding windows
-                row += dp[i][j];
-                //p elements in window
-                if (j - p >= 1) (row += P-dp[i][j-p]) %= P;
-                
-                (col[j] += dp[i][j]) %= P;
-                if (i - q >= 1) (col[j] += P-dp[i-q][j]) %= P;
-            }
-            ROF(j, 1, m+1) {
-                dig[j] = dig[j-1];
-                (dig[j] += dp[i][j]) %= P;
-                //r elements in window
-                if (min(i, j) - r >= 1) (dig[j] += P-dp[i-r][j-r]) %= P;
-            }
-        }
-    }
-
-    ps(dp[n][m]);
-}
-
-signed main() {
-    setIO("turcane");
-    
-    solve(); 
-
-    return 0;
+int main() {
+	for (int i = -N; i <= N; ++i)
+		for (int j = -N; j <= N; ++j)
+            ps(a[i][j]);
 }
