@@ -120,28 +120,28 @@ inline namespace Helpers {
     // this gets used only when we can call begin() and end() on that type
     tcT, class = void> struct is_iterable : false_type {};
     tcT> struct is_iterable<T, void_t<decltype(begin(declval<T>())),
-                                                                                                                                            decltype(end(declval<T>()))
-                                                                                                                                        >
-                                                                                                > : true_type {};
+                                      decltype(end(declval<T>()))
+                                     >
+                           > : true_type {};
     tcT> constexpr bool is_iterable_v = is_iterable<T>::value;
 
     //////////// is_readable
     tcT, class = void> struct is_readable : false_type {};
     tcT> struct is_readable<T,
-                                    typename std::enable_if_t<
-                                                    is_same_v<decltype(cin >> declval<T&>()), istream&>
-                                    >
-                    > : true_type {};
+            typename std::enable_if_t<
+                is_same_v<decltype(cin >> declval<T&>()), istream&>
+            >
+        > : true_type {};
     tcT> constexpr bool is_readable_v = is_readable<T>::value;
 
     //////////// is_printable
     // // https://nafe.es/posts/2020-02-29-is-printable/
     tcT, class = void> struct is_printable : false_type {};
     tcT> struct is_printable<T,
-                                    typename std::enable_if_t<
-                                                    is_same_v<decltype(cout << declval<T>()), ostream&>
-                                    >
-                    > : true_type {};
+            typename std::enable_if_t<
+                is_same_v<decltype(cout << declval<T>()), ostream&>
+            >
+        > : true_type {};
     tcT> constexpr bool is_printable_v = is_printable<T>::value;
 }
 
@@ -205,9 +205,9 @@ inline namespace ToString {
 
     // for nested DS
     template<int, class T> typename enable_if<!needs_output_v<T>,vs>::type 
-            ts_lev(const T& v) { return {ts(v)}; }
+      ts_lev(const T& v) { return {ts(v)}; }
     template<int lev, class T> typename enable_if<needs_output_v<T>,vs>::type 
-            ts_lev(const T& v) {
+      ts_lev(const T& v) {
         if (lev == 0 || !sz(v)) return {ts(v)};
         vs res;
         for (const auto& t: v) {
@@ -283,7 +283,7 @@ struct chash {
     const uint64_t C = uint64_t(2e18 * PI) + 71;
     // random 32-bit number
     const uint32_t RANDOM =
-                    chrono::steady_clock::now().time_since_epoch().count();
+        chrono::steady_clock::now().time_since_epoch().count();
     size_t operator()(uint64_t x) const {
         // see https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
         return __builtin_bswap64((x ^ RANDOM) * C);
@@ -292,90 +292,55 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 2e5+5;
-
-struct BIT {
-    ll n;
-    vl bit;
-    BIT(ll n) {
-        this->n = n;
-        bit.resize(n);
-    }
-    
-    void add(ll idx, ll val) {
-        for (; idx < n; idx = (idx+1)|idx) bit[idx] += val;
-    };
-
-    void upd(ll l, ll r, ll val) {
-        add(l, val);
-        add(r + 1, -val);
-    };
-
-    ll ask(ll idx) {
-        ll ret = 0;
-        for (; idx >= 0; idx = (idx & (idx+1)) - 1)
-            ret += bit[idx];
-        return ret;
-    };
-};
-
 void solve() {
-    ll n, m; re(n, m);
-
-    BIT a(n);
-    string s; re(s);
-    set<ll> st2, st3;
-
-    auto f = [&](ll l, ll r) {
-        ll k = r-l+1;
-        if (a.ask(r)%26 == a.ask(l)%26) {
-            (k == 2 ? st2 : st3).insert(l);
-        } else {
-            if ((k == 2 ? st2 : st3).count(l)) {
-                (k == 2 ? st2 : st3).erase(l);
-            }
-        }
-    };
-    f0(i, n) {
-        a.upd(i, i, s[i] - 'a');
-        if (i-1 >= 0) f(i-1, i);
-        if (i-2 >= 0) f(i-2, i);
+    ll n; re(n);
+    V<vl> g(n+1);
+    vl mx(n+1), b(n+1), ans(n+1);
+    f0(i, n-1) {
+        ll u, v; re(u, v);
+        g[u].pb(v); g[v].pb(u);
     }
 
-    f0(i, m) {
-        ll t, l, r; re(t, l, r); l--, r--;
-        if (t == 1) {
-            ll x; re(x); x %= 26; if (!x) continue;
-            a.upd(l, r, x);
-
-            //invalidated permutations
-            //with one on the boundary
-            if (r+1 < n) f(r, r+1);
-            if (l-1 > 0) f(l-1, l);
-            if (r+2 < n) f(r, r+2);
-            if (l-2 > 0) f(l-2, l);
-            //two deep
-            if (r-l+1 >= 2) {
-                if (r+1 < n) f(r-1, r+1);
-                if (l-1 > 0) f(l-1, l+1);
-            }
-
-        } else {
-            auto it2 = st2.lower_bound(l);
-            auto it3 = st3.lower_bound(l);
-            gg(st2, st3);
-            if ((it2 != st2.end() && *it2 < r) || (it3 != st3.end() && *it3 < r-1)) ps("NO");
-            else ps("YES");
+    auto dfs = yy([&](auto rec, ll u, ll p) -> void {
+        each(v, g[u]) if (v != p) {
+            rec(v, u);
+            ckmax(mx[u], mx[v]+1);
         }
+    });
+    auto dfs2 = yy([&](auto rec, ll u, ll p, ll dist) -> void {
+        ckmax(ans[u], max(dist, mx[u]));
+        vpl mxs;
+        each(v, g[u]) if (v != p) {
+            mxs.pb({ mx[v], v });
+        }
+        sort(rall(mxs));
+        if (sz(mxs)== 1) {
+            b[g[u][0]] = 0;
+            rec(v, u, dist+1);
+        } else {
+            each(v, g[u]) if (v != p) {
+                if (v == mxs[0].s) b[v] = 2 + mxs[1].f;
+                else b[v] = 2 + mxs[0].f;
+            }
+        }
+
+        each(v, g[u]) if (v != p) {
+            rec(v, u, max(dist, b[v]));
+        }
+    });
+    dfs(1, 1);
+    dfs2(1, 1);
+
+    f1(i, n) {
+        ll res = max(mx[i], b[i]);
+        ps(res);
     }
 }
 
 signed main() {
     setIO();
     
-    ll tc; cin >> tc; while (tc--) {
-        solve();
-    } 
+    solve();
 
     return 0;
 }
