@@ -292,6 +292,12 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// Thinking
+// Why didn't I think to just fix the max? That was the key obsercation
+// When you have small constraints, fix things to make the problem
+// easier to solve
+// Implementation
+// Oops when k > 2n i made a mistake
 void solve() {
     ll n, k; re(n, k);
     vl a(n); re(a);
@@ -302,6 +308,8 @@ void solve() {
         f0(j, n) {
             cnt += a[j]/i;
         } 
+        if (cnt < k/2) break;
+
         if (cnt >= k) {
             ckmax(ans, k/2 * i);
         } else {
@@ -309,11 +317,15 @@ void solve() {
             vl b = a;
             f0(j, n) b[j] %= i;
             sort(rall(b));
-            f0(j, k-cnt) c.pb(b[j]);
-            assert(sz(c)==k);
-            vl pre(k+1);
-            partial_sum(all(c), bg(pre)+1);
-            ckmax(ans, pre[k]-pre[k/2]);
+            f0(j, min(sz(b), k-cnt)) {
+                c.pb(b[j]);
+            }
+            
+            ll res = 0;
+            FOR(j, k/2, sz(c)) res += c[j];
+            ckmax(ans, res);
+            // originally this was the error. can you see the problem?
+            // f0(j, k-cnt) c.pb(b[j]);
         }
     }
     ps(ans);
