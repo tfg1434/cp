@@ -295,7 +295,7 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 void solve() {
     ll n; re(n);
     V<vl> g(n+1);
-    vl mx(n+1), b(n+1), ans(n+1);
+    vl mx(n+1), ans(n+1);
     f0(i, n-1) {
         ll u, v; re(u, v);
         g[u].pb(v); g[v].pb(u);
@@ -311,30 +311,26 @@ void solve() {
         ckmax(ans[u], max(dist, mx[u]));
         vpl mxs;
         each(v, g[u]) if (v != p) {
-            mxs.pb({ mx[v], v });
+            mxs.pb({ mx[v]+1, v });
         }
         sort(rall(mxs));
-        if (sz(mxs)== 1) {
-            b[g[u][0]] = 0;
-            rec(v, u, dist+1);
-        } else {
-            each(v, g[u]) if (v != p) {
-                if (v == mxs[0].s) b[v] = 2 + mxs[1].f;
-                else b[v] = 2 + mxs[0].f;
-            }
-        }
-
         each(v, g[u]) if (v != p) {
-            rec(v, u, max(dist, b[v]));
+            if (v == mxs.front().s) {
+                if (sz(mxs) == 1) {
+                    rec(v, u, dist+1);
+                } else {
+                    rec(v, u, max(dist, mxs[1].f)+1);
+                }   
+            } else {
+                rec(v, u, max(dist, mxs.front().f)+1);
+            }
         }
     });
     dfs(1, 1);
-    dfs2(1, 1);
+    dfs2(1, 1, 0);
 
-    f1(i, n) {
-        ll res = max(mx[i], b[i]);
-        ps(res);
-    }
+    f1(i, n) pr(ans[i], ' ');
+    ps();
 }
 
 signed main() {
