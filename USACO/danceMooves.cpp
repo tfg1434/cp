@@ -328,8 +328,7 @@ void solve() {
         ans[i] = sz(temp);
     }
 
-    f1(i, n) pr(ans[vis[i]], ' ');
-    ps();
+    f1(i, n) ps(ans[vis[i]]);
 }
 
 signed main() {
