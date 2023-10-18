@@ -292,22 +292,50 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+//cost[i][j] is the cost to move colour i before colour j if 
+//there are only these to colours (i.e. to move j after i). 
+//motivated by the fact that we don't care about the colour
+//j, they all stay in sorted order, and we can break it apart
+//into seperate colours and add them up.
+//Then to add a colour to the dp state, we need to move it 
+//in front of all colours except the colour which is already
+//in the mask
 void solve() {
     ll n; re(n);
     vl a(n); re(a);
-    V<vl> cost(21, vl(21));
-    f1(i, 20) f1(j, 20) if (i != j) {
-        ll pos = (rend(a) - find_first_of(rbegin(a), rend(a), i, i)) - 1;
-        if (pos == -1) break;
-        ll res = 0;
-        f0(k, n) if (a[k] == j) {
-            res += max(0ll, pos - j);
+    each(x, a) x--;
+    V<vl> cost(20, vl(20));
+    vector<int> cnt(20);
+    //oops they both work i just forgot to subtract 1
+    // f0(i, n) {
+        // f0(j, 20) if(j != a[i])
+            // cost[a[i]][j] += cnt[j];
+        // cnt[a[i]]++;
+    // }
+
+    f0(i, 20) f0(j, 20) if (i != j) {
+        ll res = 0, cnt = 0;
+        f0(k, n) {
+            if (a[k] == j) cnt++;
+            if (a[k] == i) res += cnt;
         }
         cost[i][j] = res;
     }
+    // gg(cost);
 
     vl dp(1 << 20, BIG);
+    dp[0]=0;
+    f0(i, 1 << 20) {
+        f0(j, 20) if (!(i & (1 << j))) {
+            ll sum = 0;
+            f0(k, 20) if (!(i & (1 << k))) {
+                sum += cost[j][k];
+            }
+            ckmin(dp[i+(1<<j)], dp[i]+sum);
+        }
+    }
 
+    ps(dp[(1<<20)-1]);
 }
 
 signed main() {
