@@ -298,16 +298,24 @@ void solve() {
     vl a(n+1); f1(i, n) re(a[i]);
 
     ll ans = 0;
+    ll x = 0;
     FOR(i, 2, n+1) {
-        ll p = floor(log2(a[i-1]) - log2(a[i]));
-        ll x = p-1, y = p+1;
-        ll res;
-        if (y >= 0 && a[i] * binpow(2, y) > a[i-1]) res = y;
-        if (p >= 0 && a[i] * binpow(2, p) > a[i-1]) res = p;
-        if (x >= 0 && a[i] * binpow(2, x) > a[i-1]) res = x;
+        ll cnt = 0;
+        ll prev = a[i-1];
+        ll cur = a[i];
+        if (cur < prev) {
+            while (cur < prev) {
+                x++;
+                cur *= 2;
+            }
+        } else {
+            while (x > 0 && 2*prev <= cur) {
+                x--;
+                prev *= 2;
+            }
+        }
 
-        a[i] *= binpow(2, res);
-        ans += res;
+        ans += x;
     }
 
     ps(ans);
