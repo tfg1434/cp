@@ -315,10 +315,11 @@ struct BIT {
         ll ret = 0;
         for (; idx >= 0; idx = (idx & (idx+1)) - 1)
             ret += bit[idx];
-        return ret;
+        return ret % 26;
     };
 };
 
+ll cnt = 0;
 void solve() {
     ll n, m; re(n, m);
 
@@ -328,7 +329,7 @@ void solve() {
 
     auto f = [&](ll l, ll r) {
         ll k = r-l+1;
-        if (a.ask(r)%26 == a.ask(l)%26) {
+        if (a.ask(r) == a.ask(l)) {
             (k == 2 ? st2 : st3).insert(l);
         } else {
             if ((k == 2 ? st2 : st3).count(l)) {
@@ -351,25 +352,37 @@ void solve() {
             //invalidated permutations
             //with one on the boundary
             if (r+1 < n) f(r, r+1);
-            if (l-1 > 0) f(l-1, l);
+            if (l-1 >= 0) f(l-1, l);
             if (r+2 < n) f(r, r+2);
-            if (l-2 > 0) f(l-2, l);
+            if (l-2 >= 0) f(l-2, l);
             //two deep
             if (r-l+1 >= 2) {
                 if (r+1 < n) f(r-1, r+1);
-                if (l-1 > 0) f(l-1, l+1);
+                if (l-1 >= 0) f(l-1, l+1);
             }
 
         } else {
+            cnt++;
+            // if (cnt == 18) {
+                // f0(i, n) cout << (char)('a'+a.ask(i));
+                // cout << '/';
+                // f0(i, n) cout << a.ask(i) << '_';
+                // cout << '/';
+                // cout << s << '/' << l << '/' << r << '/' << n;
+                // cout << '/';
+                // each(x, st2) cout << x << '_';
+                // return;
+            // }
             auto it2 = st2.lower_bound(l);
             auto it3 = st3.lower_bound(l);
-            gg(st2, st3);
             if ((it2 != st2.end() && *it2 < r) || (it3 != st3.end() && *it3 < r-1)) ps("NO");
             else ps("YES");
         }
     }
 }
 
+// EPLVSWIGRPCPL
+// eplvswigrpcpl
 signed main() {
     setIO();
     
