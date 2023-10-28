@@ -291,100 +291,44 @@ struct chash {
 };
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
-// Thinking
-// It was good to think about abusing query order, but i 
-// should've thought about answering queries during the DFS
-// LCA property/trick--if node u is the lca, then it's an 
-// ancestor of both nodes
-// Thinking about LCA doesn't mean you have to implement
-// binary lifting
-// The key idea is to fix an endpoint of a query
-// as the current node in dfs
 
-const ll N = 1e5+5;
-vpl stor[N];
-vl ord;
-
-struct Query {
-    ll v, c, idx;
-};
+const ll M = 27;
 
 void solve() {
-    ll n, m; re(n, m);
-    vl t(n+1); f1(i, n) re(t[i]);
-    V<vl> g(n+1);
-    f0(i, n-1) {
-        ll u, v; re(u, v);
-        g[u].pb(v); g[v].pb(u);
-    }
+    ll n,m,k; re(n,m,k);
+    string s; re(s); s = ' '+s;
 
-    V<V<Query>> qs(n+1);
-    f0(i, m) {
-        ll a, b, c; re(a,b,c);
-        qs[a].pb({b, c, i});
-        qs[b].pb({a, c, i});
-    }
-    vl ans(m);
-    vl lvl(n+1);
-    vpl sf(n+1);
-    vl stk;
-    ll co = 0;
-    auto dfs = yy([&](auto rec, ll u, ll p) -> void {
-        sf[u].f = co++; 
-        each(v, g[u]) if (v != p) {
-            rec(v,u);
-        }
-        sf[u].s = co-1;
-    });
+    V<vl> dist(m, vl(m, BIG));
+    f0(i, m) f0(j, m) re(dist[i][j]);
+    f0(c, m) f0(a, m) f0(b, m) ckmin(dist[a][b], dist[a][c] + dist[c][b]);
 
-    //is u ancestor of v.
-    auto anc = [&](ll u, ll v) {
-        return sf[u].f <= sf[v].f && sf[v].s <= sf[u].s;
-    };
+    V<vl> pre(m, vl(n+1));
+    f0(i, m) f1(j, n) pre[i][j] = pre[i][j-1] + dist[s[j]-'a'][i];
 
-    auto dfs2 = yy([&](auto rec, ll u, ll p) -> void {
-        if (u != p) lvl[u] = lvl[p]+1;
-        stor[t[u]].pb({ u, lvl[u] });
-        ord.pb(u);
+    V<vl> dp(n+1, vl(m, BIG));
+    // f0(i, m) dp[0][i] = 0;
+    // OK
+    // FOR(i, 1, n) cout << dist[s[i]-'a'][0] << ' ';
 
-        //need to check if v already processed?
-        for (auto [v, c, idx] : qs[u]) if (sz(stor[c])) {
-            auto y = stor[c].bk; 
-            // gg(idx, y, c);
-
-            if (y.f == u) {
-                ans[idx] = 1;
-            } else {
-                if (!anc(y.f, v)) {
-                    ans[idx] = 1; 
-                } else {
-                    //need to check whether y is lca(u,v)
-                    //we know that y is ancestor of v
-                    //check whether element in ord after v is 
-                    //ancestor of b
-
-                    ll z = ord[y.s+1];
-                    // gg(z, v, anc(z, v), sf[z], sf[v]);
-                    ans[idx] |= (!anc(z, v));
-                }
+    vl mn(n+1, BIG);
+    mn[0] = 0;
+    f1(i, n) {
+        f0(j, m) {
+            ll c = s[i]-'a';
+            ckmin(dp[i][j], dp[i-1][j]+dist[c][j]);
+            if (i-k>=0) {
+                ckmin(dp[i][j], mn[i-k] + pre[j][i] - pre[j][i-k]);
             }
-        }
-        each(v, g[u]) if (v != p) {
-            rec(v,u) ;
-        }
-        // gg(stor[t[u]]);
-        // gg(ord);
-        stor[t[u]].pop_back(); ord.pop_back();
-    });
 
-    dfs(1,1);
-    dfs2(1,1);
-    f0(i, m) pr(ans[i]);
-    ps();
+            ckmin(mn[i], dp[i][j]);
+        }
+    }
+    
+    ps(mn[n]);
 }
 
 signed main() {
-    setIO("milkvisits");
+    setIO("cowmbat");
     
     solve(); 
 

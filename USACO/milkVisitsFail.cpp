@@ -291,23 +291,6 @@ struct chash {
 };
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
-// Thinking
-// It was good to think about abusing query order, but i 
-// should've thought about answering queries during the DFS
-// LCA property/trick--if node u is the lca, then it's an 
-// ancestor of both nodes
-// Thinking about LCA doesn't mean you have to implement
-// binary lifting
-// The key idea is to fix an endpoint of a query
-// as the current node in dfs
-
-const ll N = 1e5+5;
-vpl stor[N];
-vl ord;
-
-struct Query {
-    ll v, c, idx;
-};
 
 void solve() {
     ll n, m; re(n, m);
@@ -318,69 +301,19 @@ void solve() {
         g[u].pb(v); g[v].pb(u);
     }
 
-    V<V<Query>> qs(n+1);
-    f0(i, m) {
-        ll a, b, c; re(a,b,c);
-        qs[a].pb({b, c, i});
-        qs[b].pb({a, c, i});
+    ll len = sqrt(m);
+    ll i = 0;
+    while (i < n) {
+        set<ll> 
+        V<>
+        for (ll j = 0; i < n && j < len; j++, i++) {
+            ll a, b, c; re(a,b,c);
+
+        }
     }
-    vl ans(m);
-    vl lvl(n+1);
-    vpl sf(n+1);
-    vl stk;
-    ll co = 0;
     auto dfs = yy([&](auto rec, ll u, ll p) -> void {
-        sf[u].f = co++; 
-        each(v, g[u]) if (v != p) {
-            rec(v,u);
-        }
-        sf[u].s = co-1;
+
     });
-
-    //is u ancestor of v.
-    auto anc = [&](ll u, ll v) {
-        return sf[u].f <= sf[v].f && sf[v].s <= sf[u].s;
-    };
-
-    auto dfs2 = yy([&](auto rec, ll u, ll p) -> void {
-        if (u != p) lvl[u] = lvl[p]+1;
-        stor[t[u]].pb({ u, lvl[u] });
-        ord.pb(u);
-
-        //need to check if v already processed?
-        for (auto [v, c, idx] : qs[u]) if (sz(stor[c])) {
-            auto y = stor[c].bk; 
-            // gg(idx, y, c);
-
-            if (y.f == u) {
-                ans[idx] = 1;
-            } else {
-                if (!anc(y.f, v)) {
-                    ans[idx] = 1; 
-                } else {
-                    //need to check whether y is lca(u,v)
-                    //we know that y is ancestor of v
-                    //check whether element in ord after v is 
-                    //ancestor of b
-
-                    ll z = ord[y.s+1];
-                    // gg(z, v, anc(z, v), sf[z], sf[v]);
-                    ans[idx] |= (!anc(z, v));
-                }
-            }
-        }
-        each(v, g[u]) if (v != p) {
-            rec(v,u) ;
-        }
-        // gg(stor[t[u]]);
-        // gg(ord);
-        stor[t[u]].pop_back(); ord.pop_back();
-    });
-
-    dfs(1,1);
-    dfs2(1,1);
-    f0(i, m) pr(ans[i]);
-    ps();
 }
 
 signed main() {
