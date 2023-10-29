@@ -367,6 +367,8 @@ signed main() {
     re(n);
     a.resize(n); b.resize(n); re(a, b);
     ll ans = solve(); 
+    //why doesn't this work
+    reverse(all(a)); reverse(all(b));
     swap(a,b);
     ckmin(ans, solve());
     ps(ans);
