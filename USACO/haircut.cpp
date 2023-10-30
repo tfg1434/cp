@@ -292,42 +292,71 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-ll merge(vl& a, vl l, vl r) {
-    ll i = 0, j = 0;
-    ll cnt = 0;
-    while (i < sz(l) || j < sz(r)) {
-        if (i == sz(l)) {
-            a[i+j] = r[j];
-            j++;
-        } else if (j == sz(r)) {
-            a[i+j] = l[i];
-            i++;
-        } else if (l[i] <= r[j]) {
-            a[i+j] = l[i];
-            i++;                
-        } else {
-            a[i+j] = r[j];
-            cnt += sz(l)-i;
-            j++;
+// const ll N = 2e5+5;
+
+template<class Iter, class Cmp = std::less<typename std::iterator_traits<Iter>::value_type>>
+unsigned int merge(Iter begin, Iter mid, Iter end, const Cmp& cmp = Cmp())
+{
+    auto lhs_len = std::distance(begin,mid);
+    unsigned int count = 0;
+    
+    // reserve space for sort-bed
+    std::vector<typename std::iterator_traits<Iter>::value_type> sorted;
+    
+    Iter lhs = begin, rhs = mid;
+    while (lhs != mid && rhs != end)
+    {
+        if (cmp(*lhs,*rhs) || !cmp(*rhs,*lhs))
+            sorted.emplace_back(*lhs++);
+        else
+        {   // bump count with rhs moves
+            sorted.emplace_back(*rhs++);
+            count += (lhs_len - std::distance(begin,lhs));
         }
     }
-    return cnt;
+    
+    // finish missing segment
+    while (lhs != mid)
+        sorted.emplace_back(*lhs++);
+    while (rhs != end)
+        sorted.emplace_back(*rhs++);
+
+    // move sorted data back into place
+    std::copy(sorted.begin(), sorted.end(), begin);
+    
+    return count;
 }
 
-void invc() {
-
+// mergesort algorithm
+template<class Iter, class Cmp = std::less<typename std::iterator_traits<Iter>::value_type>>
+unsigned int mergesort(Iter begin, Iter end, const Cmp& cmp = Cmp())
+{
+    auto len = std::distance(begin, end);
+    if (len < 2)
+        return 0;
+    
+    Iter mid = std::next(begin, len/2);
+    
+    return mergesort(begin, mid, cmp) +
+           mergesort(mid, end, cmp) +
+           merge(begin, mid, end, cmp);
 }
+
 
 void solve() {
     ll n; re(n);
     vl a(n); re(a);
-    vl cnt(n);
+    vl cnt(n+1);
     f0(i, n) cnt[a[i]]++;
 
-    vl ans(n);
+    vl ans(n+1);
+    ans[n] = mergesort(all(a));
     ROF(i, 0, n) {
-
+        ans[i] = ans[i+1]-cnt[i];
     }
+
+    ans[0] = 0; //why?
+    f0(i, n) ps(ans[i]);
 }
 
 signed main() {
