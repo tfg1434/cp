@@ -342,21 +342,41 @@ unsigned int mergesort(Iter begin, Iter end, const Cmp& cmp = Cmp())
            merge(begin, mid, end, cmp);
 }
 
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
+template <class T> using Tree = tree<T, null_type, less<T>, 
+    rb_tree_tag, tree_order_statistics_node_update>;
 
+// Thinking
+// Learned that the best way to invc is with pbds
+// Saw how everything connects (sqrt decomp, mergesort, BIT, pbds)
+// I did something stupid the first time, my issue was that i was not
+// adding the # inversions but just blindly assuming it was 1
+// (I added 1 for each time j hit this). This is wrong bc u need
+// to thinka bout contribution.
 void solve() {
     ll n; re(n);
     vl a(n); re(a);
-    vl cnt(n+1);
-    f0(i, n) cnt[a[i]]++;
+    Tree<ll> T;
+    V<vl> todo(n+1);
+    f0(i, n) {
+        todo[a[i]].pb(i);
+    } 
 
-    vl ans(n+1);
-    ans[n] = mergesort(all(a));
-    ROF(i, 0, n) {
-        ans[i] = ans[i+1]-cnt[i];
+    ll ans = 0;
+    vl numInv(n+2);
+    ROF(i, 0, n+1) {
+        each(t, todo[i]) numInv[i+1] += T.order_of_key(t);
+        each(t, todo[i]) T.insert(t);
     }
 
-    ans[0] = 0; //why?
-    f0(i, n) ps(ans[i]);
+    f0(i, n) {
+        ps(ans);
+        ans += numInv[i+1];
+    }
+    // for (int i = 1; i < n; ++i) numInv[i] += numInv[i-1];
+	// for (int i = 0; i < n; ++i) cout << numInv[i] << "\n";
 }
 
 signed main() {
