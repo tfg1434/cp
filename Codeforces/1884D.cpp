@@ -292,76 +292,50 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-/**
- * Description: Does not allocate storage for nodes with no data
- * Source: USACO Mowing the Field
- * Verification: ~
- */ 
+ll C(ll x) { return x*(x-1)/2; }
 
-const int SZ = 1<<17;
-template<class T> struct node {
-	T val = BIG; node<T>* c[2];
-	node() { c[0] = c[1] = NULL; }
-	void upd(int ind, T v, int L = 0, int R = SZ-1) { // add v
-		if (L == ind && R == ind) { ckmin(val, v); return; }
-		int M = (L+R)/2;
-		if (ind <= M) {
-			if (!c[0]) c[0] = new node();
-			c[0]->upd(ind,v,L,M);
-		} else {
-			if (!c[1]) c[1] = new node();
-			c[1]->upd(ind,v,M+1,R);
-		}
-		val = BIG; f0(i,2) if (c[i]) ckmin(val, c[i]->val);
-	}
-	T query(int lo, int hi, int L = 0, int R = SZ-1) { // query sum of segment
-		if (hi < L || R < lo) return 0;
-		if (lo <= L && R <= hi) return val;
-		int M = (L+R)/2; T res = BIG;
-		if (c[0]) ckmin(res, c[0]->query(lo,hi,L,M));
-        if (c[1]) ckmin(res, c[1]->query(lo,hi,M+1,R));
-        return res;
-	}
-	void UPD(int ind, node* c0, node* c1, int L = 0, int R = SZ-1) { // for 2D segtree
-		if (L != R) {
-			int M = (L+R)/2;
-			if (ind <= M) {
-				if (!c[0]) c[0] = new node();
-				c[0]->UPD(ind,c0?c0->c[0]:NULL,c1?c1->c[0]:NULL,L,M);
-			} else {
-				if (!c[1]) c[1] = new node();
-				c[1]->UPD(ind,c0?c0->c[1]:NULL,c1?c1->c[1]:NULL,M+1,R);
-			}
-		} 
-		val = (c0?c0->val:0)+(c1?c1->val:0);
-	}
-};
-
-bool cmp(pl x, pl y) { return x.s < y.s; }
+const ll N = 1e5+5;
+ll cnt[N], dp[N], ok[N];
 
 void solve() {
-    ll n, m; re(n, m);
-
-    node<ll> T;
-    vpl a(n); re(a);
-    // set<ll> ls; for(auto[l, _] : a) ls.insert(l);
-    map<ll, vl> mp; for (auto [l, r] : a) mp[l].pb(r); 
-    sort(all(a), cmp);
-
-    set<pl, decltype(&cmp)> st(cmp);
-    ll cnt = 0;
-    for (auto [l, v] : mp) {
-        while (!st.empty() && bg(st)->s < l) {
-            cnt--;
-            st.erase(bg(st));  
-            //at this moment she realized... i need range update
-            T.upd()
-        }
-        
-        each(r, v) {
-            st.insert({l, r});
-        } 
+    memset(cnt, 0, sizeof cnt);
+    //dp[i] is cont[i] for PIE
+    memset(dp, 0, sizeof dp);
+    memset(ok, 0, sizeof ok);
+    ll n; re(n);
+    vl a(n); re(a);
+    // f0(i, n) dp[i] = 1;
+    f0(i, n) {
+        cnt[a[i]]++;
+        ok[a[i]] = 1;
+    } 
+    UNIQUE(a);
+    reverse(all(a));
+    
+    if (cnt[1]) {
+        ps(0);
+        return;
     }
+
+    ll ans = 0;
+    // for (ll i = 2; i <= n; i++) {
+    // each(i, a) {
+    ROF(i, 1, n+1) {
+        ll a = 0, b = 0;
+        for(ll j = i; j <= n; j += i) {
+            a += cnt[j];
+            b += dp[j];
+            ok[j] |= ok[i];
+        }
+        dp[i] = C(a) - b;
+    }
+    // ROF(i, 1, n+1) gg(i, ok[i]);
+
+    ll o = 0;
+    f0(i, n+1) {
+        if (!ok[i]) o += dp[i];
+    }
+    ps(o);
 }
 
 signed main() {
