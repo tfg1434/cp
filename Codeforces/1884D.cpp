@@ -294,7 +294,7 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 ll C(ll x) { return x*(x-1)/2; }
 
-const ll N = 1e5+5;
+const ll N = 1e6+5;
 ll cnt[N], dp[N], ok[N];
 
 void solve() {
