@@ -292,60 +292,24 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-ll C(ll x) { return x*(x-1)/2; }
-
-// const ll N = 1e6+5;
-// ll cnt[N], dp[N], ok[N];
-
 void solve() {
-    // memset(cnt, 0, sizeof cnt);
-    //dp[i] is cont[i] for PIE
-    // memset(dp, 0, sizeof dp);
-    // memset(ok, 0, sizeof ok);
     ll n; re(n);
-    vl cnt(n+1);
-    auto dp = cnt, ok = cnt;
-    vl a(n); re(a);
-    // f0(i, n) dp[i] = 1;
-    f0(i, n) {
-        cnt[a[i]]++;
-        ok[a[i]] = 1;
-    } 
-    // UNIQUE(a);
-    // reverse(all(a));
-    
-    if (cnt[1]) {
-        ps(0);
-        return;
-    }
+    vl a(2*n); re(a);
+    sor(a);
 
-    ll ans = 0;
-    // for (ll i = 2; i <= n; i++) {
-    // each(i, a) {
-    ROF(i, 1, n+1) {
-        ll a = 0, b = 0;
-        for(ll j = i; j <= n; j += i) {
-            a += cnt[j];
-            b += dp[j];
-            ok[j] |= ok[i];
-        }
-        dp[i] = C(a) - b;
+    ll ans = a[n-1] - a[0] + a[2*n-1]-a[n];
+    ps(ans);
+    for (ll i = 0; i < n; i ++) {
+        ps(a[i], a[i+n]);
     }
-    // ROF(i, 1, n+1) gg(i, ok[i]);
-
-    ll o = 0;
-    f0(i, n+1) {
-        if (!ok[i]) o += dp[i];
-    }
-    ps(o);
 }
 
 signed main() {
-    setIO();
+    // setIO();
     
     ll tc; cin >> tc; while (tc--) {
         solve();
-    } 
+    }    
 
     return 0;
 }

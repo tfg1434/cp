@@ -292,60 +292,47 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-ll C(ll x) { return x*(x-1)/2; }
-
-// const ll N = 1e6+5;
-// ll cnt[N], dp[N], ok[N];
-
 void solve() {
-    // memset(cnt, 0, sizeof cnt);
-    //dp[i] is cont[i] for PIE
-    // memset(dp, 0, sizeof dp);
-    // memset(ok, 0, sizeof ok);
     ll n; re(n);
-    vl cnt(n+1);
-    auto dp = cnt, ok = cnt;
-    vl a(n); re(a);
-    // f0(i, n) dp[i] = 1;
-    f0(i, n) {
-        cnt[a[i]]++;
-        ok[a[i]] = 1;
-    } 
-    // UNIQUE(a);
-    // reverse(all(a));
-    
-    if (cnt[1]) {
-        ps(0);
-        return;
+    vs a(n); re(a);
+
+    //cnt[i][j] is the number of strings which support insertion
+    //of length i string with sum j
+    //i.e. the number of strings with delta j between the sum of
+    //1..i and the sum of i+1..n
+    V<vl> cnt(6, vl(46));
+    each(s, a) {
+        ll tot = 0, cur = 0;
+        f0(i, sz(s)) tot += s[i]-'0';
+
+        //i is the # of chars i 
+        f0(i, sz(s)) {
+            cur += s[i]-'0';
+            if (tot-cur-cur <= 0) break;
+            f1(j, 5) {
+                if ((sz(s)-(i+1) + j) % 2 == 0) {
+                    cnt[j][tot-cur-cur]++;
+                }
+            }
+        }
     }
+    gg(cnt[2][4]);
 
     ll ans = 0;
-    // for (ll i = 2; i <= n; i++) {
-    // each(i, a) {
-    ROF(i, 1, n+1) {
-        ll a = 0, b = 0;
-        for(ll j = i; j <= n; j += i) {
-            a += cnt[j];
-            b += dp[j];
-            ok[j] |= ok[i];
-        }
-        dp[i] = C(a) - b;
+    each(s, a) {
+        ll tot = 0;
+        f0(j, sz(s)) tot += s[j]-'0';
+        gg(s, cnt[sz(s)][tot]);
+        ans += cnt[sz(s)][tot];
     }
-    // ROF(i, 1, n+1) gg(i, ok[i]);
 
-    ll o = 0;
-    f0(i, n+1) {
-        if (!ok[i]) o += dp[i];
-    }
-    ps(o);
+    ps(ans);
 }
 
 signed main() {
     setIO();
     
-    ll tc; cin >> tc; while (tc--) {
-        solve();
-    } 
+    solve(); 
 
     return 0;
 }
