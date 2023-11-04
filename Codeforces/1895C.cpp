@@ -296,34 +296,67 @@ void solve() {
     ll n; re(n);
     vs a(n); re(a);
 
-    //cnt[i][j] is the number of strings which support insertion
-    //of length i string with sum j
-    //i.e. the number of strings with delta j between the sum of
-    //1..i and the sum of i+1..n
     V<vl> cnt(6, vl(46));
+    map<string, ll> tot;
     each(s, a) {
-        ll tot = 0, cur = 0;
-        f0(i, sz(s)) tot += s[i]-'0';
+        each(c, s) tot[s] += c-'0';
+        
+        cnt[sz(s)][tot[s]]++;
+    }
+    
+    ll ans = 0;
 
-        //i is the # of chars i 
-        f0(i, sz(s)) {
-            cur += s[i]-'0';
-            if (tot-cur-cur <= 0) break;
-            f1(j, 5) {
-                if ((sz(s)-(i+1) + j) % 2 == 0) {
-                    cnt[j][tot-cur-cur]++;
+    each(s, a) {
+        //Case 1: Two snippets have equal length
+        // ans += cnt[sz(s)][tot[s]];
+
+        //放前面
+        f1(i, sz(s)) {
+            ll len = i + sz(s);
+            if (len % 2 == 0) {
+                len /= 2;
+                ll x = stoll(s);
+                ll s1 = 0;
+                while (len--) {
+                    s1 += x % 10;
+                    x /= 10;
                 }
-            }
+
+                ll s2 = 0;
+                while (x) {
+                    s2 += x % 10;
+                    x /= 10;
+                }
+
+                ll d = s2 - s1;
+            } 
+        }
+
+
+        ll sum = 0;
+        FOR(i, 0, (sz(s)+1)/2) {
+            sum += s[i]-'0';
+        }
+        FOR(i, (sz(s)+1)/2, sz(s)) {
+            sum -= s[i]-'0';
+            gg(sum);
+            ans += cnt[(i+1)-(sz(s)-(i+1))][sum];
         }
     }
-    gg(cnt[2][4]);
 
-    ll ans = 0;
+    gg(ans);
+
+
+    //Case 3: R < L
     each(s, a) {
-        ll tot = 0;
-        f0(j, sz(s)) tot += s[j]-'0';
-        gg(s, cnt[sz(s)][tot]);
-        ans += cnt[sz(s)][tot];
+        ll sum = 0;
+        ROF(i, (sz(s)+1)/2, sz(s)) {
+            sum += s[i]-'0';
+        }
+        ROF(i, 1, (sz(s)+1)/2) {
+            sum -= s[i]-'0';
+            ans += cnt[sz(s)-(i+1)-(sz(s)-(i+1))][sum];
+        }
     }
 
     ps(ans);
