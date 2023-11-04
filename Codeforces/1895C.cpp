@@ -297,11 +297,12 @@ void solve() {
     vs a(n); re(a);
 
     V<vl> cnt(6, vl(46));
-    map<string, ll> tot;
     each(s, a) {
-        each(c, s) tot[s] += c-'0';
+        // each(c, s) tot[s] += c-'0';
+        ll tot = 0;
+        each(c, s) tot += c-'0';
         
-        cnt[sz(s)][tot[s]]++;
+        cnt[sz(s)][tot]++;
     }
     
     ll ans = 0;
@@ -310,9 +311,23 @@ void solve() {
         //Case 1: Two snippets have equal length
         // ans += cnt[sz(s)][tot[s]];
 
-        //放前面
         f1(i, sz(s)) {
+            //放前面
             ll len = i + sz(s);
+            if (len % 2 == 0) {
+                len /= 2;
+                ll s1 = 0, s2 = 0;
+                f0(j, len) s1 += s[j]-'0';
+                FOR(j, len, sz(s)) s2 += s[j]-'0';
+
+                ll d = s1 - s2;
+                // gg(i, d);
+                if (i < sz(s)) ans += cnt[i][d];
+                // ans += cnt[i][d];
+            } 
+            
+            //放后面
+            len = i + sz(s);
             if (len % 2 == 0) {
                 len /= 2;
                 ll x = stoll(s);
@@ -328,34 +343,11 @@ void solve() {
                     x /= 10;
                 }
 
-                ll d = s2 - s1;
+                ll d = s1 - s2;
+                ans += cnt[i][d];
             } 
-        }
 
-
-        ll sum = 0;
-        FOR(i, 0, (sz(s)+1)/2) {
-            sum += s[i]-'0';
-        }
-        FOR(i, (sz(s)+1)/2, sz(s)) {
-            sum -= s[i]-'0';
-            gg(sum);
-            ans += cnt[(i+1)-(sz(s)-(i+1))][sum];
-        }
-    }
-
-    gg(ans);
-
-
-    //Case 3: R < L
-    each(s, a) {
-        ll sum = 0;
-        ROF(i, (sz(s)+1)/2, sz(s)) {
-            sum += s[i]-'0';
-        }
-        ROF(i, 1, (sz(s)+1)/2) {
-            sum -= s[i]-'0';
-            ans += cnt[sz(s)-(i+1)-(sz(s)-(i+1))][sum];
+            // gg(ans);
         }
     }
 
