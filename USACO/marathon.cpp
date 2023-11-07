@@ -363,22 +363,29 @@ ll dist(pl a, pl b) {
 void solve() {
     ll n, q; re(n, q);
     vpl P(n+1);
-    vl d(n+1);
+    vl d(n+1), del(n+1);
     node<ll> ST;
     BIT FT;
     f1(i, n) {
         re(P[i]);
-        d[i] = dist(P[i-1], P[i]);
+        if (i > 1) d[i] = dist(P[i-1], P[i]);
         FT.upd(i, d[i]);
-        ST.upd(i, dist(P[i-1], P[i]) + dist(P[i], P[i+1]) - dist(P[i-1], P[i+1]));
+        if (i > 1 && i < n) del[i] = dist(P[i-1], P[i]) + dist(P[i], P[i+1]) - dist(P[i-1], P[i+1]);
+        ST.upd(i, del[i]);
+        gg(i, del[i]);
     }
 
     f0(i, q) {
         char t; re(t);
 
+        auto bet = [&](ll idx) {
+            return FT.ask(idx, idx+1)-dist(P[idx-1],P[idx+1]);
+        };
+
         if (t == 'Q') {
             ll a, b; re(a, b);
 
+            gg(FT.ask(a+1, b), ST.askMax(a+1, b-1));
             ps(FT.ask(a+1, b) - ST.askMax(a+1, b-1));
 
         } else {
@@ -388,18 +395,24 @@ void solve() {
             if (idx > 1) FT.upd(idx, dist(P[idx], P[idx-1]) - d[idx]);
             d[idx] = dist(P[idx], P[idx-1]);
 
-            ll w;
-            if (idx > 1) {
-                ll w = dist({x, y}, P[idx-1]) - SUM.askSum(idx, idx);
-            }
-            ll v = dist({x, y}, P[idx+1]) - SUM.askSum(idx+1, idx+1);
+            if (idx < n) FT.upd(idx+1, dist(P[idx+1], P[idx]) - d[idx+1]);
+            d[idx+1] = dist(P[idx], P[idx+1]);
 
-            FOR(j, idx+1, n+1) {
-                sum.upd(j, v);
+            if (idx > 1 && idx < n) {
+                ST.upd(idx, bet(idx)-del[idx]);
+                del[idx] = bet(idx);
             }
 
-            tr.upd(idx+1, n, w);
+            if (idx < n-1) {
+                ST.upd(idx+1, bet(idx+1)-del[idx+1]);
+                del[idx+1] = bet(idx+1);
+            }
 
+
+            if (idx > 2) {
+                ST.upd(idx-1, bet(idx-1)-del[idx-1]);
+                del[idx-1] = bet(idx-1);
+            }
         }
     }
 }
