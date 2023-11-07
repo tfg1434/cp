@@ -292,64 +292,37 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-struct Q {
-    int i, j, x, y;
-    bool operator <(Q o) const {
-        return i < o.i;
-    }
-};
+const ll N = 5e6+6;
+ll dp[N][2];
 
-const int N = 1005;
-int freq[N];
-
-// Thinking
-// I thought i was reainty weak at this lol. But it's unexcusable
-// that i didn't consider to use a segtree for Qlogn...
-// It's O(Q + n*MAX);
-//
-// Implementation
-// Fucked up my indexing (negative indices with 0-index :skuint:)
+// I have an uneasy feeling this won't work for some reason...
 void solve() {
-    int n; re(n);
-    vl a(n+1); f1(i, n) re(a[i]);
-    int q; re(q);
+    ll T, A, B; re(T, A, B);
 
-    V<Q> qq;
-    f1(i, q) {
-        Q q; re(q.i, q.j, q.x, q.y);
-        qq.pb({ q.j, (int)i, q.x, q.y });
-        qq.pb({ q.i-1, (int)-i, q.x, q.y });
-    }
-    sor(qq);
+    f0(i, T) dp[i][0] = dp[i][1] = T-i;
 
-    int cur = 0;
-    vi calc(2*q+1);
-    f0(i, 2*q) {
-        int idx = qq[i].i;
+    ROF(i, 0, T) {
+        ll mn = BIG;
+        if (i+A <= T) ckmin(mn, dp[i+A][1]);
+        if (i+B <= T) ckmin(mn, dp[i+B][1]);
+        ckmin(dp[i][1], mn);
 
-        while (cur < idx) {
-            cur++;
-            FOR(j, a[cur], N) freq[j]++; 
-        }
+        mn = BIG;
+        if (i+A <= T) ckmin(mn, dp[i+A][0]);
+        if (i+B <= T) ckmin(mn, dp[i+B][0]);
+        if (2*i <= T) ckmin(mn, dp[2*i][1]);
+        if (2*i+1 <= T) ckmin(mn, dp[2*i+1][1]);
+        ckmin(dp[i][0], mn);
 
-        calc[i] = freq[qq[i].y] - freq[qq[i].x-1];
-        // was OK
-        // gg(qq[i].i, qq[i].x, qq[i].y, calc[i]);
+        gg(i, dp[i][0], dp[i][1]);
     }
 
-    vi ans(q+1);
-    f0(i, 2*q) {
-        auto [_,j,__,___] = qq[i];
-        // gg(j, calc[i]);
-        if (j > 0) ans[j] += calc[i];
-        else if (j < 0) ans[-j] -= calc[i];
-    }
-
-    f1(i, q) ps(ans[i]);
+    gg(dp[0][1], dp[0][0]);
+    ps(T-min(dp[0][0], dp[0][1]));
 }
 
 signed main() {
-    setIO("qxy");
+    setIO("feast");
     
     solve(); 
 
