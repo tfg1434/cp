@@ -292,21 +292,30 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// Why did i miss the solution?
+// I didn't think that the lower bound was always achievable
+// I didn't give thought to pairing the elements up
+// I missed the reason why my solution wasn't optimal, because
+// it could increase the length of LIS by 1 if min was not in
+// the LIS
 void solve() {
     ll n, m; re(n, m);
     vl a(n), b(m); re(a, b);
     sort(rall(b));
 
-    auto it = min_element(all(a));
-    f0(i, it-bg(a)) {
-        pr(a[i], ' ');
+    ll i = 0, j = 0;
+    while (i < n || j < m) {
+        ll x = i < n ? a[i] : 0;
+        ll y = j < m ? b[j] : 0;
+        if (x > y) {
+            pr(x, ' ');
+            i++;
+        } else {
+            pr(y, ' ');
+            j++;
+        }
     }
 
-    ll j = 0;
-    for (; j < m && b[j] >= *it; j++) pr(b[j], ' ');
-
-    FOR(i, it-bg(a), n) pr(a[i], ' ');
-    FOR(i, j, m) pr(b[i], ' ');
     ps();
 }
 
