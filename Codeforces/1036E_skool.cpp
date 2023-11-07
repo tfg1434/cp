@@ -1,3 +1,11 @@
+/*
+ *
+ *
+ * Template code - Skip to line ~300
+ *
+ *
+ */
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -292,109 +300,104 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-//My failed trie implementation
-// const ll SZ = 21;
-// struct node {
-    // node* c[2]; 
-    // ll val, dep;
 
-    // node(ll val=0, ll dep=SZ) {
-        // c[0] = c[1] = NULL;
-        // this->val = val;
-        // this->dep = dep;
-    // }
 
-    // void ins(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b;
-        // val |= b;
-        // if (!c[w]) {
-            // c[w] = new node(val, dep-1);
-        // }
-        // if (dep > 0) {
-            // c[w]->ins(x);
-        // }
-    // }
+/*
+ *
+ *
+ * Code starts here
+ *
+ *
+ */
 
-    // ll best(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b; w = 1-w;
 
-        // if (dep == 0) {
-            // gg(bitset<5>(val));
-            // return x ^ val;
-        // }
-        // if (c[w]) return c[w]->best(x);
-        // return c[1-w]->best(x);
-    // }
-// };
 
-struct Trie {
-	Trie *children[2] = {};
-	int cnt = 0;  // # of numbers with this bit
+struct seg{
+    int x1, y1, x2, y2;
+    seg(){};
 };
 
-void add(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		if (cur->children[has_bit] == NULL) {
-			// add bit node to trie if there isn't already
-			cur->children[has_bit] = new Trie;
-		}
-		cur->children[has_bit]->cnt++;
-		cur = cur->children[has_bit];
-	}
+struct line{
+    long long A, B, C;
+    line(){};
+    line(seg a){
+        // Find the standard form equation
+        A = a.y1 - a.y2;
+        B = a.x2 - a.x1;
+        // C = -A * a.x1 - B * a.y1;
+        C = +(a.x1*a.y2 - a.x2*a.y1);
+    };
+};
+
+// I claim that the number of lattice points on a segment is given by
+// gcd(x2-x1, y2-y1)+1. Proof left as exercise for reader
+int get(seg a){
+    int dx = a.x1 - a.x2;
+    int dy = a.y1 - a.y2;
+    return gcd(abs(dx), abs(dy)) + 1;
 }
 
-void remove(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		cur->children[has_bit]->cnt--;
-		cur = cur->children[has_bit];
-	}
+long long det(long long a, long long b, long long c, long long d){
+    return a * d - b * c;
 }
 
-ll query(Trie *root, int x) {
-	Trie *cur = root;
-	int res = 0;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-        has_bit = 1-has_bit; //specific
-		if (cur->children[has_bit] != NULL && cur->children[has_bit]->cnt > 0) {
-			cur = cur->children[has_bit];
-            res += 1 << i;
-		} else {
-			/*
-			 * we go down a different bit,
-			 * xor increases by 2^i
-			 */
-			cur = cur->children[!has_bit];
-			// res += 1 << i;
-		}
-	}
-    return res;
+bool in(int x, int l, int r){
+    if (l > r) swap(l, r);
+    return (l <= x && x <= r);
 }
 
+//Find whether the two segments intersect
+bool inter(seg a, seg b, ll& x, ll& y){
+    line l1(a), l2(b);
+    ll A = l1.A, B = l1.B, C = l1.C, D = l2.A, E = l2.B, F = l2.C;
+
+    //Apply Cramer's rule
+    long long d = det(A, B, D, E);
+    long long dx = det(C, B, F, E);
+    long long dy = det(A, C, D, F);
+
+    //the matrix is not invertible
+    if (d == 0) return false;
+    
+    //the intersection is not a lattice point
+    if (dx % d != 0 || dy % d != 0) return false;
+
+    x = -dx / d;
+    y = -dy / d;
+
+    //Check that the intersection point is actually on the segment
+    if (!in(x, a.x1, a.x2) || !in(y, a.y1, a.y2)) return false;
+    if (!in(x, b.x1, b.x2) || !in(y, b.y1, b.y2)) return false;
+    
+    return true;
+}
 void solve() {
     ll n; re(n);
-    vl a(n+1); f1(i, n) re(a[i]);
-    Trie tr;
-    add(&tr, 0);
-    ll cur = 0, ans = 0;
-    f1(i, n) {
-        cur ^= a[i];
-        
-        ckmax(ans, query(&tr, cur));
-        add(&tr, cur);
+    ll ans = 0;
+    V<seg> a(n);
+
+    //Read in the segments
+    f0(i, n) re(a[i].x1, a[i].y1, a[i].x2, a[i].y2);
+
+    f0(i, n) {
+        ans += get(a[i]);
+
+        set<pl> st;
+        ll x, y;
+        f0(j, i) {
+            if (inter(a[i], a[j], x, y)) {
+                //The lines intersect at x, y. So, add it to the set.
+                st.insert({x, y});
+            }
+        }
+        ans -= sz(st);
     }
 
     ps(ans);
 }
 
 signed main() {
-    setIO("xormax");
+    setIO();
     
     solve(); 
 

@@ -292,109 +292,120 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-//My failed trie implementation
-// const ll SZ = 21;
-// struct node {
-    // node* c[2]; 
-    // ll val, dep;
+/**
+ * Description: Does not allocate storage for nodes with no data
+ * Source: USACO Mowing the Field
+ * Verification: ~
+ */ 
 
-    // node(ll val=0, ll dep=SZ) {
-        // c[0] = c[1] = NULL;
-        // this->val = val;
-        // this->dep = dep;
+const int SZ = 1<<17;
+template<class T> struct node {
+    T val = 0; node<T>* c[2];
+    node() { c[0] = c[1] = NULL; }
+    void upd(int ind, T v, int L = 0, int R = SZ-1) { // add v
+        if (L == ind && R == ind) { val += v; return; }
+        int M = (L+R)/2;
+        if (ind <= M) {
+            if (!c[0]) c[0] = new node();
+            c[0]->upd(ind,v,L,M);
+        } else {
+            if (!c[1]) c[1] = new node();
+            c[1]->upd(ind,v,M+1,R);
+        }
+        val = 0; f0(i,2) if (c[i]) val += c[i]->val;
+    }
+    T askMax(int lo, int hi, int L = 0, int R = SZ-1) { // askMax sum of segment
+        if (hi < L || R < lo) return 0;
+        if (lo <= L && R <= hi) return val;
+        int M = (L+R)/2; T res = 0;
+        if (c[0]) ckmax(res, c[0]->askMax(lo,hi,L,M));
+        if (c[1]) ckmax(res, c[1]->askMax(lo,hi,M+1,R));
+        return res;
+    }
+    
+    // T askSum(int lo, int hi, int L = 0, int R = SZ-1) {
+        // if (hi < L || R < lo) return 0;
+        // if (lo <= L && R <= hi) return val;
+        // int M = (L+R)/2; T res = 0;
+        // if (c[0]) res += c[0]->askSum(lo,hi,L,M);
+        // if (c[1]) res += c[1]->askSum(lo,hi,M+1,R);
+        // return res;
     // }
-
-    // void ins(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b;
-        // val |= b;
-        // if (!c[w]) {
-            // c[w] = new node(val, dep-1);
-        // }
-        // if (dep > 0) {
-            // c[w]->ins(x);
-        // }
-    // }
-
-    // ll best(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b; w = 1-w;
-
-        // if (dep == 0) {
-            // gg(bitset<5>(val));
-            // return x ^ val;
-        // }
-        // if (c[w]) return c[w]->best(x);
-        // return c[1-w]->best(x);
-    // }
-// };
-
-struct Trie {
-	Trie *children[2] = {};
-	int cnt = 0;  // # of numbers with this bit
 };
 
-void add(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		if (cur->children[has_bit] == NULL) {
-			// add bit node to trie if there isn't already
-			cur->children[has_bit] = new Trie;
-		}
-		cur->children[has_bit]->cnt++;
-		cur = cur->children[has_bit];
-	}
-}
+//Point Update Range Query
+struct BIT {
+    ll a[SZ];
 
-void remove(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		cur->children[has_bit]->cnt--;
-		cur = cur->children[has_bit];
-	}
-}
+    void upd(ll r, ll x) {
+        for (; r < SZ; r|=(r+1)) {
+            a[r] += x;
+        }
+    }
 
-ll query(Trie *root, int x) {
-	Trie *cur = root;
-	int res = 0;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-        has_bit = 1-has_bit; //specific
-		if (cur->children[has_bit] != NULL && cur->children[has_bit]->cnt > 0) {
-			cur = cur->children[has_bit];
-            res += 1 << i;
-		} else {
-			/*
-			 * we go down a different bit,
-			 * xor increases by 2^i
-			 */
-			cur = cur->children[!has_bit];
-			// res += 1 << i;
-		}
-	}
-    return res;
+    ll _ask(ll r) {
+        ll res = 0;
+        for (; r >= 0; r = (r&(r+1))-1) {
+            res += a[r];
+        }
+        return res;
+    }
+
+    ll ask(ll l, ll r) {
+        return _ask(r) - _ask(l-1);
+    }
+};
+
+ll dist(pl a, pl b) {
+    return abs(a.f-b.f) + abs(a.s-b.s);
 }
 
 void solve() {
-    ll n; re(n);
-    vl a(n+1); f1(i, n) re(a[i]);
-    Trie tr;
-    add(&tr, 0);
-    ll cur = 0, ans = 0;
+    ll n, q; re(n, q);
+    vpl P(n+1);
+    vl d(n+1);
+    node<ll> ST;
+    BIT FT;
     f1(i, n) {
-        cur ^= a[i];
-        
-        ckmax(ans, query(&tr, cur));
-        add(&tr, cur);
+        re(P[i]);
+        d[i] = dist(P[i-1], P[i]);
+        FT.upd(i, d[i]);
+        ST.upd(i, dist(P[i-1], P[i]) + dist(P[i], P[i+1]) - dist(P[i-1], P[i+1]));
     }
 
-    ps(ans);
+    f0(i, q) {
+        char t; re(t);
+
+        if (t == 'Q') {
+            ll a, b; re(a, b);
+
+            ps(FT.ask(a+1, b) - ST.askMax(a+1, b-1));
+
+        } else {
+            ll idx, x, y; re(idx, x, y);
+            P[idx] = {x, y};
+
+            if (idx > 1) FT.upd(idx, dist(P[idx], P[idx-1]) - d[idx]);
+            d[idx] = dist(P[idx], P[idx-1]);
+
+            ll w;
+            if (idx > 1) {
+                ll w = dist({x, y}, P[idx-1]) - SUM.askSum(idx, idx);
+            }
+            ll v = dist({x, y}, P[idx+1]) - SUM.askSum(idx+1, idx+1);
+
+            FOR(j, idx+1, n+1) {
+                sum.upd(j, v);
+            }
+
+            tr.upd(idx+1, n, w);
+
+        }
+    }
 }
 
 signed main() {
-    setIO("xormax");
+    setIO("marathon");
     
     solve(); 
 

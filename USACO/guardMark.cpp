@@ -292,109 +292,40 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-//My failed trie implementation
-// const ll SZ = 21;
-// struct node {
-    // node* c[2]; 
-    // ll val, dep;
-
-    // node(ll val=0, ll dep=SZ) {
-        // c[0] = c[1] = NULL;
-        // this->val = val;
-        // this->dep = dep;
-    // }
-
-    // void ins(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b;
-        // val |= b;
-        // if (!c[w]) {
-            // c[w] = new node(val, dep-1);
-        // }
-        // if (dep > 0) {
-            // c[w]->ins(x);
-        // }
-    // }
-
-    // ll best(ll x) {
-        // ll b = (val & (1 << dep));
-        // bool w = b; w = 1-w;
-
-        // if (dep == 0) {
-            // gg(bitset<5>(val));
-            // return x ^ val;
-        // }
-        // if (c[w]) return c[w]->best(x);
-        // return c[1-w]->best(x);
-    // }
-// };
-
-struct Trie {
-	Trie *children[2] = {};
-	int cnt = 0;  // # of numbers with this bit
+struct C {
+    ll h, w, s;
+    bool operator < (C o)const {
+        return s < o.s;
+    }
 };
 
-void add(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		if (cur->children[has_bit] == NULL) {
-			// add bit node to trie if there isn't already
-			cur->children[has_bit] = new Trie;
-		}
-		cur->children[has_bit]->cnt++;
-		cur = cur->children[has_bit];
-	}
-}
-
-void remove(Trie *root, int x) {
-	Trie *cur = root;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-		cur->children[has_bit]->cnt--;
-		cur = cur->children[has_bit];
-	}
-}
-
-ll query(Trie *root, int x) {
-	Trie *cur = root;
-	int res = 0;
-	for (int i = 30; i >= 0; i--) {
-		bool has_bit = x & (1 << i);
-        has_bit = 1-has_bit; //specific
-		if (cur->children[has_bit] != NULL && cur->children[has_bit]->cnt > 0) {
-			cur = cur->children[has_bit];
-            res += 1 << i;
-		} else {
-			/*
-			 * we go down a different bit,
-			 * xor increases by 2^i
-			 */
-			cur = cur->children[!has_bit];
-			// res += 1 << i;
-		}
-	}
-    return res;
-}
+const ll SZ = 1e7;
+ll W[SZ], dp[SZ];
 
 void solve() {
-    ll n; re(n);
-    vl a(n+1); f1(i, n) re(a[i]);
-    Trie tr;
-    add(&tr, 0);
-    ll cur = 0, ans = 0;
-    f1(i, n) {
-        cur ^= a[i];
-        
-        ckmax(ans, query(&tr, cur));
-        add(&tr, cur);
+    ll N, H; re(N, H);
+    V<C> a;
+    f0(i, N) {
+        C c; re(c.h, c.w, c.s);
+        a.pb(c);
     }
 
-    ps(ans);
+    dp[0] = BIG;
+
+    ll ans = -1;
+    ROF(i, 1, 1<<N) {
+
+    }
+    f0(i, 1<<N) {
+        f0(j, N) if (i & (1 << j)) {
+
+        }
+        sor(v); reverse(all(v));
+    }
 }
 
 signed main() {
-    setIO("xormax");
+    setIO("guard");
     
     solve(); 
 
