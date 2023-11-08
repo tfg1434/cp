@@ -292,6 +292,13 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// Thinking
+// Good that I realized we can make observations on m=1,
+// but I didn't realize that if the range > n then we can always make 0
+// I realized how we can count it quickly using a map
+//
+// Implementation
+// Only mistake was forgot to check R-L
 void solve() {
     ll m; re(m);
     ll K = 0, L = 0;
