@@ -302,41 +302,48 @@ void solve() {
         g[u].pb(v); g[v].pb(u);
     }
 
-    //dp[u] is the size of the connected component in 
-    //subtree u w/o any nodes of colour u.
-    vl dp(n+1);
-    V<vl> stk(k+1);
-
+    vl SZ(n+1);
     yy([&](auto rec, ll u, ll p) -> void {
-        dp[u] = 1;
+        SZ[u] = 1;
         each(v, g[u]) if (v != p) {
             rec(v, u);
-            dp[u] += dp[v];
+            SZ[u] += SZ[v];
         }
     })(1, 1);
-    f1(i, n) dp[i]--;
+    // auto dp = SZ;
+    vl dp(n+1);
 
+    vl prev(k+1, 1);
+    vl ans(k+1, n), par(n+1);
     auto dfs = yy([&](auto rec, ll u, ll p) -> void {
-        stk[c[u]].pb(u);
+        // cout << u << '~' << p << endl;
+        par[u] = p;
+        ll old = prev[c[p]];
+        prev[c[p]] = u;
 
         each(v, g[u]) if (v != p) {
             rec(v, u);
         }
-        stk[c[u]].pop_back();
 
-        each(v, stk[c[u]]) {
-            assert(v != u);
-            // dp[v] -= (dp[u]+1)*(dp[u]+1);
-            dp[v] -= dp[u]+1;
+        ll v = prev[c[u]];
+        // gg(v);
+        if (v == 1) {
+            // cout << c[u] << "-=" << SZ[u] << endl;
+            ans[c[u]] -= SZ[u];
         }
+        else dp[v] -= SZ[u];
+
+        prev[c[p]] = old;
+        dp[u] += SZ[u];
     });
-    dfs(1, 1);
+    dfs(1, 0);
 
-    f1(i, n) gg(dp[i]);
+        // for (ll i=1 ;i <= k; i++)  cout << dp[i] <<' ';
+    // cout << endl;
 
-    vl ans(k+1, n*n);
-    f1(i, n) ans[c[i]] -= dp[i]*dp[i];
-    f1(i, k) pr(ans[i], ' ');
+    f1(i, k) ans[i]*=ans[i];
+    FOR(i, 2, n+1) ans[c[par[i]]] += dp[i]*dp[i];
+    f1(i, k) pr(n*n-ans[i], ' ');
 
     ps();
 }
