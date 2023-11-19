@@ -292,84 +292,60 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-int e[100002];
+const ll N = 2e5+5;
+int e[N];
+ll cnt;
 
-int find(int nod)
+int find(int u)
 {
-	if(e[nod] < 0)
-		return nod;
-	e[nod] = find(e[nod]);
-	return e[nod];
+    return e[u] < 0 ? u : e[u] = find(e[u]);
 }
 
-void unite(int a, int b)
-{
-	if(a == b)
-		return;
-	if(e[a] > e[b])
-		swap(a, b);
-		
-	e[a] += e[b];
-	e[b] = a;
+void unite(int a, int b) {
+    if ((a=find(a)) != (b=find(b))) {
+        if(e[a] > e[b]) swap(a, b);
+        cnt--;
+        e[a] += e[b];
+        e[b] = a;
+    }
 }
 
 void solve() {
     ll n, m, k; re(n, m, k);
 
+    cnt = k;
     memset(e, -1, sizeof e);
-    // vl e(k+1); iota(all(e), 0);
 
-    // V<V<vpl>> g(n+1, V<vpl>(m+1));
-    V<vl> ma(n+1, vl(m+1));
+    map<ll, vl> R, C, D1, D2;
+
     f1(i, k) {
         ll r, c; re(r, c);
-        ma[r][c] = i;
+        R[r].pb(i); C[c].pb(i); D1[r+c].pb(i); D2[r-c].pb(i);
     }
 
-    f1(i, n) {
-        ll prev = -1;
-        f1(j, m) if (ma[i][j]) {
-            if (prev == -1) prev = ma[i][j];
-            else {
-                unite(ma[i][j], prev);
+    auto work = [&](map<ll, vl>& v) {
+        for (auto[_, x] : v) {
+            FOR(i, 1, sz(x)) {
+                // gg(x[0], x[i]);
+                unite(x[0], x[i]);
             }
         }
-    }
-    f1(j, m) {
-        ll prev = -1;
-        f1(i, n) if (ma[i][j]) {
-            if (prev == -1) prev = ma[i][j];
-            else {
-                unite(ma[i][j], prev);
-            }
-        }
-    }
+    };
+    
+    work(R); work(C); work(D1); work(D2);
 
-    map<ll, vl> d1, d2;
-    f1(i, n) f1(j, m) if (ma[i][j]) {
-        d1[i+j].pb(ma[i][j]);
-    }
-    f1(i, n) f1(j, m) if (ma[n-i+1][j]) {
-        d2[n-i+1+j].pb(ma[n-i+1][j]);
-    }
+    // ll cnt = 0;
+    // set<ll> st;
+    // f1(i, k) { 
+        // if (e[i] < 0) cnt++;
+        // // ll x = find(i);
+        // // gg(x);
+        // // if (x < 0) cnt++;
+    // }
 
-    for (auto [k, v] : d1) {
-        FOR(i, 1, sz(v)) unite(v[0], v[i]);
-    }
-    for (auto [k, v] : d2) {
-        FOR(i, 1, sz(v)) unite(v[0], v[i]);
-    }
-
-    ll cnt = 0;
-    set<ll> st;
-    f1(i, k) {
-        if (!st.count(find(i))) {
-            st.insert(find(i));
-            cnt++;
-        }
-    }
-
-    ps(1 << cnt);
+    // ps(1 << cnt);
+    gg(cnt);
+    ps(binpow(2, cnt));
 }
 
 signed main() {

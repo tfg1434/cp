@@ -292,52 +292,39 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const int SZ = 1<<17;
-template<class T> struct node {
-    node<T>* c[2];
-    T m[3];
-    node() { c[0] = c[1] = NULL; }
-
-    void build(T a[], )
-
-    void upd(int ind, T v, int L = 0, int R = SZ-1) { // add v
-        if (L == ind && R == ind) { ckmin(val, v); return; }
-        int M = (L+R)/2;
-        if (ind <= M) {
-            if (!c[0]) c[0] = new node();
-            c[0]->upd(ind,v,L,M);
-        } else {
-            if (!c[1]) c[1] = new node();
-            c[1]->upd(ind,v,M+1,R);
-        }
-        val = BIG; f0(i,2) if (c[i]) ckmin(val, c[i]->val);
-    }
-    T query(int lo, int hi, int L = 0, int R = SZ-1) { // query sum of segment
-        if (hi < L || R < lo) return 0;
-        if (lo <= L && R <= hi) return val;
-        int M = (L+R)/2; T res = BIG;
-        if (c[0]) ckmin(res, c[0]->query(lo,hi,L,M));
-        if (c[1]) ckmin(res, c[1]->query(lo,hi,M+1,R));
-        return res;
-    }
-};
-
 void solve() {
-    ll n, q; re(n, q);
-    string s; re(s);
-    s = ' '+s;
-
-    node tr(s);
-
-    f0(i, q) {
-        ll t, l, r; re(t, l, r);
-
-        if (t == 1) {
-            tr.upd(l, r);
-        } else {
-            ps(tr.ask(l, r));
-        }
+    ll n, m; re(n, m);
+    vl a(n+1), b(m+1);
+    f1(i, n) re(a[i]);
+    f1(i, m) re(b[i]);
+    if (n > m) {
+        swap(a, b);
+        swap(n, m);
     }
+    sor(a); sor(b);
+
+    //assign a_i to the leftmost ok b_j
+    auto check = [&](ll k) {
+        ll j = 1;
+        f1(i, n) {
+            while (abs(a[i]-b[j]) > k) {
+                j++;
+                if (j > m) return false;
+            }
+
+            if (i < n && j == m) return false;
+            j++;
+        }
+
+        return true;
+    };
+
+    ll p = 1e9;
+    for (ll stp = 1e9; stp > 0; stp /= 2) {
+        while (check(p-stp)) p -= stp;
+    }
+
+    ps(p);
 }
 
 signed main() {

@@ -293,7 +293,8 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 const ll N = 505;
-ll dp[N][N], prv[N][N];
+const ll M = 50005;
+ll dp[N][M];
 
 
 void solve() {
@@ -301,12 +302,11 @@ void solve() {
     vl a(n+1); f1(i, n) re(a[i]);
 
     dp[1][a[1]] = 1;
-    FOR(i, 2, n+1) FOR(j, 0, N) {
+    FOR(i, 2, n+1) FOR(j, 0, M) {
         if (j-a[i] >= 0) dp[i][j] |= dp[i-1][j-a[i]];
-        if (j+a[i] < N) dp[i][j] |= dp[i-1][j+a[i]];
+        if (j+a[i] < M) dp[i][j] |= dp[i-1][j+a[i]];
     }
 
-    //dp[n][0]
     if (!dp[n][0]) {
         ps(-1);
         return;
@@ -315,12 +315,12 @@ void solve() {
     string ans;
     ll cur = 0;
     ROF(i, 2, n+1) {
-        if (cur+a[i] < N && dp[i-1][cur+a[i]]) {
+        if (cur+a[i] < M && dp[i-1][cur+a[i]]) {
             ans += string(a[i], ')');
-            cur -= a[i];
+            cur += a[i];
         } else {
             ans += string(a[i], '(');
-            cur += a[i];
+            cur -= a[i];
         }
     }
     ans += string(a[1], '(');
