@@ -6,6 +6,7 @@ build
 .cache
 
 input.txt
+contest
 
 *.out*
 *.in*
