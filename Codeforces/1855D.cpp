@@ -292,13 +292,65 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+//SZ=2e5+5 fails?
+const ll SZ = 2e5+5;
+const ll N = 1e5+5;
+// bitset<SZ> dp[N];
+bitset<SZ> dp, dp2;
+bitset<SZ> ONE;
+
 // we will fix i, the total number of cards we take
 // if it's possible, our VPs will be 
-// bs[i] is whether 
+// bs[i] is whether we can make this prefix using unlocked cards
+// you can use each card at most once
+// AND you can only use unlocked cards (a prefix of cards)
+//
+// dp[i] is a bitset of the achievable unlocks using cards 1..i
+// dp[i] = dp[i-k] >> a[i] for all dp[i-k] where the rightmost
+// set bit is >= i
+//
+// dp[1][0] = 1
+// dp[i] = dp[i-1]
+// dp[i] |= dp[i-1] >> a[i]. However, we have to be careful not to
+// count cards  that are not in range. 
+// So, we will reset all bits before a[i+1] to zero before ORing
+//
+
+// Thinking
+// I was convinced it was constructive bc of the high value of N...
+
 void solve() {
     ll n; re(n);
-    vl a(n); re(a);
+    vl a(n+1); f1(i, n) re(a[i]);
+    ONE.set();
 
+    //The first card is already unlocked
+    dp[1] = 1;
+    // dp[min(n, a[1]+1)] = 1;
+    dp[a[1]+1] = 1;
+    dp2 = dp;
+    FOR(i, 2, n+1) {
+        //must have a bit that is >= i
+        dp &= ONE << i;
+
+        dp2 |= dp << a[i];
+        dp = dp2;
+    }
+
+    ll ans = 0;
+    ll sum = 0;
+    f1(i, n) {
+        sum += a[i];
+        if (dp.test(i)) {
+            ckmax(ans, sum-(i-1));
+        } 
+    }
+
+    FOR(i, n+1, SZ) {
+        if (dp.test(i)) ckmax(ans, sum-(i-1));
+    }
+
+    ps(ans);
 }
 
 signed main() {
