@@ -149,7 +149,20 @@ void solve() {
     f0(i, n) cin >> a[i];
     each(x, a) freq[x]++;
 
-    cout << (n-*max_element(all(freq))) << endl;
+    ll ans = 0;
+    FOR(i, 0, n-1) if (a[i] != a[i+1]){
+        //N
+        if (i+2 < n && a[i] == a[i+2]) {
+            a[i+1] = a[i];
+        } else {
+            // Do nothing
+        }
+
+        ans++;
+    }
+
+    cout << ans << endl;
+    // cout << (n-*max_element(all(freq))) << endl;
 }
 
 signed main() {
