@@ -453,93 +453,71 @@ bool ccw(point2d a, point2d b) {
     return cross(a, b) > 0;
 }
 
-using Point = complex<ll>;
-#define x real
-#define y imag
 
-using Tri = array<ll, 3>;
-
-ll n;
-vl dp[100][100][100];
-V<Point> p;
-
-ll area(Tri a) {
-    ll v = (conj(p[a[1]]-p[a[0]])*(p[a[2]]-p[a[0]])).y();
-    v = abs(v);
-    return v;
-}
-
-bool inside(Tri a, ll b) {
-    ll res = 0;
-    f0(i, 3) {
-        swap(a[i], b);
-        res += area(a);
-        swap(a[i], b);
-    }
-
-    res -= area(a); assert(res >= 0);
-
-    return res == 0;
-}
-
-void ad(vector<ll>& v, int ind, ll val) {
-	while (v.size() <= ind) v.push_back(0);
-	(v[ind] += val) %= P;
-}
-
-// At the beginning, why do we sort the trianlges by area?
+// This was supposed to get first subtask, but some implementation mistake...
+//
+// Implementation
+// in the future will just use std complex instead of implementing
+// myself
 void solve() {
-    re(n);
-    p.resize(n);
-    f0(i, n) {
-        ll x, y; re(x, y);
-        p[i]  = {x, y};
-    }
-
-    vector<Tri> triangles;
-	for (int i = 0; i < n; ++i)
-		for (int j = i+1; j < n; ++j)
-			for (int k = j+1; k < n; ++k)
-				triangles.push_back({i,j,k});
-    // Triangles are sorted by area??
-	sort(begin(triangles),end(triangles),[&](Tri a, Tri b) {
-		return area(a) < area(b); });
+    ll n; re(n);
+    V<point2d> p(n); 
+    each(x, p) re(x.x, x.y);
     
     ll ans = 0;
-	for (Tri& t: triangles) {
-		int tot_inside = 0;
-		vector<Tri> nex;
-		for (int i = 0; i < n; ++i) {
-			if (inside(t,i)) ++tot_inside;
-			else {
-				for (int j = 0; j < 3; ++j) {
-					Tri new_t = t; new_t[j] = i;
-                    // what does sorting do here?
-                    // it ensures when we access the triangles are sorted by area
-                    //
-					sort(begin(new_t),end(new_t));
-					if (inside(new_t,t[j])) 
-						nex.push_back(new_t);
-				}
-			}
-		}
-		tot_inside -= 3;
-		assert(tot_inside >= 0);
+    sor(p);
+    do {
+        bool ok = true;
+        V<point2d> v(3);
+        v[0] = p[0], v[1] = p[1], v[2] = p[2];
 
-		dp[t[0]][t[1]][t[2]].resize(1+tot_inside);
-		dp[t[0]][t[1]][t[2]][0] = 1;
-		for (int i = 0; i <= tot_inside; ++i) {
-			ll v = dp[t[0]][t[1]][t[2]][i];
-			if (i < tot_inside)
-				ad(dp[t[0]][t[1]][t[2]],1+i,(tot_inside-i)*v);
-			for (Tri u: nex)
-				ad(dp[u[0]][u[1]][u[2]],1+i,v);
-		}
-		if (tot_inside == n-3) 
-			(ans += dp[t[0]][t[1]][t[2]][tot_inside]) %= P;
-	}
+        // Polar sort
+        sort(all(v), ccw);
 
-	cout << (6*ans)%P << "\n";
+        bool flag = true;
+        FOR(i, 3, n) {
+            gg(v[0].x, v[0].y);
+            gg(v[1].x, v[1].y);
+            gg(v[2].x, v[2].y);
+            gg(p[i].x, p[i].y);
+            if (in(v[0], v[1], v[2], p[i])) { 
+                gg("hi");
+                continue; 
+            }
+
+            bool ok = false;
+            f0(j, 3) {
+                V<point2d> tmp(3);
+
+                tmp[0] = v[j];
+                auto y = v[j]-v[(j+1)%3];
+                auto z = v[j]-v[(j+2)%3];
+                y /= abs(y); z /= abs(z);
+                tmp[1] = v[j] + BIG*y; 
+                tmp[2] = v[j] + BIG*z;
+
+                sort(all(tmp), ccw);
+                if (in(tmp[0], tmp[1], tmp[2], p[i])) {
+                    ok = true;
+                    v[j] = p[i];
+                    break;
+                };
+            }
+
+            flag &= ok;
+            
+        }
+
+        V<complex<ll>> temp;
+        for (auto[x, y] : p) temp.pb({x, y});
+        gg(flag);
+        gg(temp);
+
+        ans += flag;
+
+    } while (next_permutation(all(p)));
+
+    ps(ans);
 }
 
 signed main() {
