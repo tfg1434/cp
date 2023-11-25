@@ -292,24 +292,46 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 1e6+5;
-ll dp[N][3][3];
+char T[4] = {'A', 'T', 'C', 'G'};
+
+const ll N = 1e5+5;
+map<char, ll> dp[N];
 
 void solve() {
-    ll n, m; re(n, m);
-    vl a(n+1); f1(i, n) re(a[i]);
-    sort(1+all(a));
+    string s; re(s);
+    ll n = sz(s);
+    s = '?'+s;
+    s = s + '?';
+
+    auto equals = [&](ll i, ll j, char& l, char& r) {
+        r = s[j];
+        if (s[j] == s[i+1] && s[j] == '?') l = '?';
+        l = s[i];
+        if (s[i] == s[j-1] && s[i] == '?') r = '?';
+
+        return (s[j] == '?' || s[i+1] == '?' || s[j] == s[i+1]) &&
+               (s[j-1] == '?' || s[i] == '?' || s[j-1] == s[i]);
+    };
+
+    // Base case
+    each(c, T) dp[0][c] = 1;
 
     FOR(i, 1, n+1) {
-
-        f0(j, 3) f0(k, 3) {
-            ll mx = 0;
-
-            dp[i][j][k] = dp[i-1][][j];
+        FOR(j, 1, i+1) {
+            char l, r;
+            if (equals(i, j, l, r)) {
+                each(c, T) if (l == '?' || l == c) {
+                    each(d, T) if (r == '?' || r == d) {
+                        dp[i][d] += dp[j-1][c];
+                    }
+                }               
+            }
         }
     }
-
-    ps(dp[n][0][0]);
+    
+    ll ans = 0;
+    each(c, T) ans += dp[n][c];
+    ps(ans);
 }
 
 signed main() {
