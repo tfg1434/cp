@@ -292,41 +292,58 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+struct I {
+    ll v, c, i;
+    bool operator <(I o) const {return v < o.v;}
+};
+
+// Impl - made mistake of not using all the gold
 void solve() {
     ll n, k; re(n, k);
     vl a(n+1); f1(i, n) re(a[i]);
 
-    vl ans;
+    V<I> ans;
     auto check = [&](ll x) {
-        ans.clear();
+        V<I> v;
         ll cur = 0, cnt = 0, pc = 0;
+        ll idx = 0;
 
         f1(i, n) {
             cur += a[i];
             pc++;
             if (cur >= x) {
-                cnt++;
-                ans.pb(pc);
+                v.pb({ cur, pc, ++idx });
                 cur = 0;
                 pc = 0;
             }
         }
+        if (sz(v)) {
+            end(v)[-1].v += cur;
+            end(v)[-1].c += pc;
+        }
 
-        // return cnt >= k;
-        return sz(ans) >= k;
+        if (sz(v) >= k) {
+            ans = v;
+            return true;
+        }
+        return false;
     };
 
     ll p = 0;
     for (ll b = 1e9; b > 0; b /= 2) {
-        while (check(p+b)) p += b;
+        while (check(p+b)) {
+            p += b;
+        }
     }
 
     ps(p);
     sor(ans);
-    gg(k, ans);
+    vpl o(k+1);
     f0(i, k) {
-        ps(i, ans[i-1]);
+        o[ans[i].i] = { i+1, ans[i].c };
     }
+
+    f1(i, k) ps(k+1-o[i].f, o[i].s);
 }
 
 signed main() {
