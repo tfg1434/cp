@@ -293,37 +293,16 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    ll T; re(T);
-    string s; re(s);
-    ll n = sz(s);
-    s = ' '+s;
+    ll p, m; re(p, m);
 
-    vl cnt(10);
-    ll sum = 0;
-    bool first = true;
-
-    string ans;
-    char last;
-    f1(i, n) {
-        if (!cnt[s[i]-'0']) {
-            sum++;
-            cnt[s[i]-'0']++;
-            last = s[i];
-        }
-
-        if ((first && sum == 9 && !cnt[0]) || sum == 10) {
-            first = false;
-            fill(all(cnt), 0);
-            sum = 0;
-            ans+=last;
-        }
-    }
-
-    f0(i, 10) {
-        if (!cnt[i]) {
-            ans += '0'+i;
-            break;
-        }
+    // 0..lo
+    ll lo = max(0ll, m/p-1 );
+    ll hi = (m+p-1)/p+1;
+    
+    ll ans = lo;
+    if ((1^(p-1)) <= m) ans++;
+    FOR(i, lo+1, hi) {
+        if (((i*p+1)^(p-1)) <= m) ans++;
     }
 
     ps(ans);
@@ -332,7 +311,10 @@ void solve() {
 signed main() {
     setIO();
     
-    solve(); 
+    ll tc; cin >> tc; while (tc--) {
+        solve();
+    }
+
 
     return 0;
 }
