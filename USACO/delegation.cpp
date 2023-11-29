@@ -56,6 +56,7 @@ int main() {
             for (auto v : g[u]) {
                 if (v == p) continue;
                 if (!rec(v, u, k)) return false;
+
                 dp[u] += dp[v];
                 num.pb(dp[v]);
             }

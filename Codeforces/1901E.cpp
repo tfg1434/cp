@@ -301,7 +301,47 @@ void solve() {
         g[u].pb(v); g[v].pb(u);
     }
 
+    vl dp(n+1);
 
+    auto dfs = yy([&](auto rec, ll u, ll p) -> void {
+        dp[u] = a[u];
+
+        if (u == 1) {
+            ll mn = BIG;
+            ll pos = 0, neg = 0, cp = 0, cn = 0, cz = 0;
+            ll dep = -BIG;
+
+            each(v, g[u]) if (v != p) {
+                if (dp[v] > 0) pos += dp[v], cp++;
+                else if (dp[v] < 0) neg += dp[v], cn++, ckmax(dep, dp[v]);
+                else cz++;
+            } 
+
+            ckmax(dp[u], pos-a[u]);
+            if (cp != 2 || cz) ckmax(dp[u], cp);
+            else if (cp == )
+
+
+            return;
+        }
+
+        ll mn = BIG;
+        ll pos = 0, neg = 0, cp = 0, cn = 0, cz = 0;
+        ll dep = -BIG;
+        each(v, g[u]) if (v != p) {
+            if (dp[v] > 0) pos += dp[v], cp++;
+            else if (dp[v] < 0) neg += dp[v], cn++, ckmax(dep, dp[v]);
+            else cz++;
+        }
+
+        ckmax(dp[u], pos-a[u]);
+        if (cp>1 || (cp==1 && cz)) ckmax(dp[u], pos);
+        else if (cp == 1 && cn) ckmax(dp[u], pos+dep);
+    });
+
+    dfs(1, 1);
+
+    ps(dp[1]);
 }
 
 signed main() {

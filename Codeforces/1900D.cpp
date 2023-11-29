@@ -294,44 +294,83 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 const ll MAX = 1e5+2;
 const ll N = 8e4+2;
-// ll pre[N];
-// map<ll, ll> pre;
-
-using Bs = bitset<N>;
+// there are mul[d] multiples of d
+ll mul[MAX];
+ll undo[MAX];
+vl ds[MAX];
 
 void solve() {
+    memset(mul, 0, sizeof mul);
+    memset(undo, 0, sizeof undo);
+
     ll n; re(n);
     vl a(n+1); f1(i, n) re(a[i]);
+    sort(1+all(a));
 
-    map<ll, Bs> mp;
-    ll ans = 0;
+    ll o = 0;
+    vl ans(n+1);
 
-    sor(a);
+    f1(i, n-1) {
+        ll u = a[i];
+        ll tmp = 0;
 
-    f1(i, n) {
-        vl ds, tmp;
-        for (ll j = 1; j*j <= a[i]; j++) if (a[i]%j==0) {
-            ds.pb(j); 
-            if (j*j != a[i]) tmp.pb(a[i]/j);
+        gg(i);
+        // large to small
+        each(x, ds[u]) {
+            tmp += x * mul[x];
+            gg(x, mul[x]);
+            // this is wrong.. sneaky
+            ll c = mul[x];
+            ROF(j, 0, sz(ds[x])) {
+                ll y = ds[x][j];
+                if (y == x) continue;
+                mul[y] -= mul[x];
+                undo[y] += mul[x];
+            }
         }
-        ROF(j, 0, sz(tmp)) ds.pb(tmp[j]);
 
-        Bs mask; mask.set();
+        o += tmp*(n-i);
 
-        ROF(j, 0, sz(ds)) {
-            ll d = ds[j];
-
-            ans += d * (mp[d] & mask).count() * (n-i);
-
-            mask ^= (mp[d]&mask);
+        each(x, ds[u]) mul[x]++;
+        each(x, ds[u]) {
+            mul[x] += undo[x];
+            undo[x] = 0;
         }
-        each(d, ds) mp[d].set(i);
+
+        FOR(i, 1, 100) assert(!undo[i]);
     }
 
-    ps(ans);
+    // f1(i, n-1) {
+        // ll u = a[i];
+        // each(x, ds[u]) {
+            // ans[i] += x*mul[x];
+
+            // each(y, ds[x]) {
+                // mul[y] -= mul[x];
+                // undo[y] += mul[x];
+                // assert(mul[y] >= 0);
+            // }
+        // }
+
+        // o += ans[i]*(n-1-i);
+
+        // // reset it after PIE shenanigans
+        // each(x, ds[u]) mul[x] += undo[x], undo[x] = 0;
+        // each(x, ds[u]) mul[x] ++;
+    // }
+
+    gg(ans);
+    ps(o);
 }
 
 signed main() {
+    FOR(i, 1, MAX) {
+        for (ll j = i; j < MAX; j += i) {
+            ds[j].pb(i);
+        }
+    }
+    FOR(i, 1, MAX) reverse(all(ds[i]));
+
     setIO();
     
     ll tc; cin >> tc; while (tc--) {

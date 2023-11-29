@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("O3,unroll-loops")
 using namespace std;
 
 using ll = long long;
@@ -294,68 +292,71 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// This problem is all about implementation! The subtree size insight
+// is much needed. (like, shifting it up by 1).
+// Rerooting is also smart
 void solve() {
-    ll T; re(T);
-    string s; re(s);
-    ll n = sz(s);
-    s = ' '+s;
+    ll n; re(n);
+    V<vl> g(n+1);
 
-    vl cnt(10);
-    ll sum = 0;
-    bool first = true;
-    vl c(n+2);
-
-
-    string ans;
-    ROF(i, 1, n+1) {
-        c[i] = c[i+1];
-        if (!cnt[s[i]-'0']) {
-            sum++;
-            cnt[s[i]-'0']++;
-        }
-
-        if (sum == 10) {
-            fill(all(cnt), 0);
-            sum = 0;
-            c[i]++;
-        }
-
-        // if ((first && sum == 9 && !cnt[0]) || sum == 10) {
-            // first = false;
-            // fill(all(cnt), 0);
-            // sum = 0;
-        // }
+    f1(i, n-1) {
+        ll u, v; re(u, v);
+        g[u].pb(v); g[v].pb(u);
     }
-    // if (c[0] == 0 && sum == 9 && !cnt[0]) {
-        // ps(T == 1 ? "2" : "10");
-        // return;
-    // }
 
-    ll idx = 1;
-    bool done = false;
-    while (!done) {
-        gg(idx);
-        for (char i = '0'; i <= '9'; i++) {
-            if (!sz(ans) && i == '0') continue;
+    f1(K, n-1) {
+        if ((n-1) % K) {
+            pr('0');
+            continue;
+        }
 
-            auto it = find(idx+all(s), i);
-            if (it == end(s)) {
-                ans += i;
-                done = true;
-                break;
-            } else if (c[it-bg(s)+1] < c[idx]) {
-                ans += i;
-                idx = it-bg(s)+1;
-                break;
+        if (K <= 2) {
+            pr('1');
+            continue;
+        }
+
+        // sub[u] is just subtree size!
+        vl sub(n+1);
+        vl cur(K+1);
+
+        // # edges is subtree size -1
+        // so if sz % k = 1 then we have nk edges
+
+        auto dfs = yy([&](auto rec, ll u, ll p) -> bool {
+            sub[u] = 1;
+            ll cnt = 0;
+
+            each(v, g[u]) if (v != p) {
+                if (!rec(v, u)) return false;
+
+                sub[u] += sub[v];
+                ll z = sub[v] % K; if (z == 0) continue; //meets u
+                if (cur[K-z]) cnt--, cur[K-z]--;
+                else cnt++, cur[z]++;
             }
-        }
+
+            // rerooting
+            ll z = (n-sub[u])%K;
+            if (u != 1 && z) {
+                if (cur[K-z]) cnt--, cur[K-z]--;
+                else cnt++, cur[z]++;
+            }
+
+            // if i'm not the root, then it's okay to have another path 
+            // coming out of me
+            // if (u != 1) return cnt <= 1;
+            return cnt == 0;
+        });
+
+        pr(dfs(1, 1) ? '1' : '0');
+        // gg(sub);
     }
 
-    ps(T == 1 ? to_string(sz(ans)) : ans);
+    ps();
 }
 
 signed main() {
-    setIO("bug");
+    setIO("deleg");
     
     solve(); 
 
