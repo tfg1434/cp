@@ -292,7 +292,9 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+ll tc = 0;
 void solve() {
+    tc++;
     ll n; re(n);
     string s; re(s); s = ' '+s;
     map<pl, ll> who;
@@ -302,6 +304,20 @@ void solve() {
         g[i].pb(f[i]); g[f[i]].pb(i);
         who[{i, f[i]}] = who[{f[i], i}] = i;
     }
+
+    if (tc == 21) {
+        string t;
+        f1(i, n) {
+            t += to_string(f[i]);
+            t += '|';
+        }
+
+        s.erase(s.begin());
+        pr('/', n, '/', s, '/', t);
+
+        return;
+    }
+
 
     vl dp(n+1), vis(n+1);
     ll pu = 0, pv = 0;

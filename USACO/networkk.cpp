@@ -319,20 +319,8 @@ struct BIT {
 };
 
 const ll N = 12, MAXX = 1e6+5;
-map<ll, ll> f[N];
+set<ll> f[N];
 ll who[N][MAXX];
-const ll NN = 1e5+5;
-ll e[NN];
-ll find(ll u) {
-    return e[u]<0 ? u : e[u] = find(e[u]);
-}
-void unite(ll u, ll v) {
-    if ((u=find(u)) != (v=find(v))) {
-        if (e[u] > e[v]) swap(u, v);
-        e[u] += e[v];
-        e[v] = u;
-    }
-}
 
 ll dist(pl x, pl y) {
     return norm(complex(x.f-y.f, x.s-y.s));
@@ -344,48 +332,76 @@ struct E{
     bool operator==(E o) const {return make_tuple(c, u, v) == make_tuple(o.c,o.u,o.v);}
 };
 
+map<ll, ll> rs[11];
+
 void solve() {
-    memset(e, -1, sizeof e);
     ll n; re(n);
 
     vpl a(n+1);
-    
     f1(i, n) {
         re(a[i]);
-        f[a[i].s].ins({ a[i].f, i });
+        rs[a[i].s].ins(a[i].f, i);
     } 
-    // points in order of increasing x, then need to check the last item in each y
-    // sor(a);
 
     V<E> es;
-    f1(i, n) FOR(j, 0, 11) {
-        auto lo = f[j].lb(a[i].f), hi = f[j].ub(a[i].f);
-        if (j == a[i].s) if (lo != bg(f[j])) {
-            auto it = prev(lo);//Java lowerEntry--strictly less than
-            es.pb({dist(a[i], {it->f, j}), i, it->s});
-        } 
-        if (j != a[i].s) if (hi != bg(f[j])){
-            auto it = prev(hi);//Java floorEntry--<=
-            es.pb({dist(a[i], {it->f, j}), i, it->s});
-        }
+    f1(i, n) f0(y, 11) {
+
     }
 
-    sor(es);
-    ll ans = 0, cnt = 0;
-    for (auto[c, u, v] : es) {
-            gg(c, u, v);
-        if (find(u) != find(v)) {
-            cnt++;
-            unite(u, v);
-            ans += c;
+
+    auto newMin = [&](ll u, ll del=-1) {
+        ll res = BIG, v;
+
+        auto ck = [&](pl p) {
+            ll x = dist(a[u], p);
+
+            if (x < res) {
+                res = x;
+                v = who[p.s][p.f];
+            }
+        };
+
+        FOR(j, 1, 11) {
+            auto it = f[j].lb(a[u].f);
+            if (it != f[j].end()) {
+                if (!(j == a[u].s && *it == a[u].f)) {
+                    ck({ *it, j });
+                }
+
+                if (next(it) != f[j].end()) ck({*next(it), j});
+            }
+
+            if (it != f[j].begin()) ck({*prev(it), j});
         }
+
+        st.ins({res, u, v});
+    };
+
+    f1(i, n) {
+        newMin(i);
+    }
+
+    ll ans = 0;
+    rep(n-1) {
+        auto [c, u, v] = *bg(st);
+        gg(c, u, v);
+        auto [cc,uu,vv] = *next(bg(st));
+        gg(cc,uu,vv);
+        ans += c;
+
+        assert(bg(st)->c == next(bg(st))->c);
+        st.erase(bg(st)); st.erase(bg(st));
+        f[a[v].s].erase(a[v].f);
+        f[a[u].s].erase(a[u].f);
+        newMin(u); // delete v from set, then find u
+        newMin(v); // delete u from set, then find closest to v
     }
 
     ps(ans);
 }
 
-// basically mst but w euclidean distance
-// why is euclidean so many syllables :((
+// Apparently general euclidean mst is O(nlgn)
+// But this is not true for manhattan mst (why?)
 signed main() {
     setIO();
     
