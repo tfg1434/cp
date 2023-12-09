@@ -292,57 +292,52 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-int findClosest(vl arr, int target)
-{
-    ll n = sz(arr);
-    int left = 0, right = n - 1;
-    while (left < right) {
-        if (abs(arr[left] - target)
-            <= abs(arr[right] - target)) {
-            right--;
+bool solve() {
+    ll n; re(n);
+    vl a(n+1); f1(i, n) re(a[i]);
+    vl b(n+1); f1(i, n) re(b[i]);
+    f1(i, n) if (a[i]>b[i]) return false;
+
+
+    vl stk;
+    vl mark(n+1);
+    f1(i, n) {
+        while (sz(stk) && b[stk.bk] == b[i]) {
+            mark[stk.bk] = 1;
+            stk.pop_back();
         }
-        else {
-            left++;
+        if (sz(stk) && b[stk.bk] > b[i]) stk.clear();
+
+        if (a[i] < b[i]) {
+            stk.pb(i);
         }
+        if (sz(stk) && b[i] > b[stk.bk]) stk.pb(i);
     }
-    return arr[left];
-}
+    stk.clear();
 
-// int overflow...
-void solve() {
-    ll n, k; re(n, k);
-    vl a(n); re(a);
+    ROF(i, 1, n+1) {
+        while (sz(stk) && b[stk.bk] == b[i]) {
+            mark[stk.bk] = 1;
+            stk.pop_back();
+        }
+        if (sz(stk) && b[stk.bk] > b[i]) stk.clear();
 
-    if (k >= 3) {
-        ps(0);
-        return;
+        if (a[i] < b[i]) {
+            stk.pb(i);
+        }
+        if (sz(stk) && b[i] > b[stk.bk]) stk.pb(i);
     }
 
-    sor(a);
+    f1(i, n) if (a[i] != b[i] && !mark[i]) return false;
 
-    ll ans = a[0];
-    for (int i = 0; i < n - 1; i++) ans = min(ans, a[i + 1] - a[i]);
-    if (k == 1) {
-        ps(ans);
-        return;
-    }
-    // gg(a);
-
-    for (int i = 0; i < n; i++) for (int j = 0; j < i; j++) {
-        ll v = a[i] - a[j];
-        // gg(v);
-        int p = lower_bound(begin(a), end(a), v) - begin(a);
-        if (p < n) ans = min(ans, a[p] - v);
-        if (p > 0) ans = min(ans, v - a[p - 1]);
-    }
-    cout << ans << endl;
+    return true;
 }
 
 signed main() {
     setIO();
     
     ll tc; cin >> tc; while (tc--) {
-        solve();
+        ps(solve() ? "YES" : "NO");
     } 
 
     return 0;

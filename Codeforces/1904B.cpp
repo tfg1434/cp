@@ -294,39 +294,38 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 void solve() {
     ll n; re(n);
-    vl where(n+1);
     vl a(n+1); f1(i, n) re(a[i]);
     vpl b(n+1); f1(i, n){
         b[i]={a[i], i};
     } 
     sor(b);
-    f1(i, n) {
-        where[b[i].s] = i;
-    }
-    vl pre(n+1); f1(i, n) pre[i] = pre[i-1]+b[i].f;
     vl ans(n+1);
+    vl pre(n+1);
+    f1(i, n) pre[i] = pre[i-1]+b[i].f;
+    vl c(n+1), nxt(n+1);
+    ll j = 2;
+    FOR(i,2, n+1) {
+        c[i] = pre[i-1]-a[i];
+        if (c[i] > 0) {
+            while (j <= i) {
+                nxt[j] = i;
+                j++;
+            }
+        }
+    } 
 
-    vl c(n+1); f1(i, n) c[i] = b[i].f-pre[i-1];
-    vl mx(n+1, 0); 
-    f1(i, n) mx[i] = max(mx[i-1], c[i]);
-    vl g0(n+1);
-    ROF(i, 1, n+1) {
-        if (c[i] > 0) g0[i] = i;
-        else if (i == n) g0[i] = n+1;
-        else g0[i] = g0[i+1];
-    }
-    gg(c);
+
 
     f1(i, n) {
-        ll idx = where[i];
-        auto it = bg(mx)+idx;
-        if (a[i] < *it) {
-            // Case 1
-            ans[i] = ub(all(mx), a[i])-bg(mx);
-        } else {
-            // Case 2
-            ans[i] = g0[idx]-2;
-        }
+        pl p = {pre[i-1], BIG};
+        // auto it = lb(1+i+all(b), p);
+        // find first < 0
+        // auto it = lb(1+i+all(c), );
+        ll idx = i == n ? n+1 : nxt[i+1];
+        if (!idx) idx = n+1;
+        ans[b[i].s] = idx-2;
+        // gg(i);
+        // gg(it-bg(b));
     }
 
     f1(i, n) pr(ans[i], ' ');
