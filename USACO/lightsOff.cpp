@@ -294,8 +294,17 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 const ll N = 20;
 ll dp[N][1<<N];
+ll pad[N][N];
 
+// Some implementation mistake...
+// I also don't understand rep in the editorial
 void solve() {
+    memset(pad, 0, sizeof pad);
+    f0(i, N) FOR(j, i, N) {
+        // i is lobit, j is hibit
+        FOR(k, i, j+1) pad[i][j] |= 1<<k;
+    }
+
     ll q, n; re(q, n);
     
     vpl qs(q);
@@ -306,9 +315,35 @@ void solve() {
         qs[i]={ml, ms};
     }
 
-    auto mod = [&](ll x) {
-        return (x%n+n)%n;
+    // auto mod = [&](ll x) {
+        // return (x%n+n)%n;
+    // };
+
+
+    auto flip = [&](ll m, ll i, ll j) {
+        while (j >= n) {
+            j -= n;
+            // m = ~m;
+            m ^= pad[0][n-1];
+        }
+
+        if (j == 0) return m;
+        // lo = i = 0
+
+        ll lo = i-(j-1);
+        if (lo >= 0) {
+            // gg(lo, i);
+            // gg(bitset<3>(pad[lo][i]));
+            // gg(m);
+            m ^= pad[lo][i];
+            // gg(m);
+        } else {
+            m ^= pad[0][i];
+            m ^= pad[n-1-(-lo-1)][n-1];
+        }
+        return m;
     };
+    assert(flip(0, 0, 1) == 1);
 
     vl ans(q, BIG);
     f0(f, 10) { // final time
@@ -318,11 +353,16 @@ void solve() {
         dp[0][0] = 1;
         f0(i, f) f0(j, 1<<n) { //what time+mask
             FOR(k, 0, n) { //which bit
-                ll m = j;
-                for (ll l = k; l > k-(f-i); l--) {
-                    m ^= (1 << mod(l));
-                }
-                // if (dp[i][j]) ps(bitset<3>(m), j+1);
+                // gg(bitset<10>(j), k, f, i);
+                ll m = flip(j, k, f-i);
+                // ll mm = j;
+                // for (ll l = k; l > k-(f-i); l--) {
+                    // mm ^= (1 << mod(l));
+                // }
+                // if (m != mm) {
+                    // gg(m, mm);
+                    // assert(false);
+                // }
                 dp[i+1][m] |= dp[i][j];
             }
         }
@@ -331,13 +371,11 @@ void solve() {
         for (auto[ml, ms] : qs) {
             auto cpy = ml;
             f0(i, n) if (ms&(1<<i)) {
-                // FOR(j, i, i+f) {
-                for (ll j = i; j > i-f; j--) {
-                    cpy ^= (1<<mod(j));
-                }
+                // for (ll j = i; j > i-f; j--) {
+                    // cpy ^= (1<<mod(j));
+                // }
+                cpy = flip(cpy, i, f);
             }
-            gg(f);
-            gg(bitset<10>(cpy));
 
             if (dp[f][cpy]) ckmin(ans[idx], f);
             idx++;
