@@ -38,7 +38,6 @@ using vpd = V<pd>;
 #define ins insert 
 #define pb push_back
 #define eb emplace_back
-#define ft front()
 #define bk back()
 
 #define lb lower_bound
@@ -295,16 +294,26 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 const ll N = 1e5+2;
 ll dp[20][N];
 ll a[N];
-void upd(ll l, ll r) {
-
+void add(ll r, ll x) {
+    for (; r < N; r |= r+1) {
+        a[r] ^= x;
+    }
 }
-void upd(ll r) {
-
+void add(ll l, ll r, ll x) {
+    add(l, x);
+    add(r+1, x);
 }
-void ask(ll l, ll r) {
-
+ll ask(ll r) {
+    ll res = 0;
+    for (; r >= 0; r = (r&(r+1))-1)
+        res ^= a[r];
+    return res;
 }
 
+// Thinking
+// Lca is not actually that hard to impl! and you get par for free
+// Motivated to use flatten technique because change queries affect
+// segments of the et/ft
 void solve() {
     ll n, q; re(n, q);
     vl e(n+1); f1(i, n) re(e[i]);
@@ -316,16 +325,16 @@ void solve() {
 
     vl lvl(n+1), et(n+1), ft(n+1);
     ll t = 0;
-    upd(1, 1, e[1]);
     auto dfs = yy([&](auto rec, ll u, ll p) -> void {
+        et[u] = t++;
         if (u != p) {
             lvl[u] = lvl[p]+1;
-            // r[u] = r[p] ^ e[u];
-            upd(u, u, ask(p)^e[u]);
-        } 
+            add(et[u], et[u], ask(et[p])^e[u]);
+        } else {
+            add(et[u], et[u], e[u]);
+        }
 
-        et[u] = t++;
-        dp[0][u] = u;
+        dp[0][u] = p;
         FOR(i,1,20) dp[i][u] = dp[i-1][dp[i-1][u]];
 
         each(v, g[u]) if (v != p) {
@@ -338,8 +347,8 @@ void solve() {
 
     auto lca = [&](ll u, ll v) {
         if (lvl[u] > lvl[v]) swap(u, v);
-        ll x = lvl[u]-lvl[v];
-        for (ll b = 18; b > 0; b /= 2) {
+        ll x = lvl[v]-lvl[u];
+        for (ll b = 18; b >= 0; b--) {
             if (x&(1<<b)) {
                 x-=1<<b;
                 v = dp[b][v];
@@ -348,37 +357,41 @@ void solve() {
 
         if (u == v) return u;
 
-        for (ll b = 18; b > 0; b /= 2) {
+        for (ll b = 18; b >= 0; b--) {
             while (dp[b][u] != dp[b][v]) {
                 u = dp[b][u];
                 v = dp[b][v];
             }
         }
 
-        return dp[1][u];
+        return dp[0][u];
     };
+
+    // gg(a[0], a[1], a[2], a[3], a[4], a[5]);
+    // gg(et, ft);
+    // gg(lca(2, 3));
+    // gg(ask(et[1]));
+    // gg(ask(et[5]));
+    gg(lca(3, 5));
 
     f0(i, q) {
         ll t; re(t);
         if (t == 1) {
             ll u, x; re(u, x);
-            upd(u, u, ask(u)); //zero it out
-            upd(et[u], ft[u], x);
+            add(et[u], et[u], ask(et[u])); //zero it out
+            assert(ask(et[u])==0);
+            // e[u] = x;
+            add(et[u], et[u], x);
 
         } else {
             ll u, v; re(u, v);
-            if (lvl[u] > lvl[v]) swap(u, v);
-            if (lca(u, v) == u) {
-                ps(ask(v)^ask(u)^e[u]);
-            } else {
-                ps(ask(u)^ask(v)^ask(lca(u,v))^e[lca(u, v)]);
-            }
+            ps(ask(et[u])^ask(et[v])^e[lca(u, v)]);
         }
     }
 }
 
 signed main() {
-    setIO();
+    setIO("cowland");
     
     solve(); 
 
