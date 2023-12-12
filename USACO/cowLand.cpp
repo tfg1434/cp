@@ -314,6 +314,10 @@ ll ask(ll r) {
 // Lca is not actually that hard to impl! and you get par for free
 // Motivated to use flatten technique because change queries affect
 // segments of the et/ft
+
+// e[u] is the current assigned value of node u
+// Range update Point Query BIT. indices are based on et and ft in dfs tree
+// the point query 
 void solve() {
     ll n, q; re(n, q);
     vl e(n+1); f1(i, n) re(e[i]);
@@ -329,9 +333,9 @@ void solve() {
         et[u] = t++;
         if (u != p) {
             lvl[u] = lvl[p]+1;
-            add(et[u], et[u], ask(et[p])^e[u]);
+            // add(et[u], et[u], ask(et[p])^e[u]);
         } else {
-            add(et[u], et[u], e[u]);
+            // add(et[u], et[u], e[u]);
         }
 
         dp[0][u] = p;
@@ -342,6 +346,10 @@ void solve() {
         }
         ft[u] = t;
     });
+
+    f1(i, n) {
+        add(e[i], ft[i], e[i]);
+    }
 
     dfs(1, 1);
 
@@ -367,21 +375,14 @@ void solve() {
         return dp[0][u];
     };
 
-    // gg(a[0], a[1], a[2], a[3], a[4], a[5]);
-    // gg(et, ft);
-    // gg(lca(2, 3));
-    // gg(ask(et[1]));
-    // gg(ask(et[5]));
-    gg(lca(3, 5));
-
     f0(i, q) {
         ll t; re(t);
         if (t == 1) {
             ll u, x; re(u, x);
-            add(et[u], et[u], ask(et[u])); //zero it out
+            add(et[u], ft[u], ask(et[u])); //zero it out
             assert(ask(et[u])==0);
-            // e[u] = x;
-            add(et[u], et[u], x);
+            e[u] = x;
+            add(et[u], ft[u], x);
 
         } else {
             ll u, v; re(u, v);
