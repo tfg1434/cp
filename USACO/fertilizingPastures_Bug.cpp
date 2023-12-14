@@ -291,26 +291,92 @@ struct chash {
 };
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
-const ll N = 305, M = 20;
-ll dp[N][N][M][M];
 
 void solve() {
-    ll n, A, B; re(n, A, B);
-    vl v(n+1); f1(i, n) re(v[i]);
+    ll n, T; re(n, T);
+    V<vl> g(n+1);
+    vl a(n+1);
+    FOR(i, 2, n+1) {
+        ll p, r; re(p, r);
+        g[p].pb(i);
+        a[i] = r;
+    }
 
-    auto dfs = yy([&](auto rec, ll l, ll r, ll L, ll R) -> ll {
-        ll&x = dp[l][r][L][R];
-        if (x != -1) return x;
+    vl dp(n+1), pd(n+1), sub(n+1), sumA(n+1), MaxDep(n+1);
+    auto init = yy([&](auto rec, ll u, ll dep=0) -> void {
+        sub[u] = 1;
+        sumA[u] = a[u];
+        MaxDep[u] = dep;
 
-        x = 0;
-        // Not using a[l] or a[r]
-        if (l+1 <= r) x += rec(l+1, r, L, R);
-        if (r-1 >= l) x += rec(l, r-1, L, R);
-        // Using a[l], a[r]
-        if (a[l] == )
+        each(v, g[u]) {
+            rec(v, dep+1);
 
-
+            sub[u] += sub[v];
+            sumA[u] += sumA[v];
+            ckmax(MaxDep[u], MaxDep[v]);
+        }
     });
+    init(1);
+
+    auto dfs = yy([&](auto rec, ll u, ll flag=0) -> void {
+        V<pl> cs;
+        each(v, g[u]) {
+            cs.pb({sumA[v], v});
+        }
+
+        sort(all(cs), [&](pl x, pl y) {
+            ll u = x.s, v = y.s;
+            //sort by size/sum
+            return sub[u]*sumA[v] < sumA[u]*sub[v];
+        });
+
+        ll s = 0, ss = 0;
+        for (auto[d, v] : cs) {
+            s += sumA[v];
+            ss += sub[v];
+        }
+
+        ll V = 0, mx = -BIG;
+        if (flag) {
+            for (auto [d, v] : cs) {
+                s -= sumA[v];
+                ss -= sub[v];
+
+                gg(u, v, s);
+                if (MaxDep[v] == MaxDep[1] && ckmax(mx, s*2*sub[v] - 2*ss*sumA[v])) {
+                    gg(mx);
+                    V = v;
+                }
+            }
+        }
+
+        gg(V);
+        ll t = 0;
+        for (auto[p,v] : cs) {
+            if (flag && v== V) continue;
+
+            t++;
+            rec(v, 0);
+            dp[u] += dp[v] + sumA[v]*t;
+
+            t += 2*(sub[v]-1);
+            t++;
+        }
+        if (flag && V) {
+            t++;
+            rec(V, 1);
+            dp[u] += dp[V] + sumA[V]*t;
+        }
+    });
+
+    if (T == 0) {
+        dfs(1, 0);
+        ps(2*(n-1), dp[1]);
+    } else {
+        dfs(1, 1);
+        ps(2*(n-1)-MaxDep[1], dp[1]);
+    }
+
 }
 
 signed main() {
@@ -320,3 +386,5 @@ signed main() {
 
     return 0;
 }
+
+
