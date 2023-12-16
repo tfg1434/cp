@@ -292,10 +292,181 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// some bug
+class ST {
+    public:
+    ll n;
+    vl t, lz;
+
+    void init(ll n) {
+        this->n = n;
+        t.resize(n<<2|1);
+        lz.resize(n<<2|1);
+    }
+
+    void lazy(ll v, ll l, ll r) {
+        if (lz[v] > 0) t[v] += (r-l+1)*lz[v];
+        else t[v] = (r-l+1)*(-lz[v]);
+
+        if (l != r) {
+            if (lz[v] < 0) {
+                lz[v<<1] = lz[v<<1|1] = lz[v];
+            } else {
+                if (lz[v<<1] < 0) lz[v<<1] -= lz[v];
+                else lz[v<<1] += lz[v];
+                if (lz[v<<1|1] < 0) lz[v<<1|1] -= lz[v];
+                else lz[v<<1|1] += lz[v];
+            }
+        }
+        lz[v] = 0;
+    }
+
+    void build(ll v, ll l, ll r, vl& a) {
+        if (l == r) {
+            t[l] = a[l];
+            return;
+        }
+
+        ll m = (l+r)/2;
+        build(v<<1, l, m, a);
+        build(v<<1|1, m+1, r, a);
+        t[v] = t[v<<1]+t[v<<1|1];
+    }
+
+    void upd(ll v, ll l, ll r, ll lq, ll rq, ll x) {
+        if (lz[v]) lazy(v, l, r);
+
+        if (r < lq || l > rq) return;
+        if (lq <= l && r <= rq) {
+            lz[v] = x;
+            lazy(v, l, r);
+            return;
+        }
+
+        ll m = (l+r)/2;
+        upd(v<<1, l, m, lq, rq, x);
+        upd(v<<1|1, m+1, r, lq, rq, x);
+        t[v] = t[v<<1] + t[v<<1|1];
+    }
+
+    ll ask(ll v, ll l, ll r, ll lq, ll rq) {
+        if (lz[v]) lazy(v, l, r);
+
+        if (r < lq || l > rq) return 0;
+        if (lq <= l && r <= rq) return t[v];
+
+        ll res = 0;
+        ll m = (l+r)/2;
+        res += ask(v<<1, l, m, lq, rq);
+        res += ask(v<<1|1, m+1, r, lq, rq);
+
+        return res;
+    }
+};
+
+ 
+class SegmentTree // range set value, range query for sum segtree, can be easily modified for other things
+{
+    private:
+        ll n;
+        vector<long long> segtree;
+        vector<long long> lazy;
+    public:
+        void init(ll sz)
+        {
+            n = sz;
+            segtree.resize(1 + 4 * sz);
+            lazy.resize(1 + 4 * sz);
+        }
+        void lz(ll node, ll L, ll R)
+        {
+            if(lazy[node] > 0)
+                segtree[node] += lazy[node] * (R - L + 1);
+            else
+                segtree[node] = (-lazy[node]) * (R - L + 1);
+            if(L != R)
+            {
+                if(lazy[node] < 0)
+                {
+                    lazy[node << 1] = lazy[node];
+                    lazy[node << 1|1] = lazy[node];
+                }
+                else
+                {
+                    if(lazy[node << 1] < 0)
+                        lazy[node << 1] -= lazy[node];
+                    else
+                        lazy[node << 1] += lazy[node];
+                    if(lazy[node << 1|1] < 0)
+                        lazy[node << 1|1] -= lazy[node];
+                    else
+                        lazy[node << 1|1] += lazy[node];
+                }
+            }
+            lazy[node] = 0;
+        }
+        void build(ll node, ll L, ll R, vector<ll> &v)
+        {
+            if(L == R)
+            {
+                segtree[node] = v[L];
+                return;
+            }
+            ll mid = (L + R) / 2;
+            build(node << 1, L, mid, v);
+            build(node << 1|1, mid+1, R, v);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        void update(ll node, ll L, ll R, ll Lq, ll Rq, ll val)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return;
+            if(Lq <= L && R <= Rq)
+            {
+                lazy[node] = val;
+                lz(node, L, R);
+                return;
+            }
+            ll mid = (L + R) / 2;
+            update(node << 1, L, mid, Lq, Rq, val);
+            update(node << 1|1, mid+1, R, Lq, Rq, val);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        long long query(ll node, ll L, ll R, ll Lq, ll Rq)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return 0;
+            if(Lq <= L && R <= Rq)
+                return segtree[node];
+            ll mid = (L + R) / 2;
+            return query(node << 1, L, mid, Lq, Rq) + query(node << 1|1, mid+1, R, Lq, Rq);
+        }
+};
+
+SegmentTree tr;
+
 void solve() {
     ll n, q; re(n, q);
     vl a(n+1); f1(i, n) re(a[i]);
+    tr.init(n); tr.build(1, 1, n, a);
 
+    f0(i, q) {
+        ll t; re(t);
+        ll a, b; re(a, b);
+        if (t == 1){
+            ll x; re(x);
+            tr.update(1, 1, n, a, b, x);
+        }
+        if (t == 2) {
+            ll x; re(x);
+            tr.update(1, 1, n, a, b, -x);
+        }
+        if (t == 3) cout << tr.query(1, 1, n, a, b) << endl;
+    }
 }
 
 signed main() {
