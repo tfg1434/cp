@@ -292,70 +292,132 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+class SegmentTree // range set value, range query for sum segtree, can be easily modified for other things
+{
+    private:
+        ll n;
+        vector<long long> segtree;
+        vector<long long> lazy;
+    public:
+        void init(ll sz)
+        {
+            n = sz;
+            segtree.resize(1 + 4 * sz);
+            lazy.resize(1 + 4 * sz);
+        }
+        void clear() {
+            fill(all(segtree), 0);
+            fill(all(lazy), 0);
+        }
+        void lz(ll node, ll L, ll R)
+        {
+            if(lazy[node] > 0)
+                segtree[node] += lazy[node] * (R - L + 1);
+            else
+                segtree[node] = (-lazy[node]) * (R - L + 1);
+            if(L != R)
+            {
+                if(lazy[node] < 0)
+                {
+                    lazy[node << 1] = lazy[node];
+                    lazy[node << 1|1] = lazy[node];
+                }
+                else
+                {
+                    if(lazy[node << 1] < 0)
+                        lazy[node << 1] -= lazy[node];
+                    else
+                        lazy[node << 1] += lazy[node];
+                    if(lazy[node << 1|1] < 0)
+                        lazy[node << 1|1] -= lazy[node];
+                    else
+                        lazy[node << 1|1] += lazy[node];
+                }
+            }
+            lazy[node] = 0;
+        }
+        void build(ll node, ll L, ll R, vector<ll> &v)
+        {
+            if(L == R)
+            {
+                segtree[node] = v[L];
+                return;
+            }
+            ll mid = (L + R) / 2;
+            build(node << 1, L, mid, v);
+            build(node << 1|1, mid+1, R, v);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        void update(ll node, ll L, ll R, ll Lq, ll Rq, ll val)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return;
+            if(Lq <= L && R <= Rq)
+            {
+                lazy[node] = val;
+                lz(node, L, R);
+                return;
+            }
+            ll mid = (L + R) / 2;
+            update(node << 1, L, mid, Lq, Rq, val);
+            update(node << 1|1, mid+1, R, Lq, Rq, val);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        long long query(ll node, ll L, ll R, ll Lq, ll Rq)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return 0;
+            if(Lq <= L && R <= Rq)
+                return segtree[node];
+            ll mid = (L + R) / 2;
+            return query(node << 1, L, mid, Lq, Rq) + query(node << 1|1, mid+1, R, Lq, Rq);
+        }
+};
+
 struct Query{
     ll l, r, x;
 };
 
 const ll M = 300002;
-// ll t[4*M], lz[4*M];
-/**
- * Description: 1D range increment and sum query.
- * Source: USACO Counting Haybales
- * Verification: SPOJ Horrible, USACO Counting Haybales
- * Time: O(\log N)
- */
-
-tcT, int SZ> struct LazySeg { 
-	static_assert(pct(SZ) == 1); // SZ must be power of 2
-	const T ID{}; T cmb(T a, T b) { return a+b; }
-	T seg[2*SZ], lazy[2*SZ]; 
-	LazySeg() { f0(i,2*SZ) seg[i] = lazy[i] = ID; }
-	void push(int ind, int L, int R) { /// modify values for current node
-		seg[ind] += (R-L+1)*lazy[ind]; // dependent on operation
-		if (L != R) f0(i,2) lazy[2*ind+i] += lazy[ind]; /// prop to children
-		lazy[ind] = 0; 
-	} // recalc values for current node
-	void pull(int ind){seg[ind]=cmb(seg[2*ind],seg[2*ind+1]);}
-	void build() { ROF(i,1,SZ) pull(i); }
-	void upd(int lo,int hi,T inc,int ind=1,int L=0, int R=SZ-1) {
-		push(ind,L,R); if (hi < L || R < lo) return;
-		if (lo <= L && R <= hi) { 
-			lazy[ind] = inc; push(ind,L,R); return; }
-		int M = (L+R)/2; upd(lo,hi,inc,2*ind,L,M); 
-		upd(lo,hi,inc,2*ind+1,M+1,R); pull(ind);
-	}
-	T query(int lo, int hi, int ind=1, int L=0, int R=SZ-1) {
-		push(ind,L,R); if (lo > R || L > hi) return ID;
-		if (lo <= L && R <= hi) return seg[ind];
-		int M = (L+R)/2; return cmb(query(lo,hi,2*ind,L,M),
-			query(lo,hi,2*ind+1,M+1,R));
-	}
-};
-
-ll ask(ll v, ll tl, ll tr, ll l, ll r) {
-    if (lz[v]) lazy(v, tl, tr);
-
-    ll res = 0;
-    if (l>r) return 0;
-    if (l <= tl && tr <= r) {
-        return t[v]+
-    }
-
-    ll tm = (tl+tr)/2;
-    return ask(v*2, tl, tm, l, min(r, tm))+
-         + ask(v*2+1, tm+1, tr, max(l, tm+1), r);
-}
+SegmentTree tr;
 
 void solve() {
     ll n, m; re(n, m);
     vl o(m+1), req(n+1);
     f1(i, m) re(o[i]);
+    V<vl> g(n+1); f1(i, m) g[o[i]].pb(i);
     f1(i, n) re(req[i]);
     ll Q; re(Q);
     V<Query> qs(Q+1); f1(i, Q) re(qs[i].l, qs[i].r, qs[i].x);
 
-    rep() {
+    tr.init(m);
 
+    vl L(n+1), R(n+1);
+    fill(all(L), 1);
+    fill(all(R), Q);
+    V<vl> check(Q+1); // for each mid value of bsearch
+    while (true) {
+        tr.clear();
+        f1(i, n) {
+            if (L[i] != R[i]) {
+                ll m = (L[i]+R[i])/2;
+                check[m].pb(i);
+            }
+        }
+
+        f1(i, Q) {
+            auto[l, r, x] = qs[i];
+
+            tr.update(1, 1, m, l, r, x);
+            for (auto u : check[i]) {
+
+                // if (req[u])
+            }
+        }
     }
 }
 
