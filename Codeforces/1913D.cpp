@@ -55,7 +55,7 @@ tcT> ll upb(V<T>& a, const T& b) { return ll(ub(all(a),b)-bg(a)); }
 #define rep(a) F0R(_,a)
 #define each(a,x) for (auto& a: x)
 
-const ll P = 1e9+7; // 998244353;
+const ll P = 998244353;
 const ll MX = 2e5+5;
 const ll BIG = 1e18; // not too close to LLONG_MAX
 const db PI = acos((db)-1);
@@ -296,22 +296,54 @@ void solve() {
     ll n; re(n);
     vl a(n+1); F1R(i, n) re(a[i]);
 
-    vl dp(n+1), dq(n+1), qu(n+1);
+    vl dp(n+1), pre(n+1);
+    dp[0] = 1;
+    pre[0] = 1;
     ll cnt = 0, sum = 0;
+    vl stk; 
     F1R(i, n) {
-        ll j;
-        while (cnt && a[j=qu[cnt-1]] > a[i]) {
-            cnt--;
-            sum = (sum - dp[j] + P) % P;
+        while (sz(stk) && a[stk.bk] > a[i]) {
+            ((sum -= dp[stk.bk])+=P)%=P;
+            stk.pop_back();
         }
-        dp[i] = dp[i-1];
-        if (cnt == 0) dp[i]++;
-        else dp[i] -= dq[qu[cnt-1]];
-        qu[cnt++] = i;
+
+        dp[i] = (pre[i-1]+sum)%P;
+        if (sz(stk)) {
+            ((dp[i] -= pre[stk.bk]) += P) %= P;
+        }
+        pre[i] = (pre[i-1]+dp[i])%P;
         (sum += dp[i]) %= P;
+        stk.pb(i);
     }
 
     ps(sum);
+
+
+    // FOR(i, 2, n+1) {
+        // // erase
+        // while (sz(stk) && a[stk.bk] > a[i]) {
+            // sum -= dp[stk.bk];
+            // stk.pop_back();
+        // }
+        // gg(i, sum);
+
+        // // don't erase
+        // dp[i] = dp[i-1]+sum;
+        // if (sz(stk)) {
+            // FOR(j, stk.bk, i-1) {
+                // dp[i] += dp[j];
+            // }
+        // } else {
+            // FOR(j, 0, i-1) {
+                // dp[i] += dp[j];
+            // }
+        // }
+        // gg(i, dp[i]);
+        // stk.pb(i);
+        // sum += dp[i];
+    // }
+
+    // ps(dp[n]);
 }
 
 signed main() {
