@@ -291,6 +291,35 @@ struct chash {
 };
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
+
+struct Graph {
+    vector<vector<int>> e;
+	Graph(int n) : e(n + 1), idc(0), scc(0), vis(n + 1), low(n + 1), col(n + 1), ins(n + 1) {}
+	void addedge(int u, int v) {
+		e[u].emplace_back(v);
+	}
+	int idc, scc;
+	vector<int> vis, low, col, ins;
+	stack<int> stk;
+    void tarjan(int v) {
+        vis[v] = low[v] = idc++;
+        stk.push(v), ins[v] = true;
+        for (auto u : e[v]) {
+            if (!vis[u]) {
+                tarjan(u);
+                ckmin(low[v], low[u]);
+            } else if (ins[u]) {
+                ckmin(low[v], vis[u]);
+            }
+        }
+        if (low[v] == vis[v]) {
+            for (++scc; stk.top() != v; stk.pop()) {
+                ins[stk.top()] = false, col[stk.top()] = scc;
+            }
+            ins[v] = false, col[v] = scc, stk.pop();
+        }
+    }
+};
  
 void solve() {
     ll n; re(n); vl a(2*n+1);
