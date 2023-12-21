@@ -304,9 +304,17 @@ ll n, i, j;
 
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
 tcT> using Tree = tree<T, null_type, less<T>, rb_tree_tag, 
     tree_order_statistics_node_update>;
+// #include <ext/pb_ds/tree_policy.hpp>
+// #include <ext/pb_ds/assoc_container.hpp>
+// using namespace __gnu_pbds;
+// template <class T> using Tree = tree<T, null_type, less<T>, 
+    // rb_tree_tag, tree_order_statistics_node_update>;
 
+// If you wanted to do it with BIT instead of assoc tree, we can just
+// binary search on a BIT to find the index
 void solve() {
     re(n); vl a(n+1); 
     F1R(i, n) re(a[i]);
@@ -317,25 +325,16 @@ void solve() {
     }
     ps(i);
 
-    list<ll> b;
-    for (j = i+1; j <= n; j++) b.pb(a[j]);
+    Tree<ll> tree;
+    for (j = i+1; j <= n; j++) tree.ins(a[j]);
 
     for (j = 1; j <= i; j++) {
-        auto it = bg(b);
-        if (a[j] < *it) {
-            cout << i-j;
+        // the number of elements strictly < a[j]
+        ll k = tree.order_of_key(a[j]);
 
-        } else {
-            ll cnt = 0;
-            while (it != end(b) && *it < a[j]) {
-                it++;
-                cnt++;
-            } 
+        cout << i+k-j;
 
-            cout << i+cnt-j;
-        }
-
-        b.ins(it, a[j]);
+        tree.ins(a[j]);
         if (j != i) cout << ' ';
     }
     ps();
