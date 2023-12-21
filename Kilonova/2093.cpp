@@ -343,6 +343,10 @@ ll dist(cl a, cl b) {
     return norm(a - b);
 }
 
+// implementation lessons:
+// How to put doubles in a map (turn it into an int)
+// How to make complex<T> suck less
+// How to work with inf and NaN in double (NaN != NaN)
 void solve() {
     re(n);
     V<cl> ps;
@@ -402,7 +406,7 @@ void solve() {
             }
             gg(y, num, cont);
 
-            assert(cont >= 0);
+            assert(cont >= 0); // sometimes throws
             ans += cont;
         }
 
