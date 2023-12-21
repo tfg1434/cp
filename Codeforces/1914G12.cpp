@@ -292,45 +292,43 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+mt19937_64 rnd;
+
+ll gen() {
+    ll x = 0;
+    while (!x) x = rnd();
+    return x;
+}
+
 void solve() {
     ll n; re(n);
-    vl c(2*n+1); F1R(i, 2*n) re(c[i]);
     set<ll> acv;
-    ll ans = 0;
+    vl a(n+1);
+    F1R(i, n) a[i] = gen();
+    vl c(2*n+1), f(2*n+1); F1R(i, 2*n) {
+        re(c[i]);
+        f[i] = f[i-1]^a[c[i]];
+    }
+    ll ans = count(all(f), 0)-1, ansc=1;
 
-    vpl v;
-    map<ll, ll> mp;
-    ll cnt = 0;
-    F1R(i, 2*n) {
-        ll x = c[i];
-        if (!sz(acv)) {
-            ans++;
-            acv.ins(x);
-            mp[x] = i;
-            continue;
-        }
-        if (acv.count(x)) {
-            acv.erase(x);
-            v.pb({mp[x], i});
-        } else {
-            acv.ins(x);
-            mp[x] = i;
+    ll prv = 0;
+    map<ll, ll> last;
+    F1R(i, 2*n) last[f[i]] = i;
+
+    F1R(i, 2*n) if (!f[i-1]) {
+        ll cnt = 1;
+        ll j = i;
+
+        while (f[j]) {
+            cnt++;
+            j = last[f[j]];
+            j++;
         }
 
-        if (!sz(acv)) {
-            for (auto[l, r] : v) {
-                bool in = false;
-                for (auto[L, R] : v) if (l != L || r != R) {
-                    in |= (L <= l && r <= R);
-                }
-                if (!in) cnt++;
-            }
-            v.clear();
-        }
+        (ansc *= cnt) %= P;
     }
 
-
-    ps(ans, binpow(2, cnt));
+    ps(ans, ansc);
 }
 
 signed main() {
