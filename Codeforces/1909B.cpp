@@ -294,62 +294,28 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    
-}
+    ll n; re(n);
+    vl a(n+1); F1R(i, n) re(a[i]);
+    bool flag = true;
 
+    for (ll b = 2; b < BIG; b *= 2) {
+        set<ll> st;
+        FOR(i, 1, n+1) {
+            st.ins(a[i]%b);
+        } 
+        if (sz(st) == 2) {
+            ps(b);
+            break;
+        }
+    }
+}
 
 signed main() {
     setIO();
-
-    mt19937 rand(time(0));
-
-    vl v;
-    F0R(i, 1e5) v.pb(rand()%100);
-    UNIQUE(v);
-    auto rng = default_random_engine {};
-    shuffle(all(v), rng);
     
-    ll n = 5;
-    ll p = 0;
-    rep(8) {
-        vl a(n); F0R(j, n) a[j] = v[p++];
-        vl b(n); F0R(j, n) b[j] = v[p++];
-        F0R(i, n) b[i] += 20;
-        vl c(n); F0R(j, n) c[j] = v[p++];
-        sort(rall(c));
-        vl ansA, ansB, ansC;
-
-        ll best = BIG;
-        do {
-            do {
-                bool ok = true;
-                F0R(i, n) if (b[i]<a[i]) ok = false;
-                if (!ok) continue;
-
-                vl gaps;
-                F0R(i, n) {
-                    gaps.pb(b[i]-a[i]);
-                }
-                sor(gaps);
-                // gg(gaps);
-                ll x = 0;
-                F0R(i, n) {
-                    x += c[i]*gaps[i];
-                }
-                if (ckmin(best, x)) {
-                    ansA = a, ansB = b, ansC = c;
-                };
-
-            } while (next_permutation(all(b)));
-        } while (next_permutation(all(a)));
-
-        gg(best);
-        if (best == BIG) continue;
-        ps(ansA);
-        ps(ansB);
-        ps(ansC);
-        ps("--------------------------");
-    }
+    ll tc; cin >> tc; while (tc--) {
+        solve();
+    } 
 
     return 0;
 }
