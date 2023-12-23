@@ -293,16 +293,147 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+ll wrap(ll a, ll n) {
+    if (a < n) return a;
+    return a%n+1;
+}
+
+class SegmentTree // range set value, range query for sum segtree, can be easily modified for other things
+{
+    private:
+        ll n;
+        vector<long long> segtree;
+        vector<long long> lazy;
+    public:
+        void init(ll sz)
+        {
+            n = sz;
+            segtree.resize(1 + 4 * sz);
+            lazy.resize(1 + 4 * sz);
+        }
+        void lz(ll node, ll L, ll R)
+        {
+            if(lazy[node] > 0)
+                segtree[node] += lazy[node] * (R - L + 1);
+            else
+                segtree[node] = (-lazy[node]) * (R - L + 1);
+            if(L != R)
+            {
+                if(lazy[node] < 0)
+                {
+                    lazy[node << 1] = lazy[node];
+                    lazy[node << 1|1] = lazy[node];
+                }
+                else
+                {
+                    if(lazy[node << 1] < 0)
+                        lazy[node << 1] -= lazy[node];
+                    else
+                        lazy[node << 1] += lazy[node];
+                    if(lazy[node << 1|1] < 0)
+                        lazy[node << 1|1] -= lazy[node];
+                    else
+                        lazy[node << 1|1] += lazy[node];
+                }
+            }
+            lazy[node] = 0;
+        }
+        void build(ll node, ll L, ll R, vector<ll> &v)
+        {
+            if(L == R)
+            {
+                segtree[node] = v[L];
+                return;
+            }
+            ll mid = (L + R) / 2;
+            build(node << 1, L, mid, v);
+            build(node << 1|1, mid+1, R, v);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        void update(ll node, ll L, ll R, ll Lq, ll Rq, ll val)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return;
+            if(Lq <= L && R <= Rq)
+            {
+                lazy[node] = val;
+                lz(node, L, R);
+                return;
+            }
+            ll mid = (L + R) / 2;
+            update(node << 1, L, mid, Lq, Rq, val);
+            update(node << 1|1, mid+1, R, Lq, Rq, val);
+            segtree[node] = segtree[node << 1] + segtree[node << 1|1];
+        }
+        long long query(ll node, ll L, ll R, ll Lq, ll Rq)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return 0;
+            if(Lq <= L && R <= Rq)
+                return segtree[node];
+            ll mid = (L + R) / 2;
+            return query(node << 1, L, mid, Lq, Rq) + query(node << 1|1, mid+1, R, Lq, Rq);
+        }
+};
+
 void solve() {
-    
+    ll n; re(n);
+    gg(n);
+    vl p(n+1), P(n+1), pos(n); 
+    F1R(i, n) {
+        re(P[i]);
+        pos[P[i]] = i;
+    } 
+    p[n] = 0;
+    ll i = 1;
+    for (ll j = wrap(pos[0]+1, n+1); i < n; j = wrap(j+1, n+1)) {
+        p[i++] = P[j];
+    }
+
+    ll ans = n;
+    SegmentTree c, m;
+    c.init(n); m.init(n);
+    ll C, M; // C is c[n], M is m[n]. save me two segtree queries each iteration
+    C = 1;
+    M = n;
+
+    // WLOG invariant
+    ll cz = n-1;
+    ll cnt = 1;
+    F1R(i, n-1) { 
+        ll u, v;
+        if (p[i] == n) {
+            u = C;
+            v = M;
+        } else {
+            u = c.query(1, 1, n, p[i], p[i]);
+            v = m.query(1, 1, n, p[i], p[i]);
+        }
+
+        ll res = (cnt-u)*p[i] + v + n;
+        ckmax(ans, res);
+        u = cnt;
+        c.update(1, 1, n, p[i]+1, n-1, -u);
+        C = u+1;
+        v = res-n;
+        m.update(1, 1, n, p[i]+1, n-1, -v);
+        M = res;
+        cnt++;
+    }
+
+    ps(ans);
 }
 
 signed main() {
-    setIO("input");
+    setIO();
     
-    ps(1e6);
-    FOR(i, 0, 1e6) pr(i, ' '); 
-    ps();
+    ll tc; cin >> tc; while (tc--) {
+        solve();
+    } 
 
     return 0;
 }
