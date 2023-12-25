@@ -299,21 +299,28 @@ void solve() {
     F0R(i, n-1) re(a[i+1]);
 
     ll ans = 0;
-    V<vl> m(n+1, vl(n+1));
-    ROF(i, 1, n) {
-        str s = a[i];
-        F0R(j, sz(s)) {
-            ll u = i+j+1;
+    V<vl> inp(n+1, vl(n+1)), paths(n+1, vl(n+1)), direct(n+1, vl(n+1));
+    F1R(i, n-1) F1R(j, n-i) inp[i][j+i] = a[i][j-1]-'0';
 
-            if (s[j]-'0' != m[i][u]%2) {
-                m[i][u]++;
-                gg(i, u);
-                ans++;
-
-                // new paths from i to nodes >u
-                FOR(k, u+1, n+1) m[i][k] += m[u][k];
-            }
+    auto get = [&](ll l, ll r) {
+        // indirect rounds to i
+        vl routes(n+1);
+        FOR(i, l+1, r) {
+            routes[r] ^= inp[l][i]*direct[i][r];
         }
+        // routes[l] = 1;
+        // FOR(i, l+1, r+1) {
+            // FOR(j, l, i) { 
+                // routes[i] ^= routes[j]*direct[j][i];
+            // }
+        // }
+
+        return routes[r];
+    };
+
+    R1F(i, n-1) FOR(j, i+1, n+1) {
+        direct[i][j] = get(i, j) ^ inp[i][j];
+        ans += direct[i][j];
     }
 
     ps(ans);

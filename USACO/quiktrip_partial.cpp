@@ -295,53 +295,102 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 void solve() {
     ll n, m; re(n, m);
-    V<vpl> r(n+1);
+    V<vpl> g(n+1), r(n+1);
     vpl ans(n+1);
-    vl deg(n+1), rnk(n+1), len(n+1), sum(n+1);
-    V<V<vl>> cand(n+1);
-
+    vl dp(n+1);
+    set<ll> DISTINCT;
     F0R(i, m) {
         ll u, v, l; re(u, v, l);
-        r[v].pb({u, l});
-        deg[u]++;
+        g[u].pb({v, l}); r[v].pb({u, l});
+        DISTINCT.ins(l);
     }
 
-    vl q, Q;
-    F1R(i, n) if (!deg[i]) {
-        q.pb(i);
-    }
+    V<V<pair<pl, ll>>> p(n+1);
+    vl vis(n+1), SUM(n+1);
+    bool distinct = false;
+    bool dumb = false;
+    auto dfs = yy([&](auto rec, ll u) -> void {
+        if (distinct) {
+            if (vis[u]) return;
+            vis[u] = 1;
+        }
 
-    while (sz(q)) {
-        each(u, q) {
-            for (auto[v, l] : r[u]) {
-                deg[v]--;
-                cand[v].pb({-len[u], l, rnk[u], sum[u]+l});
-                if (!deg[v]) {
-                    len[v] = len[u]+1;
-                    Q.pb(v);
-                } 
+        for (auto [v, l] : g[u]) {
+            rec(v);
+            p[u].pb({ { dp[v], -l } , v});
+            ckmax(dp[u], dp[v]+1);
+        }
+        sort(rall(p[u]));
+    });
+
+    if (n<=5000 && m <= 5000){
+        F1R(i, n) {
+            fill(all(dp), 0);
+            p.clear();
+            p.resize(n+1);
+
+            dfs(i);
+            ll sum = 0; 
+
+            auto it = bg(p[i]);
+
+            queue<ll> q;
+            while (it != end(p[i]) && it->f == bg(p[i])->f) {
+                q.push(it->s);
+                it++;
             }
+            if (sz(p[i])) sum -= bg(p[i])->f.s;
+            while (sz(q)) {
+                ll cnt = sz(q);
+                V<pair<pl, ll>> nxt;
+                rep(cnt) {
+                    ll v = q.front(); q.pop();
 
-        }
-        swap(q, Q);
-        Q.clear();
+                    it = bg(p[v]); 
+                    while (it != end(p[v]) && it->f == bg(p[v])->f) {
+                        nxt.pb(*it);
+                        it++;
+                    }
+                }
 
-        // find the lex. min path
-        V<vl> v;
-        each(u, q) {
-            sor(cand[u]);
-            vl use = cand[u][0];
-            sum[u] = use[3];
-            v.pb({use[1], use[2], u});
+                sort(rall(nxt));
+                auto it2 = bg(nxt);
+                while (it2 != end(nxt) && it2->f == bg(nxt)->f) {
+                    q.push(it2->s);
+                    it2++;
+                }
+
+                if (sz(nxt)) sum -= bg(nxt)->f.s;
+            }
+            ps(dp[i], sum);
         }
-        
-        sor(v);
-        F0R(i, sz(v)) {
-            rnk[v[i][2]] = i;
+    } else if (sz(DISTINCT) == 1) {
+        distinct = true;
+        F1R(i, n) if (!vis[i]) {
+            dfs(i);
         }
+
+        F1R(i, n) {
+            ps(dp[i], dp[i]**bg(DISTINCT));
+        } 
+    } else {
+        distinct = true;
+        dumb = true;
+
+        F1R(i, n) if (!vis[i]) {
+            dfs(i);
+        }
+
+        ll sum = 0;
+        F1R(i, n) {
+            // V<pair<pl, ll>> vec = p[i];
+            // while (sz(vec)) {
+                // sum -= bg(vec)->f.s;
+                // vec = p[bg(vec)->s];
+            // }
+            ps(dp[i], SUM[i]);
+        } 
     }
-
-    F1R(i, n) ps(len[i], sum[i]);
 }
 
 signed main() {
@@ -351,4 +400,3 @@ signed main() {
 
     return 0;
 }
-

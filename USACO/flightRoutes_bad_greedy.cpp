@@ -294,54 +294,29 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    ll n, m; re(n, m);
-    V<vpl> r(n+1);
-    vpl ans(n+1);
-    vl deg(n+1), rnk(n+1), len(n+1), sum(n+1);
-    V<V<vl>> cand(n+1);
+    ll n; re(n);
+    V<str> a(n);
+    F0R(i, n-1) re(a[i+1]);
 
-    F0R(i, m) {
-        ll u, v, l; re(u, v, l);
-        r[v].pb({u, l});
-        deg[u]++;
-    }
+    ll ans = 0;
+    V<vl> m(n+1, vl(n+1));
+    ROF(i, 1, n) {
+        str s = a[i];
+        F0R(j, sz(s)) {
+            ll u = i+j+1;
 
-    vl q, Q;
-    F1R(i, n) if (!deg[i]) {
-        q.pb(i);
-    }
+            if (s[j]-'0' != m[i][u]%2) {
+                m[i][u]++;
+                gg(i, u);
+                ans++;
 
-    while (sz(q)) {
-        each(u, q) {
-            for (auto[v, l] : r[u]) {
-                deg[v]--;
-                cand[v].pb({-len[u], l, rnk[u], sum[u]+l});
-                if (!deg[v]) {
-                    len[v] = len[u]+1;
-                    Q.pb(v);
-                } 
+                // new paths from i to nodes >u
+                FOR(k, u+1, n+1) m[i][k] += m[u][k];
             }
-
-        }
-        swap(q, Q);
-        Q.clear();
-
-        // find the lex. min path
-        V<vl> v;
-        each(u, q) {
-            sor(cand[u]);
-            vl use = cand[u][0];
-            sum[u] = use[3];
-            v.pb({use[1], use[2], u});
-        }
-        
-        sor(v);
-        F0R(i, sz(v)) {
-            rnk[v[i][2]] = i;
         }
     }
 
-    F1R(i, n) ps(len[i], sum[i]);
+    ps(ans);
 }
 
 signed main() {
@@ -351,4 +326,3 @@ signed main() {
 
     return 0;
 }
-
