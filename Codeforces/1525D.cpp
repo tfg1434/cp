@@ -293,23 +293,50 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+const ll N = 5002;
+ll dp[N][N];
+
 void solve() {
-    
+    ll n; re(n);
+    vl v(n+1); F1R(i, n) re(v[i]);
+    vl A = {0}, B = {0};
+    F1R(i, n) (v[i] ? A : B).pb(i);
+
+    gg(A);
+    gg(B);
+    memset(dp, 0x7f, sizeof dp);
+    F0R(i, sz(B)) dp[0][i] = 0;
+    FOR(a, 1, sz(A)) FOR(b, a, sz(B)) {
+        if (b == 1) {
+            dp[a][b] = abs(A[1]-B[1]);
+            continue;
+        }
+
+        if (a == 2 && b== 2) {
+            gg(A[a] ,B[b]);
+        }
+
+        // b >= 2
+        if (A[a] > B[b]) {
+            dp[a][b] = A[a]-B[b]+dp[a-1][b-1];
+        } else if (B[b-1] < A[a] && A[a] < B[b]) {
+            dp[a][b] = B[b]-A[a] + dp[a-1][b-1];
+            if (a < b) ckmin(dp[a][b], dp[a][b-1]);
+        } else {
+            assert(A[a] < B[b-1]);
+            if (a == b) dp[a][b] = B[b]-A[a] + dp[a-1][b-1];
+            else dp[a][b] = dp[a][b-1];
+        }
+        gg(a, b, dp[a][b]);
+    }
+
+    ps(dp[sz(A)-1][sz(B)-1]);
 }
 
 signed main() {
-    // setIO("input");
     setIO();
     
-    ll n = 5000;
-    ps(n);
-    ll x = rng()%(n/2+1);
-
-    vl v;
-    rep(x) v.pb(1);
-    rep(n-x) v.pb(0);
-    each(x, v) pr(x, ' ');
-    ps();
+    solve(); 
 
     return 0;
 }
