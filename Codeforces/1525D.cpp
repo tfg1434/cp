@@ -324,8 +324,8 @@ void solve() {
             if (a < b) ckmin(dp[a][b], dp[a][b-1]);
         } else {
             assert(A[a] < B[b-1]);
-            if (a == b) dp[a][b] = B[b]-A[a] + dp[a-1][b-1];
-            else dp[a][b] = dp[a][b-1];
+            dp[a][b] = B[b]-A[a] + dp[a-1][b-1];
+            if (a < b) ckmin(dp[a][b], dp[a][b-1]);
         }
         gg(a, b, dp[a][b]);
     }

@@ -301,13 +301,14 @@ signed main() {
     // setIO("input");
     setIO();
     
-    ll n = 5000;
+    ll n = 10;
     ps(n);
     ll x = rng()%(n/2+1);
 
     vl v;
     rep(x) v.pb(1);
     rep(n-x) v.pb(0);
+    shuffle(all(v), rng);
     each(x, v) pr(x, ' ');
     ps();
 
