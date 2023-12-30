@@ -302,8 +302,8 @@ void init() {
     for (ll i = 5; i < N; i += 2) {
         ans[i] = ans[i-2];
         each(x, ans[i]) x += "00";
-        str a = '1'+str(i-4, '0')+'6'+str(i-4, '0')+'9';
-        str b = '1'+str(i-4, '0')+'9'+str(i-4, '0')+'6';
+        str a = '1'+str((i-3)/2, '0')+'6'+str((i-3)/2, '0')+'9';
+        str b = '9'+str((i-3)/2, '0')+'6'+str((i-3)/2, '0')+'1';
         ans[i].pb(a);
         ans[i].pb(b);
     }
