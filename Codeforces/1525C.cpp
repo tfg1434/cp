@@ -298,15 +298,17 @@ void solve() {
     vl stk, ans(n);
     vl x(n); re(x);
     V<char> t(n); re(t);
-    V<pair<pl, ll>> a(n);
+    V<pair<pl, ll>> a;
     F0R(i, n) {
         a.pb( {{x[i], t[i]=='R'?1:0}, i});
     }
     sor(a);
+    gg(a);
 
-    for (auto[p, i] : a) { if (p.f & 1) {
+    for (auto[p, i] : a) if (p.f & 1) {
         if (sz(stk) && a[stk.bk].f.s && !p.s) {
-            ans[stk.bk] = ans[i] = (a[stk.bk].f.f+p.f)/2;
+            ans[stk.bk] = ans[i] = (p.f-a[stk.bk].f.f)/2;
+            // gg(a[stk.bk].f.f, p.f);
             stk.pop_back();
         } else {
             stk.pb(i);
@@ -318,8 +320,20 @@ void solve() {
     } 
     sor(b);
     while (sz(b) > 1) {
-
+        auto y = b.bk; b.pop_back();
+        auto z = b.bk; b.pop_back();
+        z.f += m-y.f; y.f = m;
+        ans[y.s] = ans[z.s] = (y.f-z.f)/2;
     }
+    if (sz(b)) {
+        auto y = b.bk; b.pop_back();
+        ans[y.s] = -1;
+    }
+
+    F0R(i, n) pr(ans[i], ' ');
+    ps();
+
+    // now handle evens
 }
 
 signed main() {
