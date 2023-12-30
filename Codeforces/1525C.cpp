@@ -295,39 +295,49 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 
 void solve() {
     ll n, m; re(n, m);
-    vl stk, ans(n);
+    vl ans(n);
     vl x(n); re(x);
     V<char> t(n); re(t);
     V<pair<pl, ll>> a;
+    vpl get(n);
     F0R(i, n) {
-        a.pb( {{x[i], t[i]=='R'?1:0}, i});
+        get[i] = {x[i], t[i]=='R'?1:0};
+        a.pb( {get[i], i});
     }
     sor(a);
-    gg(a);
 
+    deque<ll> stk;
     for (auto[p, i] : a) if (p.f & 1) {
-        if (sz(stk) && a[stk.bk].f.s && !p.s) {
+        gg(p.s);
+        if (sz(stk) && get[stk.bk].s && !p.s) {
             ans[stk.bk] = ans[i] = (p.f-a[stk.bk].f.f)/2;
-            // gg(a[stk.bk].f.f, p.f);
             stk.pop_back();
         } else {
             stk.pb(i);
         }
     }
-    vpl b;
-    each(i, stk) {
-        b.eb(a[i].f.s ? a[i].f.f : -a[i].f.f, i);
-    } 
-    sor(b);
-    while (sz(b) > 1) {
-        auto y = b.bk; b.pop_back();
-        auto z = b.bk; b.pop_back();
-        z.f += m-y.f; y.f = m;
-        ans[y.s] = ans[z.s] = (y.f-z.f)/2;
+
+    vl STK; 
+    while (sz(stk)) {
+        STK.pb(stk.ft);
+        stk.pop_front();
     }
-    if (sz(b)) {
-        auto y = b.bk; b.pop_back();
-        ans[y.s] = -1;
+
+    ll y, z;
+    while (sz(STK)>1 && (y=STK.bk) == (z=STK[sz(STK)-2])) {
+        ans[y] = ans[z] = m-get[z].f+(get[z].f-get[y].f)/2;
+        STK.pop_back(); STK.pop_back();
+    }
+    reverse(all(STK));
+    while (sz(STK)>1 && (y=STK.bk) == (z=STK[sz(STK)-2])) {
+        ans[y] = ans[z] = m-get[z].f+(get[z].f-get[y].f)/2;
+        STK.pop_back(); STK.pop_back();
+    }
+
+    if (sz(STK) == 2) {
+        ans[STK.ft] = ans[STK.bk] = m-(get[STK.bk].f-get[STK.ft].f)/2;
+    } else if (sz(STK)) {
+        ans[STK.bk] = -1;
     }
 
     F0R(i, n) pr(ans[i], ' ');
