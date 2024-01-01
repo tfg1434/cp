@@ -90,6 +90,15 @@ tcT> bool ckmin(T& a, const T& b) {
     return b < a ? a = b, 1 : 0; } // set a = min(a,b)
 tcT> bool ckmax(T& a, const T& b) {
     return a < b ? a = b, 1 : 0; } // set a = max(a,b)
+// m is max, M is second max
+tcT> T tmax(T& m, T& M, T x) {
+    if (x <= m) return ckmax(M, x);
+    return ckmax(m, x);
+}
+tcT> T tmin(T& m, T& M, T x) {
+    if (x >= m) return ckmin(M, x);
+    return ckmin(m, x);
+}
 
 tcTU> T fstTrue(T lo, T hi, U f) {
     ++hi; assert(lo <= hi); // assuming f is increasing
@@ -293,64 +302,79 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+const ll N = 102;
+ll d[N][N], p[N][N], e[N][N], A[N][N];
+
 void solve() {
+    memset(d, 0x3f, sizeof d);
+
     ll n, m; re(n, m);
     ll ans = BIG;
-    V<vl> g(n+2);
-    vpl es;
+    V<vl> g(n+1);
+
+    vpl c;
     F0R(i, m) {
         ll u, v; re(u, v);
         g[u].pb(v); g[v].pb(u);
-        es.pb({u, v});
+        A[u][v] = 1;
+        c.pb({u, v});
+        d[v][u] = d[u][v] = 1;
+        p[u][v] = u; p[v][u] = v;
     }
 
-    vl dp(n+2), vis(n+2);
-    auto dfs = yy([&](auto rec, ll u) -> void {
-        ll d = 0, m;
-        queue<ll> q; q.push(u);
-        while ((m=sz(q))) {
-            F0R(i, m) {
-                ll u = q.front();q.pop();
-                dp[u] = 
-                each(v, g[u]) if (!vis[v]) {
-                    
+    F1R(i, n) d[i][i] = 0;
+    F1R(k, n) F1R(i, n) F1R(j, n) {
+        if (ckmin(d[i][j], d[i][k]+d[k][j])) {
+            p[i][j] = p[k][j];
+        }
+    }
+
+    F1R(i, n) c.pb({i, i});
+    gg(c);
+
+    ll U, V;
+    for (auto[u, v] : c) {
+        ll mx = 0, mx2 = 0;
+        ll du = 0, dv=0, du2 = 0, dv2 = 0;
+
+        F1R(k, n) {
+            if (u == v) {
+                if (u == 1) gg(k, d[u][k]);
+                tmax(mx, mx2, d[u][k]);
+            } else {
+                // tmax(mx, mx2, min(d[u][k], d[v][k]));
+                if (d[u][k] < d[v][k]) {
+                    tmax(du, du2, d[u][k]);
+                } else {
+                    tmax(dv, dv2, d[v][k]);
                 }
             }
         }
-        // ll d = 0;
-        // vis[u] = 1;
-        // each(v, g[u]) if (!vis[v]) {
-            // rec(v, u);
-            // ckmax(d, dp[v]);
-        // }
-        // dp[u] = d+1;
-    });
-    // The centre is a node
-    F1R(i, n) {
-        ll mx = 0, nxt = 0;
-        fill(all(dp), 0);
-        fill(all(vis), 0);
-        dfs(i, i);
-        each(v, g[i]) {
-            if (dp[v] > mx) {
-                nxt = mx;
-                mx = dp[v];
-            }
+
+        ll cand = 0;
+        if (u == v) cand = mx+mx2;
+        else cand = max(du+dv+1, max(du+du2, dv+dv2));
+
+        gg(u, v);
+        gg(cand);
+        if (ckmin(ans, cand)) {
+            U = u, V = v;
         }
-        ckmin(ans, mx+nxt);
     }
 
-    // The centre is an edge
-    for (auto[u, v]:es) {
-        fill(all(dp), 0);
-        fill(all(vis), 0);
-        ll mx = 0, nxt = 0;
-        g[n+1] = {u, v};
-        dfs(n+1, n+1);
-        ckmin(ans, dp[u]+dp[v]-1);
+    gg(U, V);
+    // ps(ans);
+    F1R(j, n) {
+        ll i = d[j][U] < d[j][V] ? U : V;
+        for (ll k = j; p[i][k]; k = p[i][k]) {
+            e[p[i][k]][k] = 1;
+        }
     }
+    if (U != V) e[U][V] = 1;
 
-    ps(ans);
+    F1R(i, n) F1R(j, n) if (A[i][j] && (e[i][j] || e[j][i])) {
+        ps(i, j);
+    }
 }
 
 signed main() {
