@@ -293,17 +293,20 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+// log2(288230376151711743)...
 void solve() {
     ll n, k; re(n, k);
     vl a(n); re(a);
     bool odd = false;
-    rep(log2(k)+1) {
+    // while (k > 0) {
+    ll test = bits(k);
+    rep(test+1) {
         ll sum = 0; each(x, a) sum += x;
         if (sum & 1) {
             odd = true;
-            break;
         }
         each(x, a) x /= 2;
+        k /= 2;
     }
 
     pr(odd ? '1':'0');
