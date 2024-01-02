@@ -303,42 +303,27 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    ll n, k; re(n, k);
-    vl b(n+1); F1R(i, n) re(b[i]);
-    if (k == 1) {
-        bool ok = true;
-        F1R(i, n) ok &= (b[i] == i);
-        ps(ok ? "YES" : "NO");
-        return;
-    }
+    ll n; re(n);
+    string s; re(s); s = ' ' + s;
 
-    bool ok = true;
-    vl t(n+1), vis(n+1);
-    ll ct = 0, p = 1;
+    ll lo = n/2, hi = (n+3)/2;
+    vl a(n+1);
+    ROF(i, 1, lo+1) a[lo-i] ^= s[i]-'0';
+    FOR(i, hi, n+1) a[i-hi] ^= s[i]-'0';
+    ll x = count(all(a), 1);
+    gg(x);
 
-    F1R(i, n) if (!vis[i]) {
-        p = i;
-
-        vl back;
-        while (!vis[p]) {
-            if (!t[p]) t[p] = ct;
-            else {
-                if (ct-t[p] != k) ok = false;
-                break;
-            }
-
-            back.pb(p);
-            p = b[p];
-            ct++;
-        }
-
-        each(x, back) {
-            vis[x] = 1;
-            t[x] = 0;
+    rep(x) cout << 0;
+    if (n & 1) rep(n+1-x-x) cout << 1;
+    else {
+        F0R(i, n+1-x-x) {
+            if (i & 1) cout << 0;
+            else cout << 1;
         }
     }
+    rep(x) cout << 0;
 
-    ps(ok ? "YES":"NO");
+    ps();
 }
 
 signed main() {
@@ -346,7 +331,7 @@ signed main() {
     
     ll tc; cin >> tc; while (tc--) {
         solve();
-    } 
+    }
 
     return 0;
 }

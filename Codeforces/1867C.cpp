@@ -302,51 +302,28 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+ll ask(ll x) {
+    cout << x << endl;
+    ll r; re(r);
+    return r;
+}
+
 void solve() {
-    ll n, k; re(n, k);
-    vl b(n+1); F1R(i, n) re(b[i]);
-    if (k == 1) {
-        bool ok = true;
-        F1R(i, n) ok &= (b[i] == i);
-        ps(ok ? "YES" : "NO");
-        return;
+    ll n; re(n);
+    vl s(n); re(s); sor(s);
+    if (!sz(s) || s[0] > 0) {
+        assert(ask(0) == -1);
+    } else {
+        ll i = 0;
+        for (; i < n && s[i]==i; i++);
+        while ((i=ask(i)) != -1) { }
     }
-
-    bool ok = true;
-    vl t(n+1), vis(n+1);
-    ll ct = 0, p = 1;
-
-    F1R(i, n) if (!vis[i]) {
-        p = i;
-
-        vl back;
-        while (!vis[p]) {
-            if (!t[p]) t[p] = ct;
-            else {
-                if (ct-t[p] != k) ok = false;
-                break;
-            }
-
-            back.pb(p);
-            p = b[p];
-            ct++;
-        }
-
-        each(x, back) {
-            vis[x] = 1;
-            t[x] = 0;
-        }
-    }
-
-    ps(ok ? "YES":"NO");
 }
 
 signed main() {
-    setIO();
-    
     ll tc; cin >> tc; while (tc--) {
         solve();
-    } 
+    }
 
     return 0;
 }

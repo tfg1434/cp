@@ -303,42 +303,19 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    ll n, k; re(n, k);
-    vl b(n+1); F1R(i, n) re(b[i]);
-    if (k == 1) {
-        bool ok = true;
-        F1R(i, n) ok &= (b[i] == i);
-        ps(ok ? "YES" : "NO");
-        return;
+    ll n; re(n);
+    vpl a(n+1); F1R(i, n) {
+        ll x; re(x);
+        a[i] = {x, i};
     }
+    sor(a);
 
-    bool ok = true;
-    vl t(n+1), vis(n+1);
-    ll ct = 0, p = 1;
-
-    F1R(i, n) if (!vis[i]) {
-        p = i;
-
-        vl back;
-        while (!vis[p]) {
-            if (!t[p]) t[p] = ct;
-            else {
-                if (ct-t[p] != k) ok = false;
-                break;
-            }
-
-            back.pb(p);
-            p = b[p];
-            ct++;
-        }
-
-        each(x, back) {
-            vis[x] = 1;
-            t[x] = 0;
-        }
+    vl ans(n+1);
+    R1F(i, n) {
+        ans[a[n+1-i].s] = i;
     }
-
-    ps(ok ? "YES":"NO");
+    F1R(i, n) pr(ans[i], ' ');
+    ps();
 }
 
 signed main() {
