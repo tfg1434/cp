@@ -293,33 +293,107 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/assoc_container.hpp>
-using namespace __gnu_pbds;
-template <class T> using Tree = tree<T, null_type, less<T>, 
-    rb_tree_tag, tree_order_statistics_node_update>;
+class SegmentTree // range set value, range query for sum segtree, can be easily modified for other things
+{
+    public:
+        ll n;
+        vector<long long> segtree;
+        vector<long long> lazy;
+        void init(ll sz)
+        {
+            n = sz;
+            segtree.resize(1 + 4 * sz);
+            lazy.resize(1 + 4 * sz);
+        }
+        void lz(ll node, ll L, ll R)
+        {
+            // segtree[node] += lazy[node] * (R - L + 1);
+            segtree[node] += lazy[node];
+            if(L != R)
+            {
+                lazy[node << 1] += lazy[node];
+                lazy[node << 1|1] += lazy[node];
+            }
+            lazy[node] = 0;
+        }
+        void build(ll node, ll L, ll R)
+        {
+            if(L == R)
+            {
+                // gg(node, L);
+                segtree[node] = -L;
+                return;
+            }
+            ll mid = (L + R) / 2;
+            build(node << 1, L, mid);
+            build(node << 1|1, mid+1, R);
+            segtree[node] = max(segtree[node << 1] , segtree[node << 1|1]);
+        }
+        void update(ll node, ll L, ll R, ll Lq, ll Rq, ll val)
+        {
+            if(lazy[node]) lz(node, L, R);
+            if(R < Lq || L > Rq) return;
+            if(Lq <= L && R <= Rq) {
+                gg(val);
+                lazy[node] = val;
+                lz(node, L, R);
+                return;
+            }
+            ll mid = (L + R) / 2;
+            update(node << 1, L, mid, Lq, Rq, val);
+            update(node << 1|1, mid+1, R, Lq, Rq, val);
+            segtree[node] = max(segtree[node << 1] , segtree[node << 1|1]);
+        }
+        long long query(ll node, ll L, ll R, ll Lq, ll Rq)
+        {
+            if(lazy[node])
+                lz(node, L, R);
+            if(R < Lq || L > Rq)
+                return 0;
+            if(Lq <= L && R <= Rq)
+                return segtree[node];
+            ll mid = (L + R) / 2;
+            return max(query(node << 1, L, mid, Lq, Rq) , query(node << 1|1, mid+1, R, Lq, Rq));
+        }
+};
+
+ll C(ll x) {
+    // if (x == 0) return 0;
+    assert(x>0);
+    if (x == 1) return 1;
+    return x*(x-1)/2;
+}
 
 void solve() {
     ll n; re(n);
-    vl a(n); re(a);
-    vl mx(n);
-    F0R(i, n) {
-        Tree<pl> tr;
-        FOR(j, i, n) {
-            tr.ins({ a[j] , j});
-            // if (i == 1) gg(a[j], tr.order_of_key({ a[j], BIG }));
-            if (tr.order_of_key({ a[j], BIG }) > a[j]) {
-                break;
-            }
-            mx[i] = j;
-        }
-    }
-    gg(mx);
+    vl a(n+1); F1R(i, n) re(a[i]);
 
     ll ans = 0;
-    F0R(i, n) {
-        ans += mx[i]-i+1;
+    SegmentTree tr; 
+    tr.init(n+1);
+    tr.build(1, 1, n);
+
+    ll j = 0;
+    F1R(i, n) {
+        if (i > 1) {
+            tr.update(1, 1, n, a[i-1], n, -1);
+        }
+        while (j <= n && tr.segtree[1] <= 0) {
+            j++;
+            if (j <= n) {
+                // gg(tr.segtree[1]);
+                // gg(a[j]);
+                tr.update(1, 1, n, a[j], n, 1);
+                // gg(tr.segtree[1]);
+            }
+        }
+
+        gg(i, j);
+        assert(j>=i);
+
+        ans += j-i;
     }
+
     ps(ans);
 }
 
