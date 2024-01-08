@@ -118,7 +118,7 @@ tcTU> T lstTrue(T lo, T hi, U f) {
 }
 tcT> void UNIQUE(vector<T>& v) { // sort and remove duplicates
     sort(all(v)); v.erase(unique(all(v)),end(v)); }
-tcTU> void erase(T& t, const U& u) { // don't erase
+tcTU> void safeErase(T& t, const U& u) { // don't erase
     auto it = t.find(u); assert(it != end(t));
     t.erase(it); } // element that doesn't exist from (multi)set
 
@@ -154,6 +154,10 @@ inline namespace Helpers {
                     > : true_type {};
     tcT> constexpr bool is_printable_v = is_printable<T>::value;
 }
+
+#define def(t, args...)                                                        \
+    t args;                                                                    \
+    re(args);
 
 inline namespace Input {
     tcT> constexpr bool needs_input_v = !is_readable_v<T> && is_iterable_v<T>;
@@ -302,33 +306,83 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+
+const ll N = 2e5+2;
+const ll M = 4e5+2;
+ll e[N];
+vl cc[N];
+pl arr[N];
+vl p10{1};
+ll inv[M+1];
+pl lz[N];
+pl operator +(pl a, pl b) {
+    return mp(a.f+b.f, (p10[b.f]*a.s%P + b.s)%P);
+};
+pl operator += (pl& a, pl& b) {
+    a = a+b;
+    return a;
+}
+pl operator -(pl a, pl b) {
+    assert(a.f >= b.f);
+    return mp(a.f-b.f, (a.s+P-b.s)%P * inv[b.f]%P);
+};
+ll find(ll u) {
+    return e[u] < 0 ? u : e[u]=find(e[u]);
+}
+void unite(ll u, ll v, ll i) {
+    if (sz(cc[find(u)]) > sz(cc[find(v)])) swap(u, v);
+    auto eu = mp(1, i)+arr[u]+lz[find(u)];
+    auto ev = mp(1, i)+arr[v]+lz[find(v)];
+
+    if ((u=find(u)) != (v=find(v))) {
+        lz[v] += eu;
+        auto cpp = lz[u]+ev-lz[v];
+        each(x, cc[u]) arr[x] += cpp;
+        
+        each(x, cc[u]) cc[v].pb(x);
+        e[u] = v;
+    }
+        // if (ru != rv) {
+      // // ensure that u is part of the smaller component
+      // if(sz[ru] > sz[rv]) swap(u,v), swap(ru, rv);
+
+      // val du = make_pair(1, i) + res[u] + lazy[ru];
+      // val dv = make_pair(1, i) + res[v] + lazy[rv];
+      // lazy[rv] += du;
+      // for (int x: component[ru]) res[x] += lazy[ru] + dv - lazy[rv];
+
+      // for (int x: component[ru]) fa[x] = rv;
+      // sz[rv] += sz[ru];
+      // component[rv].insert(component[rv].end(), component[ru].begin(), component[ru].end());
+    // }
+}
 void solve() {
-    ll n, k; re(n, k);
-    vl b(n+1); F1R(i, n) re(b[i]);
-    V<vl> a(k+1), m(k+1);
-    V<vl> S(k+1, vl(k+1));
-    F1R(i, k) F1R(j, k) {
-        char c; re(c);
-        S[i][j] = c-'0';
+    memset(e, -1, sizeof e);
+    F1R(i, M) p10.pb(p10.bk*10%P);
+    // inv[M] = binpow(p10[M], P-2);
+    // ROF(i, 0, M) inv[i] = (p10[i]*inv[i+1]) %P;
+    ROF(i, 0, M+1) inv[i] = binpow(p10[i], P-2);
+    gg(p10[M]);
+    gg(inv[0]);
+    gg(inv[1]);
+
+
+    def(ll, n, m);
+    F1R(i, n) cc[i].pb(i);
+    F1R(i, m) {
+        ll u, v; re(u, v);
+        unite(u, v, i);
     }
 
-    pqg<pl> q; q.push({0, 1});
-    while (sz(q)) {
-        auto [u, d] = q.top(); q.pop();
-        F1R(i, k) if (S[b[u]][i]) {
-            // we are at u, and need to move L+R
-            FOR(j, u, n+1) {
-                if (vis[b[u]][j]) break;
-
-            }
-        }
+    F1R(i, n) {
+        ps((arr[i]+lz[find(i)]).s);
     }
 }
 
 signed main() {
     setIO();
     
-    solve();
+    solve(); 
 
     return 0;
 }
