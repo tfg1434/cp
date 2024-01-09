@@ -305,24 +305,54 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 void solve() {
     ll n, k; re(n, k);
     vl b(n+1); F1R(i, n) re(b[i]);
-    V<vl> a(k+1), m(k+1);
+    V<vl> m(k+1);
+    F1R(i, n) m[b[i]].pb(i);
     V<vl> S(k+1, vl(k+1));
     F1R(i, k) F1R(j, k) {
         char c; re(c);
         S[i][j] = c-'0';
     }
+    ll ans = BIG;
+    // ps(m);
 
+    vl dist(n+1, BIG);
     pqg<pl> q; q.push({0, 1});
-    while (sz(q)) {
-        auto [u, d] = q.top(); q.pop();
-        F1R(i, k) if (S[b[u]][i]) {
-            // we are at u, and need to move L+R
-            FOR(j, u, n+1) {
-                if (vis[b[u]][j]) break;
+    dist[1] = 0;
 
+    while (sz(q)) {
+        auto[d,u] = q.top(); q.pop();
+        if (u == n) {
+            ans = d;
+            break;
+        }
+
+        F1R(i, k) if (S[b[u]][i]) {
+            if (!sz(m[i])) continue;
+
+            auto it = upb(m[i], u);
+            if (it >= sz(m[i])) it--;
+
+            ll v = m[i][it];
+            gg(i, v);
+            if (ckmin(dist[v], d+abs(u-v))) {
+                q.push({dist[v], v});
+            }
+            if (v >= u && it > 0) {
+                ll w = m[i][it-1];
+                if (ckmin(dist[w], d+abs(w-u))) {
+                    q.push({dist[w], w});
+                }
+            }
+            if (v >= u && it > 1) {
+                ll w = m[i][it-2];
+                if (ckmin(dist[w], d+abs(w-u))) {
+                    q.push({dist[w], w});
+                }
             }
         }
     }
+
+    ps(ans == BIG ? -1 : ans);
 }
 
 signed main() {
