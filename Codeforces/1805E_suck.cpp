@@ -306,35 +306,116 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-void solve() {
-    ll n, m; re(n ,m);
-    vl a(n); re(a); sor(a);
+const ll N = 1e5+2;
+set<ll> rem[N];
+map<pl, ll> m;
+ll dp[20][N];
+map<ll, set<ll>> add[N];
 
-    F0R(i, m) {
-        def(ll, A, B, C);
-        ll p = lwb(a, B);
-        if (p == sz(a)) p--;
-        ll mn = abs(B-a[p]), idx = a[p];
-        if (p > 0) {
-            if (ckmin(mn, abs(B-a[p-1]))) {
-                idx = a[p-1];
+void solve() {
+    def(ll, n);
+    V<vl> g(n+1);
+    F1R(i, n-1) {
+        def(ll, u, v);
+        g[u].pb(v); g[v].pb(u);
+        m[{u, v}] = m[{v, u}] = i;
+    }
+
+    map<ll, vl> freq;
+    vl a(n+1); 
+    F1R(i, n) {
+        re(a[i]);
+        freq[a[i]].pb(i);
+    }
+
+    vl lvl(n+1);
+    ll t = 0;
+    auto DFS = yy([&](auto rec, ll u, ll p) -> void {
+        if (u != p) {
+            lvl[u] = lvl[p]+1;
+        }
+
+        dp[0][u] = p;
+        FOR(i,1,20) dp[i][u] = dp[i-1][dp[i-1][u]];
+
+        each(v, g[u]) if (v != p) {
+            rec(v, u);    
+        }
+    });
+    DFS(1, 1);
+    auto lca = [&](ll u, ll v) {
+        if (lvl[u] > lvl[v]) swap(u, v);
+        ll x = lvl[v]-lvl[u];
+        for (ll b = 18; b >= 0; b--) {
+            if (x&(1<<b)) {
+                x-=1<<b;
+                v = dp[b][v];
             }
         }
 
-        bool ok = mn*mn < 4*A*C;
-        ps(ok ? "YES" :"NO");
-        if (ok) ps(idx);
-        ps();
+        if (u == v) return u;
+
+        for (ll b = 18; b >= 0; b--) {
+            while (dp[b][u] != dp[b][v]) {
+                u = dp[b][u];
+                v = dp[b][v];
+            }
+        }
+
+        return dp[0][u];
+    };
+    // node 1 lvl below u
+    auto below = [&](ll u, ll v) {
+        assert(lvl[u] < lvl[v]);
+        ll x = lvl[v]-lvl[u]-1;
+        for (ll b = 18; b >= 0; b--) {
+            if (x&(1<<b)) {
+                x -= 1<<b;
+                v = dp[b][v];
+            }
+        }
+        return v;
+    };
+
+    for (auto[v, f] : freq) if (sz(f) == 2) {
+        ll l = lca(f[0], f[1]);
+        F0R(j, 2) {
+            if (f[j] != l) {
+                add[l][below(l, f[j])].ins(v);
+                if (f[j] != l) rem[f[j]].ins(v);
+            }
+        }
     }
 
+    ll always = 0;
+    set<ll> st;
+    for (auto[v, f] : freq) if (sz(f) >= 2) {
+        if (sz(f) == 2) st.ins(v);
+        else {
+            ckmax(always, v);
+        }
+    }
+
+    vl ans(n, always);
+    auto dfs = yy([&](auto rec, ll u, ll p) -> void {
+        each(x, rem[u]) st.ins(x);
+
+        each(v, g[u]) if (v != p) {
+            each(x, add[u][v]) st.erase(x);
+            if (sz(st)) ckmax(ans[m[{u, v}]], *st.rbegin());
+            each(x, add[u][v]) st.ins(x);
+            rec(v, u);
+        }
+    });
+    dfs(1, 1);
+
+    F1R(i, n-1) ps(ans[i]);
 }
 
 signed main() {
     setIO();
     
-    ll tc; cin >> tc; while (tc--) {
-        solve();
-    } 
+    solve(); 
 
     return 0;
 }

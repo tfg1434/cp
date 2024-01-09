@@ -307,34 +307,59 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 void solve() {
-    ll n, m; re(n ,m);
-    vl a(n); re(a); sor(a);
+    def(ll, n);
+    V<vl> g(n+1);
+    F0R(i, n-1) {
+        def(ll, u, v);
+        g[u].pb(v); g[v].pb(u);
+    }
 
-    F0R(i, m) {
-        def(ll, A, B, C);
-        ll p = lwb(a, B);
-        if (p == sz(a)) p--;
-        ll mn = abs(B-a[p]), idx = a[p];
-        if (p > 0) {
-            if (ckmin(mn, abs(B-a[p-1]))) {
-                idx = a[p-1];
+    vl f(n+1), h(n+1), cnt(n+1);
+    auto dfs = yy([&](auto rec, ll u, ll p) -> void {
+        vl fs;
+        each(v, g[u]) if (v != p) {
+            rec(v, u);
+            fs.pb(f[v]);
+        }
+        sor(fs);
+        f[u] = (sz(fs) ? fs.bk : -1)+1;
+    });
+    dfs(1, 1);
+    auto dfs2 = yy([&](auto rec, ll u, ll p) -> void {
+        if (u != p) ckmax(h[u], h[p]+1);
+        vl fs;
+        each(v, g[u]) if (v != p) fs.pb(f[v]); 
+        sor(fs);
+
+        bool dos = sz(fs) > 1 && fs.bk==fs[sz(fs)-2];
+        each(v, g[u]) if (v != p) {
+            ckmax(h[v], h[u]+1);
+            if (!dos && f[v] == fs.bk) {
+                if (sz(fs) > 1) ckmax(h[v], fs[sz(fs)-2]+2);
+            } else {
+                ckmax(h[v], fs.bk+2);
             }
         }
 
-        bool ok = mn*mn < 4*A*C;
-        ps(ok ? "YES" :"NO");
-        if (ok) ps(idx);
-        ps();
-    }
+        ll best = max(h[u], f[u]);
+        cnt[best]++;
 
+        each(v, g[u]) if (v != p) rec(v, u);
+    });
+    dfs2(1,1);
+
+    ll cc = 1;
+    F1R(i, n) {
+        ps(cc);
+        cc += cnt[i];
+        if (cc == n+1) cc--;
+    }
 }
 
 signed main() {
     setIO();
     
-    ll tc; cin >> tc; while (tc--) {
-        solve();
-    } 
+    solve(); 
 
     return 0;
 }

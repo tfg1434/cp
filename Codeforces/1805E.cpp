@@ -1,3 +1,5 @@
+// https://www.youtube.com/watch?v=mGgV3eHhVoI
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -306,35 +308,100 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+V<vpl> g;
+
+vl path, path_edges;
+bool dfs(ll u, ll p, ll dest) {
+    path.pb(u);
+    if (u == dest) return true;
+
+    for (auto[v, idx] : g[u]) if (v != p) {
+        path_edges.pb(idx);
+        if (dfs(v, u, dest)) return true;
+        path_edges.pop_back();
+    }
+    path.pop_back();
+
+    return false;
+}
+
 void solve() {
-    ll n, m; re(n ,m);
-    vl a(n); re(a); sor(a);
-
-    F0R(i, m) {
-        def(ll, A, B, C);
-        ll p = lwb(a, B);
-        if (p == sz(a)) p--;
-        ll mn = abs(B-a[p]), idx = a[p];
-        if (p > 0) {
-            if (ckmin(mn, abs(B-a[p-1]))) {
-                idx = a[p-1];
-            }
-        }
-
-        bool ok = mn*mn < 4*A*C;
-        ps(ok ? "YES" :"NO");
-        if (ok) ps(idx);
-        ps();
+    def(ll, n);
+    g.resize(n);
+    F0R(i, n-1) {
+        def(ll, u, v); u--; v--;
+        g[u].pb({ v, i }); g[v].pb({ u, i });
     }
 
+    V<vl> freq(n);
+    vl a(n); re(a);
+    vl b = a; sor(b);
+    each(x, a) x = lwb(b, x);
+    F0R(i, n) freq[a[i]].pb(i);
+
+    ll always = -1, st = -1, en=-1, max_path = -1;
+    F0R(i, n) if (sz(freq[i]) >= 2) {
+        if (sz(freq[i]) == 2) {
+            st = freq[i][0], en = freq[i][1];
+            max_path = i;
+        } else {
+            ckmax(always, i);
+        }
+    }
+
+    if (st == -1) {
+        ps(max(0ll, b[always]));
+        return;
+    }
+
+    dfs(st, -1, en);
+    
+    vl where_on_path(n, -1);
+    queue<ll> q;
+    F0R(i, sz(path)) {
+        where_on_path[path[i]] = i;
+        q.push(path[i]);
+    }
+    while (sz(q)) {
+        ll u = q.ft; q.pop();
+        for(auto[v, idx] : g[u]) if (where_on_path[v] == -1) {
+            q.push(v);
+            where_on_path[v] = where_on_path[u];
+        }
+    }
+
+    vl ans(n-1, max(always, max_path));
+    each(x, path_edges) ans[x] = always;
+
+    ll l = 0, r = sz(path)-1;
+    V<pair<pl, ll>> segs;
+    segs.pb({ { l, r }, max_path });
+    R0F(i, max_path) if (sz(freq[i]) == 2) {
+        ll lo = where_on_path[freq[i][0]], hi = where_on_path[freq[i][1]];
+        if (lo > hi) swap(lo, hi);
+        ckmax(l, lo);
+        ckmin(r, hi);
+        if (r < l) l=r;
+        segs.pb({{l, r}, i});
+    }
+    reverse(all(segs)); // inc order of label
+
+    for (int i = 1; i < segs.size(); i++) {
+        for (int j = segs[i].first.first; j < segs[i - 1].first.first; j++) {
+            ans[path_edges[j]] = max(ans[path_edges[j]], segs[i - 1].second);
+        }
+        for (int j = segs[i - 1].first.second; j < segs[i].first.second; j++) {
+            ans[path_edges[j]] = max(ans[path_edges[j]], segs[i - 1].second);
+        }
+    }
+
+    F0R(i, n-1) ps(ans[i] == -1 ? 0 : b[ans[i]]);
 }
 
 signed main() {
     setIO();
     
-    ll tc; cin >> tc; while (tc--) {
-        solve();
-    } 
+    solve(); 
 
     return 0;
 }
