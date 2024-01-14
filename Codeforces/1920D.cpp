@@ -309,47 +309,60 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 void solve() {
     def(ll, n, q);
     vpl ops;
+    V<pair<ll, vl>> v;
+    vl vec;
+    ll mul = 1, siz = 0;
+    bool done = false;
     F0R(i, n) {
         def(ll, b, x);
-        ops.eb(b, x);
-    }
+        if (done) continue;
 
-    vpl OPS;
-    V<vl> vec;
-    F0R(i, n) {
-        if (ops[i].f == 2) {
-            ll mul = ops[i].s;
-            while (i+1 < n && ops[i+1].f == 2) {
-                i++;
-                mul *= ops[i].s;
-            }
-            OPS.pb({2, mul});
+        if (b == 1) {
+            vec.pb(x);
+            siz++;
         } else {
-            vl v{ops[i].s};
-            while (i+1 < n && ops[i+1].f == 1) {
-                i++;
-                v.pb(ops[i].s);
+            if (sz(vec)) {
+                v.eb(siz, vec);
+                vec.clear();
             }
-            vec.pb(v);
+
+            if (siz > 0) ckmin(x, (ll)2e18/siz);
+            siz *= x+1;
+            if (siz > 1e18) done = true;
         }
     }
+    if (!sz(v) || siz != v.bk.f) {
+        v.eb(siz, vec);
+    }
+    // ps(v);
 
     F0R(i, q) {
-        ll x; re(x); x--;
-        ll j = sz(siz)-1;
-        while (x > 0) {
-            if (x < siz[j]) {
-                j--;
+        ll x; re(x);
+        ll res;
 
+        while (true) {
+            // we want to find the first one with the number of elems >= x+1
+            // since x is 0-indexed
+            auto it = fstTrue(all(v)-1, [&](auto y)->bool{
+                return y->f >= x;
+            });
+
+            ll s = it->f - sz(it->s);
+            if (x <= s) {
+                x--;
+                ll prv = prev(it)->f;
+                x %= prv;
+                x++;
             } else {
-                res = vec[j][x-siz[j]];
+                res = (it->s)[x-s-1];
                 break;
             }
         }
 
-        ps(res);
+        pr(res, ' ');
     }
 
+    ps();
 }
 
 signed main() {
