@@ -299,18 +299,15 @@ void solve() {
 
 signed main() {
     // setIO("input");
-    setIO();
+    // setIO();
     
-    ll n = 10;
+    ll n = 20;
     ps(n);
-    ll x = rng()%(n/2+1);
+    ll nine = 1e9;
 
-    vl v;
-    rep(x) v.pb(1);
-    rep(n-x) v.pb(0);
-    shuffle(all(v), rng);
-    each(x, v) pr(x, ' ');
-    ps();
+    rep(n+n) {
+        ps(rand() % nine + 1);
+    }
 
     return 0;
 }

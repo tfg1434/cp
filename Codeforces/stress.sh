@@ -1,9 +1,9 @@
 set -e
-g++ 1525D.cpp -std=c++17 -o code
+g++ G_pdp_O.cpp -std=c++17 -o code
 g++ gen.cpp -std=c++17 -o gen
-g++ 1525Dedi.cpp -std=c++17 -o brute
-for((i = 1; ; ++i)); do
-    ./gen $i > input_file
+g++ G_pdp_O_edi.cpp -std=c++17 -o brute
+for((i = 1; i < 20; ++i)); do
+    ./gen > input_file
     ./code < input_file > myAnswer
     ./brute < input_file > correctAnswer
     diff myAnswer correctAnswer > /dev/null || break

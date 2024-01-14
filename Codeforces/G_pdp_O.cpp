@@ -307,7 +307,7 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 const ll N = 202;
-pl dp[N][N][2];
+pl dp[N][N][2]; // i shows, n0, col ==> max n1 (and prev for recovery)
 
 void solve() {
     ll n; re(n);
@@ -326,13 +326,38 @@ void solve() {
         ll cnt = 0;
         FOR(j, i+1, n) {
             if (a[j][1] >= a[i][0]) cnt++;
-            ckmax(dp[j][n0+(col==0?0:cnt)][1-col], { dp[i][n0][col]+(col==0?cnt:0), i });
+            ckmax(dp[j][n0+(col==0?0:cnt)][1-col], { dp[i][n0][col].f+(col==0?cnt:0), i });
         } 
     }
 
-    array<int, 3> 
-    F0R(n0, n) F0R(col, 2) ckmax(ans, min(dp[n-1][n0][col], n0));
-    ps(ans);
+    pl ans;
+    ll c, N0;
+    F0R(n0, n) F0R(col, 2) {
+        if (ckmax(ans, { min(dp[n-1][n0][col].f, n0), dp[n-1][n0][col].s })) {
+            c = col;
+            N0 = n0;
+        };
+    }
+    // ps(ans.f);
+
+    ll i = n-1;
+    vl coloring(n, -1);
+    while (i > 0) {
+        ll prv = dp[i][N0][c].s, cnt = 0;
+        for (ll j = prv+1; j <= i; j++) {
+            if (a[j][1] >= a[prv][0]) {
+                coloring[a[j][2]] = c;
+                cnt++;
+            }
+        }
+
+        i = prv;
+        N0 -= (c == 0 ? cnt : 0);
+        c = 1-c;
+    }
+
+    F0R(i, n-1) pr(coloring[i]+1, ' ');
+    ps();
 }
 
 signed main() {
