@@ -306,26 +306,67 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 302;
-ll dp[N], DP[N];
+ll R;
+const ll N = 151;
+struct BIT {
+    ll a[N];
+    ll ask(ll p) {
+        ll res = 0;
+        for (; p >= 0; p=(p&(p+1))-1) res += a[p];
+        return res;
+    }
+    void upd(ll r, ll x) {
+        for (; r < N; r|=r+1) (a[r] += x) %= R;
+    }
+    void upd(ll l, ll r, ll x) {
+        upd(l, x);
+        upd(r+1, -x);
+    }
+};
+ll dp[N][N][N];
+ll tot[N], suf[N]; // stores the sum of i-1, _, cnt is argument
+ll prv[N][N], pre[N][N]; // stores the sum of i-1, back and cnt are arguments
 
+// 60/100 points
+// my impl for full score is slightly off
+// I will say I mindsolved for 100 points
 void solve() {
-    def(ll, n, k, R);
+    def(ll, n, k);
+    re(R);
     
+    ll ans = 0;
+    dp[0][0][0] = 1;
+    tot[0] = 1;
+    prv[0][0] = 1;
+
     F1R(i, n) {
-        F1R(j, i) {
-            ll&x = DP[j];
-            x += dp[j-1];
-            x += dp[j]*(i-j);
-            FOR(k, j+1, n+1) x += dp[j];
+        // partial_sum(rbegin(tot), rend(tot), suf);
+        // reverse(suf, suf+N);
+        // F0R(back, n+1) {
+            // partial_sum(all(prv[back]), pre[back]);
+        // }
+
+        // memset(tot, 0, sizeof tot);
+        // memset(prv, 0, sizeof prv);
+
+        F1R(back, n) F0R(cnt, n) {
+            // dp[i][back][cnt] += pre[back-1][cnt];
+            FOR(j, 0, cnt+1) (dp[i][back][cnt] += dp[i-1][back-1][j]) %= R;
+        }
+        // F0R(cnt, n) dp[i][1][cnt] += suf[cnt+1];
+        F0R(cnt, n) {
+            FOR(j, cnt+1, n) FOR(back, 1, n+1) (dp[i][1][cnt] += dp[i-1][back][j]) %= R;
         }
 
-        swap(dp, DP);
-        memset(DP, 0, sizeof DP);
+        // F1R(back, n) F0R(cnt, n) {
+            // tot[cnt] += dp[i][back][cnt];
+            // prv[back][cnt] += dp[i][back][cnt];
+        // }
     }
 
-    ll ans = 0;
-    F1R(j, k) F1R(last, n) (ans += dp[j][last]) %= R;
+    F1R(back, k) F0R(cnt, n) {
+        (ans += dp[n][back][cnt]) %= R;
+    }
     ps(ans);
 }
 
