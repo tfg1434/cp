@@ -7,6 +7,13 @@ build
 
 input.txt
 contest
+gen
+code
+brute
+myAnswer
+correctAnswer
+input_file
+stress.sh
 
 *.out*
 *.in*
@@ -15,3 +22,4 @@ contest
 *.idx*
 *.bat*
 *.log*
+
