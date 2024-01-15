@@ -309,22 +309,24 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 void solve() {
     def(ll, n);
     vl b(n); re(b); sor(b);
-    set<ll> B; each(x, b) if (x%2 == 0) B.ins(x/2);
-
-    vl res;
-    each(x, b) {
-        if (B.count(x)) {
-            res.pb(x);
-            if (x % 2 == 0) {
-                assert(B.count(x/2));
-                B.erase(x/2);
-            }
+    vl a(n);
+    map<ll, ll> cnt;
+    ll mx = 0, take;
+    F0R(i, n) {
+        ll y = b[i];
+        while (y%2 == 0) {
+            a[i]++;
+            y /= 2;
+        }
+        cnt[a[i]]++;
+        if (ckmax(mx, cnt[a[i]])){
+            take = a[i];
         }
     }
 
-    ps(sz(res));
-    each(x, res) pr(x, ' ');
-    if (sz(res)) ps();
+    ps(n-mx);
+    F0R(i, n) if (a[i] != take) pr(b[i], ' ');
+    ps();
 }
 
 signed main() {
