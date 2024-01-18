@@ -306,13 +306,11 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 5002;
-ll dp[N][N];
-
 void solve() {
     def(ll, n);
+    V<vl> dp(n+1, vl(n+1));
     ll p = -1;
-    vl a;
+    vl a{0};
     rep(n) {
         def(ll, x);
         if (x == p) a.bk++;
@@ -320,25 +318,23 @@ void solve() {
         p=x;
     }
 
-    reverse(all(a));
-    if (a[0] > 1) {
+    reverse(1+all(a));
+    if (a[1] > 1) {
         ps(0);
         return;
     }
 
 
-    // F0R(i, n+1) dp[0][i] = 0;
-    // dp[1][1] = 1;
     dp[0][0] = 1;
-    ps(a);
-    F0R(i, sz(a)) {
-        for (ll j = 0; 2*j <= n; j++) {
+    F1R(i, n) {
+        for (ll j = 0; 2*j <= n; j++) if (i >= j) {
             ll x = 0;
-            if (2*i == n && j+j-i > 0 && j <= i) (x = dp[i-1][j]*(j+j-i));
-            if (2*i <  n && j+j-i > 1 && j <= i) (x = dp[i-1][j]*(j+j-i-1));
-            if (j>0 && i >= j-1) (x += dp[i-1][j-1]) %= P;
+            if (2*j == n && j+j-i > 0) (x = dp[i-1][j]*(j+j-i));
+            if (2*j <  n && j+j-i > 1) (x = dp[i-1][j]*(j+j-i-1));
+            if (j>0) (x += dp[i-1][j-1]) %= P;
 
             dp[i][j] = x;
+            ps(i, j, dp[i][j]);
         }
     }
 
