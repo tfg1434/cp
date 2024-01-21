@@ -309,19 +309,35 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 bool solve() {
     def(ll, n, m);
     def(str, s, t);
-    F0R(i, m) {
-        ll j = 0;
-        for (; j < sz(s) && s[j] != t[i]; j++) { }
-        if (s[j] != t[i]) return false;
 
-        str S;
-        for (ll k = 0; k < sz(s); k++) {
-            if (k <= j && s[k] <= t[i]) continue;
-            else S += s[k];
-        }
-
-        s = S;
+    set<ll> where[26];
+    F0R(i, n) {
+        where[s[i]-'a'].ins(i);
     }
+
+    F0R(i, m) {
+        if (!sz(where[t[i]-'a'])) return false;
+        ll pos = *bg(where[t[i]-'a']);
+        F0R(j, t[i]-'a'+1) {
+            while (sz(where[j]) && *bg(where[j]) <= pos) where[j].erase(bg(where[j]));
+        }
+    }
+
+    return true;
+
+    // F0R(i, m) {
+        // ll j = 0;
+        // for (; j < sz(s) && s[j] != t[i]; j++) { }
+        // if (s[j] != t[i]) return false;
+
+        // str S;
+        // for (ll k = 0; k < sz(s); k++) {
+            // if (k <= j && s[k] <= t[i]) continue;
+            // else S += s[k];
+        // }
+
+        // s = S;
+    // }
 
     return true;
 }
