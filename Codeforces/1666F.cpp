@@ -56,7 +56,7 @@ tcT> ll upb(V<T>& a, const T& b) { return ll(ub(all(a),b)-bg(a)); }
 #define rep(a) F0R(_,a)
 #define each(a,x) for (auto& a: x)
 
-const ll P = 1e9+7; // 998244353;
+const ll P = 998244353;
 const ll MX = 2e5+5;
 const ll BIG = 1e18; // not too close to LLONG_MAX
 const db PI = acos((db)-1);
@@ -306,47 +306,72 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+const ll N = 5002;
+ll fact[N], inv[N];
+
+ll C(ll n, ll r) {
+    return fact[n]*inv[r]%P * inv[n-r]%P;
+}
+
+void init() {
+    fact[0] = 1;
+    F1R(i, N-1) fact[i] = fact[i-1]*i % P;
+    inv[N-1] = binpow(fact[N-1], P-2);
+    ROF(i, 0, N-1) inv[i] = inv[i+1]*(i+1) % P;
+}
+
+// ll dp[N][N]; // numbers considered 1..i, number on even position
+
 void solve() {
-    def(ll, n);
-    V<vl> dp(n+1, vl(n+1));
-    ll p = -1;
-    vl a{0};
-    rep(n) {
-        def(ll, x);
-        if (x == p) a.bk++;
-        else a.pb(1);
-        p=x;
-    }
+    ll n; cin >> n;
 
-    reverse(1+all(a));
-    if (a[1] > 1) {
-        ps(0);
-        return;
-    }
+    V<vl> dp(n+1, vl(n/2+1));
 
+    vpl g;
+    F0R(i, n) {
+        ll cur; cin >> cur;
+        if (g.empty() || g.back().first != cur) g.pb({cur, 1});
+        else g.back().second++;
+    }
+    reverse(all(g));
+
+    vl pre(sz(g)+1); 
+    for (ll i = 0; i < sz(g); i++) {
+        pre[i+1] = pre[i] + g[i].second;
+    }
 
     dp[0][0] = 1;
-    F1R(i, n) {
-        for (ll j = 0; 2*j <= n; j++) if (i >= j) {
-            ll x = 0;
-            if (2*j == n && j+j-i > 0) (x = dp[i-1][j]*(j+j-i));
-            if (2*j <  n && j+j-i > 1) (x = dp[i-1][j]*(j+j-i-1));
-            if (j>0) (x += dp[i-1][j-1]) %= P;
+    for (ll i = 0; i < sz(g); i++) for (ll j = 0; j <= n/2; j++) { 
+        // place on odd position
+        // j-1 odd positions
+        int s = pre[i];
+        ll available_odd = j- 1 + (j == n / 2 || j == 0);
+        // ps(i, j, s, available_odd);
+        if (s-j+g[i].s <= available_odd) {
+            (dp[i+1][j] += C(available_odd - (s-j), g[i].s)*dp[i][j]) %= P;
+        }
 
-            dp[i][j] = x;
-            ps(i, j, dp[i][j]);
+        // place on even position
+        if (j+1 <= n/2) {
+            if (s-j+g[i].s-1 <= available_odd) {
+
+                (dp[i+1][j+1] += dp[i][j]*C(available_odd - (s-j), g[i].s-1)) %= P;
+            }
         }
     }
 
-    ps(dp[n][n/2]);
+    ll ans = 0;
+    ans += dp[sz(g)][n/2];
+    cout << ans << '\n';
 }
 
 signed main() {
     setIO();
     
+    init();
     ll tc; cin >> tc; while (tc--) {
         solve();
-    }
+    } 
 
     return 0;
 }

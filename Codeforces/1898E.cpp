@@ -306,43 +306,31 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 5002;
-ll dp[N][N];
+bool solve() {
+    def(ll, n, m);
+    def(str, s, t);
+    F0R(i, m) {
+        ll j = 0;
+        for (; j < sz(s) && s[j] != t[i]; j++) { }
+        if (s[j] != t[i]) return false;
 
-void solve() {
-    def(ll, n);
-    vl a(n+1); F1R(i, n) re(a[i]);
-    reverse(1+all(a));
+        str S;
+        for (ll k = 0; k < sz(s); k++) {
+            if (k <= j && s[k] <= t[i]) continue;
+            else S += s[k];
+        }
 
-    dp[0][0] = 1;
-    F0R(i, n) FOR(j, 0, n) {
-        if (i < j) continue;
-
-        // introduce a new even block
-        // the position is fixed as the max must be an even block
-        dp[i+1][j+1] = dp[i][j];
-        // introduce a new odd block
-        // we have j-1 places to put it, but some are already
-        // occupied
-        // and ofc if you have more odds than evens it doesn't make sense 
-        // to add it
-        ll c = max(0ll, j-1)+(j==n/2) - (i-j);
-        if (c > 0) dp[i+1][j] = dp[i][j]*c;
+        s = S;
     }
 
-    F0R(j, n+1) {
-        F0R(i, n+1) pr(dp[i][j], ' ');
-        ps();
-    }
-
-    ps(dp[n][n/2]);
+    return true;
 }
 
 signed main() {
     setIO();
     
     ll tc; cin >> tc; while (tc--) {
-        solve();
+        ps(solve() ? "YES" : "NO");
     } 
 
     return 0;
