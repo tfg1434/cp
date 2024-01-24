@@ -58,7 +58,7 @@ tcT> ll upb(V<T>& a, const T& b) { return ll(ub(all(a),b)-bg(a)); }
 
 const ll P = 1e9+7; // 998244353;
 const ll MX = 2e5+5;
-const ll BIG = 2e18; // not too close to LLONG_MAX
+const ll BIG = 1e18; // not too close to LLONG_MAX
 const db PI = acos((db)-1);
 const ll dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count()); 
@@ -306,113 +306,64 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-ll l, r, n;
-const ll N = 2e5+2;
-ll nxt[26][N];
+struct Node {
+    ll val, siz;
+    Node* l, *r;
 
-// Yeah so this gets subtask 1 if you uncomment the slow w/o compress but 
-// it's easily tricked by 
-//
-// a b 
-// z y
-// b c
-// y x
-// ...
-//
-// The solution works fast enough if each node has at least two children.
-// You just need to construct this, and it turns out that the best way
-// is by working upwards from the leaves.
+    void print(ll tl, ll tr) {
+        ckmax(tl, 1ll);
+        ckmin(tr, siz);
+        if (tl > tr) return;
+
+        if (val != -1) {
+            pr((char)(val+'a'));
+            return;
+        }
+
+        l->print(tl, tr);
+        r->print(tl-l->siz, tr-l->siz);
+    }
+};
+
 void solve() {
-    memset(nxt, 0x3f, sizeof nxt);
-
-    re(l, r, n);
-    l--; r--;
-
-    V<pair<ll, vl>> a;
-    F0R(i, n) {
-        def(char, tmp); ll c = tmp-'a';
-        def(str, to);
-        vl v; each(C, to) v.pb(C-'a');
-
-        // a.eb(c, v); continue;
-        if (sz(a) && sz(v) == 1 && sz(a.bk.s) == 1 && a.bk.s[0] == c) {
-            pair<ll, vl> p = {a.bk.f, v};
-            a.pop_back();
-            a.pb(p);
-        } else {
-            gg(i);
-            a.eb(c, v);
-        }
-    }
-    n = sz(a);
-    gg(n);
-    vl stk[26];
-    F0R(i, n) {
-        ll from = a[i].f;
-        while (sz(stk[from])) {
-            ll j = stk[from].bk; stk[from].pop_back();
-            nxt[from][j] = i;
-        }
-
-        F0R(j, 26) stk[j].pb(i);
+    def(ll, l, r, n);
+    vl c(n);
+    V<vl> s(n);
+    R0F(i, n) {
+        def(char, C);
+        def(str, S);
+        c[i] = C-'a';
+        vl tmp; each(x, S) tmp.pb(x-'a');
+        s[i] = tmp;
     }
 
-    V<vl> len(26, vl(n+1));
-    F0R(c, 26) len[c][n] = 1;
-    ROF(i, 0, n) F0R(c, 26) {
-        if (c == a[i].f) {
-            each(C, a[i].s) {
-                len[c][i] += len[C][i+1];
-                ckmin(len[c][i], BIG);
+    V<Node*> cur(26);
+    F0R(i, 26) cur[i] = new Node{i, 1};
+    F0R(i, n) {
+        Node* res = NULL;
+        each(x, s[i]) {
+            Node* to_merge = cur[x];
+            if (res == NULL) {
+                res = to_merge;
+                continue;
             }
-        } else {
-            len[c][i] = len[c][i+1];
-            ckmin(len[c][i], BIG);
+            res = new Node {
+                -1, min(BIG, (to_merge->siz + res->siz)), res, to_merge 
+            };
         }
+        cur[c[i]] = res;
     }
 
-    auto next_op = [&](ll c, ll cur) {
-        return nxt[c][cur];
-    };
-
-    // gg(next_op(0, 1)); // -1
-    // gg(next_op(1, 0)); // 3
-
-    // ps(l, r);
-    auto ask = yy([&](auto rec, ll tl, ll tr, ll c, ll op) -> vl {
-        // ps(tl, tr, (char)(c+'a'), op);
-
-        if (tl > r || tr < l) return vl();
-        if (op > BIG) {
-            vl ret {c};
-            return ret;
-        } 
-
-        V<vl> tmp;
-        vl to = a[op].s;
-        ll cur = tl;
-        F0R(i, sz(to)) {
-            ll OP = next_op(to[i], op);
-            ll this_len = OP > BIG ? 1 : len[to[i]][OP];
-            tmp.pb(rec(cur, cur+this_len-1, to[i], OP));
-            cur += this_len;
-            if (cur > BIG) break;
-        }
-
-        vl res;
-        each(x, tmp) each(y, x) res.pb(y);
-        return res;
-    });
-
-    vl ans = ask(0, len[0][0]-1, 0, a[0].f == 0 ? 0 : next_op(0, 0));
-    each(x, ans) pr((char)(x+'a'));
+    cur[0]->print(l, r);
     ps();
 }
 
 signed main() {
     setIO();
     
-    solve(); 
+    ll tc = 1;
+    // cin >> tc;
+    while (tc--) solve();
 
     return 0;
 }
