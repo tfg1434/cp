@@ -306,73 +306,146 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const ll N = 1e5+2;
-set<ll> where[N], sub[N];
+bool in(ll a, ll b, ll c) {
+    return b <= a && a <= c;
+}
+
+#include <bits/stdc++.h>
+
+#define MAXLEN 1000010
+
+using namespace std;
+
+constexpr uint64_t mod = (1ULL << 61) - 1;
+
+const uint64_t seed = chrono::system_clock::now().time_since_epoch().count();
+const uint64_t base = mt19937_64(seed)() % (mod / 3) + (mod / 3);
+
+uint64_t base_pow[MAXLEN];
+
+int64_t modmul(uint64_t a, uint64_t b){
+    uint64_t l1 = (uint32_t)a, h1 = a >> 32, l2 = (uint32_t)b, h2 = b >> 32;
+    uint64_t l = l1 * l2, m = l1 * h2 + l2 * h1, h = h1 * h2;
+    uint64_t ret = (l & mod) + (l >> 61) + (h << 3) + (m >> 29) + (m << 35 >> 3) + 1;
+    ret = (ret & mod) + (ret >> 61);
+    ret = (ret & mod) + (ret >> 61);
+    return ret - 1;
+}
+
+void init(){
+    base_pow[0] = 1;
+    for (int i = 1; i < MAXLEN; i++){
+        base_pow[i] = modmul(base_pow[i - 1], base);
+    }
+}
+
+struct PolyHash{
+    /// Remove suff vector and usage if reverse hash is not required for more speed
+    vector<int64_t> pref, suff;
+
+    PolyHash() {}
+
+    template <typename T>
+    PolyHash(const vector<T>& ar){
+        if (!base_pow[0]) init();
+
+        int n = ar.size();
+        assert(n < MAXLEN);
+        pref.resize(n + 3, 0), suff.resize(n + 3, 0);
+
+        for (int i = 1; i <= n; i++){
+            pref[i] = modmul(pref[i - 1], base) + ar[i - 1] + 997;
+            if (pref[i] >= mod) pref[i] -= mod;
+        }
+
+        for (int i = n; i >= 1; i--){
+            suff[i] = modmul(suff[i + 1], base) + ar[i - 1] + 997;
+            if (suff[i] >= mod) suff[i] -= mod;
+        }
+    }
+
+    PolyHash(const char* str)
+        : PolyHash(vector<char> (str, str + strlen(str))) {}
+
+    uint64_t get_hash(int l, int r){
+        int64_t h = pref[r + 1] - modmul(base_pow[r - l + 1], pref[l]);
+        return h < 0 ? h + mod : h;
+    }
+
+    uint64_t rev_hash(int l, int r){
+        int64_t h = suff[l + 1] - modmul(base_pow[r - l + 1], suff[r + 2]);
+        return h < 0 ? h + mod : h;
+    }
+};
+unordered_set<uint64_t> m;
+
+void add(ll x1, ll x2, ll y1, ll y2) {
+    V<ll> v {x1+x2, y1+y2, x2-x1};
+    ll h = PolyHash(v).get_hash(0, 2);
+    if (!m.count(h)) {
+        cout << fixed << setprecision(1) << '(' << (x1+x2)*1.0/2.0 << ", " << (y1+y2)*1.0/2.0 << ')' << ' ' << x2-x1 << endl;
+    }
+    m.ins(h);
+}
 
 void solve() {
-    def(ll, n, k, m);
-    ll rem = m%k, full = m/k;
+    def(ll, n);
 
-    vl a(n+1); F1R(i, n) a[i] = i;
-    vpl ops(k); re(ops);
-
-    F1R(i, n) where[i].ins(i);
-    if (rem) F1R(i, n) sub[i].ins(i);
-    F0R(i, k) {
-        auto [u, v] = ops[i];
-        where[a[u]].ins(v); where[a[v]].ins(u);
-        if (i < rem) sub[a[u]].ins(v), sub[a[v]].ins(u); // it was a ; smh
-        swap(a[u], a[v]);
+    vpl points;
+    F0R(i, n) {
+        def(ll, x, y);
+        points.eb(x, y);
     }
-    // F1R(i, n) ps(i, sub[i]);
-
-    auto f = a;
-    F1R(i, n) f[a[i]] = i;
-    vl ans(n+1);
-    vl vis(n+1);
-    auto dfs = yy([&](auto rec, ll u, vl&cyc) -> void {
-        vis[u] = 1;
-        cyc.pb(u);
-        ll v = f[u];
-        if (!vis[v]) rec(v, cyc);
-    });
-    F1R(i, n) if (!vis[i]) {
-        vl cyc;
-        dfs(i, cyc);
-
-        if (sz(cyc) <= full) {
-            set<ll> st;
-            each(u, cyc) each(v, where[u]) st.ins(v);
-            each(u, cyc) ans[u] = sz(st);
-            continue;
+    
+    auto work = [&](vpl& P, bool flag = false) {
+        map<ll, vl> X;
+        vl xs;
+        for (auto[x, y] : P) {
+            X[x].pb(y);
+            xs.pb(x);
         }
+        sor(xs);
+        for (auto&[x, ys] : X) sor(ys);
 
-        // F1R(i, n) ps(i, sub[i]);
-        // o/w we need to do sliding window approach
-        vl cnt(n+1);
-        ll siz = 0, num = 0;
-        ll j = 0;
-        each(u, cyc) {
-            // num += !cnt[u], cnt[u]++;
-            while (siz < full) {
-                each(v, where[cyc[j]]) {
-                    num += !cnt[v];
-                    cnt[v]++;
+        F0R(i, sz(xs)) FOR(j, i, sz(xs)) {
+            ll x1 = xs[i], x2 = xs[j];
+
+            vl ys;
+            for (auto[x, y] : P) if (in(x, x1, x2)) ys.pb(y);
+            UNIQUE(ys);
+
+            each(y, ys) { 
+                auto l = lb(all(X[x1]), y);
+                auto r = lb(all(X[x2]), y);
+                bool bad = ((l == end(X[x1]) || *l > y+x2-x1) || (r == end(X[x2]) || *r > y+x2-x1));
+                if (!bad) {
+                    ll y1 = y, y2 = y+x2-x1;
+                    if (flag) swap(x1, y1), swap(x2, y2);
+                    add(x1, x2, y1, y2);
                 }
-                siz++;
-                (j += 1) %= sz(cyc);
             }
-            each(v, sub[cyc[j]]) num += !cnt[v], cnt[v]++;
-            ans[u] = num;
-            each(v, sub[cyc[j]]) cnt[v]--, num -= !cnt[v];
 
-            siz--;
-            each(v, where[u]) cnt[v]--, num -= !cnt[v];
-            // cnt[u]--, num -= !cnt[u];
+            // fix top edge
+            R0F(k, sz(ys)) {
+                ll y = ys[k];
+                auto l = lb(rall(X[x1]), y);
+                auto r = lb(rall(X[x2]), y);
+                bool bad = ((l == rend(X[x1]) || *l < y-(x2-x1)) || (r == rend(X[x2]) || *r < y-(x2-x1)));
+                if (!bad) {
+                    ll y1 = y, y2 = y+x2-x1;
+                    if (flag) swap(x1, y1), swap(x2, y2);
+                    add(x1, x2, y1, y2);
+                }
+            }
         }
-    }
+    };
+    
+    work(points);
 
-    F1R(i, n) ps(ans[i]);
+    each(p, points) swap(p.f, p.s);
+    work(points, true);
+
+    ps(sz(m)+1);
 }
 
 signed main() {
