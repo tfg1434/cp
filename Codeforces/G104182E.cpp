@@ -338,6 +338,8 @@ ll count_reachable(vector<int>& w_a) {
     return predp[n];
 }
 
+
+
 void solve() {
     int n; cin >> n;
     vl a(n); re(a); for (auto&x : a) x--;
@@ -347,44 +349,96 @@ void solve() {
     ll ans = 0;
     F0R(x, n) {
         // i, last, what's on x
-        vector<vector<vector<pair<ll, ll>>>> dp(n+1, vector<vector<pair<ll, ll>>>(n, vector<pair<ll, ll>>(n+1)));
-        dp[1][0][x == 0 ? 0 : n] = {1, 0};
+        vector<vector<pair<ll, ll>>> dp(n, vector<pair<ll, ll>>(n+1)); // last layer
+        dp[0][x == 0 ? 0 : n] = {1, 0};
         for (int i = 1; i < n; i++) {
-            for (int last = 0; last < i; last++) {
-                for (int on_x = 0; on_x <= n; on_x++) {
-                    for (int new_val = 0; new_val <= i; new_val++) {
-                        if ((new_val <= last) != (w_a[i] < w_a[i - 1])) {
-                            continue;
-                        }
-                        if (i > x && on_x == n) continue;
-
-                        bool inv = false;
-                        if (i > x && (new_val <= on_x) != (w_a[i] < w_a[x])) {
-                            inv = true;
-                        }
-
-                        int new_on_x = on_x;
-                        if (i == x) {
-                            new_on_x = new_val;
-                        } else if (i > x && new_val <= new_on_x) {
-                            new_on_x++;
-                        }
-
-                        dp[i + 1][new_val][new_on_x].first += dp[i][last][on_x].first;
-                        dp[i + 1][new_val][new_on_x].second += dp[i][last][on_x].second;
-                        if (inv) {
-                            dp[i + 1][new_val][new_on_x].second += dp[i][last][on_x].first;
-                        }
-                        
-                        dp[i + 1][new_val][new_on_x].first %= P;
-                        dp[i + 1][new_val][new_on_x].second %= P;
-                    }
+            V<vpl> pre(n+1, vpl(n+1)); // last, on_x
+            for (int on_x = 0; on_x <= n; on_x++) {
+                for (int last = 0; last < n; last++) {
+                    pre[last+1][on_x].f = pre[last][on_x].f + dp[last][on_x].f;
+                    pre[last+1][on_x].s = pre[last][on_x].s + dp[last][on_x].s;
                 }
             }
+            dp.assign(n, vector<pair<ll, ll>>(n+1));
+
+            for (int nv = 0; nv <= i; nv++) {
+                for (int nx = 0; nx <= n; nx++) {
+                    if (i < x && nx != n) {                           
+                        continue;
+                    }
+                    if (i == x && nx != nv) {
+                        continue;
+                    }
+                    if (i > x && nx == nv) {
+                        continue;
+                    }
+                    if (i >= x && nx > i) {
+                        continue;
+                    }
+                    int on_x = n;
+                    if (i <= x) {
+                    } else {
+                        if (nx < nv) {
+                            on_x = nx;
+                        } else {
+                            on_x = nx - 1;
+                        }
+                    }
+                    bool inv = false;
+                    if (i > x && (nv <= on_x) != (w_a[i] < w_a[x])) {
+                        inv = true;
+                    }
+                    ll sum_of_f = 0;
+                    ll sum_of_s = 0;
+                    if (w_a[i] < w_a[i-1]) {
+                        sum_of_f = pre[n][on_x].f - pre[nv][on_x].f;
+                        sum_of_s = pre[n][on_x].s - pre[nv][on_x].s;
+                    } else {
+                        sum_of_f = pre[nv][on_x].f;
+                        sum_of_s = pre[nv][on_x].s;
+                    }
+
+                    (dp[nv][nx].f += sum_of_f) %= P;
+                    (dp[nv][nx].s += sum_of_s) %= P;
+                    if (inv) (dp[nv][nx].s += sum_of_f) %= P;
+                }
+            }
+
+            // for (int last = 0; last < i; last++) {
+                // for (int on_x = 0; on_x <= n; on_x++) {
+                    // for (int new_val = 0; new_val <= i; new_val++) {
+                        // if ((new_val <= last) != (w_a[i] < w_a[i - 1])) {
+                            // continue;
+                        // }
+                        // if (i > x && on_x == n) continue;
+
+                        // bool inv = false;
+                        // if (i > x && (new_val <= on_x) != (w_a[i] < w_a[x])) {
+                            // inv = true;
+                        // }
+
+                        // int new_on_x = on_x;
+                        // if (i == x) {
+                            // new_on_x = new_val;
+                        // } else if (i > x && new_val <= on_x) {
+                            // new_on_x++;
+                        // }
+
+                        // dp[i + 1][new_val][new_on_x].first += dp[i][last][on_x].first;
+                        // dp[i + 1][new_val][new_on_x].second += dp[i][last][on_x].second;
+                        // if (inv) {
+                            // dp[i + 1][new_val][new_on_x].second += dp[i][last][on_x].first;
+                        // }
+                        
+                        // dp[i + 1][new_val][new_on_x].first %= P;
+                        // dp[i + 1][new_val][new_on_x].second %= P;
+                    // }
+                // }
+            // }
         }
         
         for (int last = 0; last < n; last++) for (int on_x = 0; on_x < n; on_x++) {
-            ans += dp[n][last][on_x].second;
+            ans += dp[last][on_x].second;
             ans %= P;
         }
     }
