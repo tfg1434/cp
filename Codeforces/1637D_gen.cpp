@@ -64,7 +64,7 @@ const ll dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count()); 
 template<class T> using pqg = priority_queue<T,vector<T>,greater<T>>;
 
-ll binpow(ll a, ll b) {
+ll pw(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = res * a % P;
@@ -90,6 +90,15 @@ tcT> bool ckmin(T& a, const T& b) {
     return b < a ? a = b, 1 : 0; } // set a = min(a,b)
 tcT> bool ckmax(T& a, const T& b) {
     return a < b ? a = b, 1 : 0; } // set a = max(a,b)
+// m is max, M is second max
+tcT> T tmax(T x, T& m, T& M) {
+    if (x <= m) return ckmax(M, x);
+    return ckmax(m, x);
+}
+tcT> T tmin(T x, T& m, T& M) {
+    if (x >= m) return ckmin(M, x);
+    return ckmin(m, x);
+}
 
 tcTU> T fstTrue(T lo, T hi, U f) {
     ++hi; assert(lo <= hi); // assuming f is increasing
@@ -109,7 +118,7 @@ tcTU> T lstTrue(T lo, T hi, U f) {
 }
 tcT> void UNIQUE(vector<T>& v) { // sort and remove duplicates
     sort(all(v)); v.erase(unique(all(v)),end(v)); }
-tcTU> void erase(T& t, const U& u) { // don't erase
+tcTU> void safeErase(T& t, const U& u) { // don't erase
     auto it = t.find(u); assert(it != end(t));
     t.erase(it); } // element that doesn't exist from (multi)set
 
@@ -145,6 +154,10 @@ inline namespace Helpers {
                     > : true_type {};
     tcT> constexpr bool is_printable_v = is_printable<T>::value;
 }
+
+#define def(t, args...)                                                        \
+    t args;                                                                    \
+    re(args);
 
 inline namespace Input {
     tcT> constexpr bool needs_input_v = !is_readable_v<T> && is_iterable_v<T>;
@@ -293,23 +306,23 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+ll get() {
+    return rng()%10 + 1;
+}
+
 void solve() {
-    
+    ps(1);
+
+    ll n = 5;
+    ps(n);
+    F0R(i, n) pr(get(), ' '); ps();
+    F0R(i, n) pr(get(), ' '); ps();
 }
 
 signed main() {
-    // setIO("input");
-    // setIO();
+    setIO();
     
-    ps(1);
-
-    ll n = 20;
-    ps(n);
-    ll nine = 1e9;
-
-    rep(n+n) {
-        ps(rand() % nine + 1);
-    }
+    solve();
 
     return 0;
 }

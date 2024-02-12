@@ -1,14 +1,11 @@
 set -e
-g++ G_pdp_O.cpp -std=c++17 -o code
-g++ gen.cpp -std=c++17 -o gen
-g++ G_pdp_O_edi.cpp -std=c++17 -o brute
-for((i = 1; i < 20; ++i)); do
+g++ 1637D_gen.cpp -std=c++17 -o gen
+g++ 1637D_brute.cpp -std=c++17 -o brute
+for((i = 1; i < 100; ++i)); do
     ./gen > input_file
-    ./code < input_file > myAnswer
+    python3 1637D.py < input_file > myAnswer
     ./brute < input_file > correctAnswer
     diff myAnswer correctAnswer > /dev/null || break
-    cat myAnswer
-    cat correctAnswer
     echo "Passed test: "  $i
 done
 echo "WA on the following test:"
