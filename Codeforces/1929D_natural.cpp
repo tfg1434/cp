@@ -316,23 +316,32 @@ void solve() {
         g[u].pb(v); g[v].pb(u);
     }
 
-    vl dp(n+1);
+    V<vl> dp(n+1, vl(3));
     yy([&](auto rec, ll u, ll p) -> void {
         vl children;
         L { rec(v, u); children.pb(v); }
 
-        dp[u] = 1;
+        dp[u][0] = 1;
+        dp[u][1] = 1;
+
         each(v, children) {
-            dp[u] *= (dp[v]+1); 
-            dp[u] %= P;
+            (dp[u][1] *= dp[v][0]+dp[v][1]) %= P;
         }
+
+        each(v, children) {
+            // 不危险的
+            (dp[u][2] += dp[v][2]) %= P;
+            // 危险的
+            (dp[u][2] += dp[v][1]) %= P;
+            // // 不危险的
+            // (dp[u][2] += dp[u][0]*pw(dp[v][0], P-2)%P*dp[v][2]) %= P;
+            // // 危险的
+            // (dp[u][2] += dp[u][0]*pw(dp[v][0], P-2)%P*dp[v][1]) %= P;
+        }
+
     })(1, 1);
 
-    ll no_ancestor_child = dp[1]+1;
-    ll ans = no_ancestor_child;
-    FOR(i, 2, n+1) (ans += dp[i]) %= P;
-
-    ps(ans);
+    ps((dp[1][0] + dp[1][1] + dp[1][2]) % P);
 }
 
 signed main() {
