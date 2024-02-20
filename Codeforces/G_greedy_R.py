@@ -5,7 +5,7 @@ def solve():
     a = list(reversed(a))
 
     if n == 1:
-        print(a[0])
+        print(1)
         return
 
     if a[0]-1 <= sum(a[1:]):
