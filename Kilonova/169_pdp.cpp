@@ -306,81 +306,59 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-const int N = 1e5+1;
-ll st[N], dr[N];
-ll start_st[N], start_dr[N];
-ll n, m, p, q;
+const ll N = 102;
+ll dp[N][N];
 
 void solve() {
-    re(n, p, q, m);
-    vl a(n);
+    def(ll, n, p, q, m);
+    vl a(n+1);
     rep(m) {
-        def(ll, pos, year); pos--;
+        def(ll, pos, year); 
         a[pos] = year;
     }
 
-    fill(all(st), BIG);
-    fill(all(dr), -BIG);
-    ll mx_given = 0;
-    F0R(i, n) if (a[i]) {
-        a[i]--;
-        ckmax(mx_given, a[i]);
-        ckmin(st[a[i]], i);
-        ckmax(dr[a[i]], i);
-    }
-
-    {
-        // What is the magic start_st and start_dr?
-        // Start_st[i] is the earliest position that year i can appear (min problem)
-        // Start_dr[i] is the latest position that year i can appear (max problem)
-        ll N = n;
-        fill(all(start_st), BIG);
-        fill(all(start_dr), -BIG);
-        start_st[0] = start_dr[0] = 0;
-        F0R(i, N-1) {
-            ckmin(start_dr[i], st[i]);
-            if (start_st[i]+p >= n) continue;
-            if (start_st[i] > start_dr[i]) break;
-            if (start_dr[i]+q-1 < dr[i]) break;
-
-            start_dr[i+1] = min(n-1, start_dr[i]+q);
-            ckmin(start_dr[i+1], st[i+1]+q-1);
-            start_st[i+1] = max(dr[i]+1, start_st[i]+p);
-            ckmax(start_st[i+1], dr[i+1]-q+1);
-        }
-    }
-
-    ll sol = -1;
-    FOR(j, mx_given, n) if (start_st[j] <= start_dr[j]) {
-        // relax j if 
-        // (earliest start not too close) and
-        // (latest start can reach the end)
-        if (n-start_st[j] >= p && n-start_dr[j] <= q) sol = j;
-    }
-
-    ps(sol+1);
-    ll pos = n-1;
-    for (; sol >= 0; --sol) {
-        ll j = min(pos, start_dr[sol]);
-        // while (pos-j+1 < p) j--;
-        for (; j >= 0; j--) {
-            if(pos - j + 1 >= p && pos - j + 1 <= q){
-                break;
+    ll mx = 0;
+    // dp[i][j] = bool, is it possible to place i elements with year j last
+    dp[0][0] = 1;
+    F1R(i, n) F1R(j, n) {
+        for (int k = i; k >= max(0ll, i-q); k--) {
+            if (i-k >= p) {
+                if (a[k] && !(a[k] == j-1 || a[k] == j)) {
+                    break;
+                }
+                dp[i][j] |= dp[k][j-1];
+            } else {
+                if (a[k] && a[k] != j) {
+                    break;
+                }
             }
         }
 
-        for (int i = j; i <= pos; i++) a[i] = sol+1;
-        pos = j-1;
+        // gg(i, j, dp[i][j]);
+        if (i == n && dp[i][j]) ckmax(mx, j);
     }
 
-    each(x, a) pr(x, ' ');
+    ll cur = 0;
+    R1F(i, n) {
+        if (cur >= p && mx > 1 && dp[i][mx-1]) {
+            mx--;
+            cur = 0;
+        } 
+        a[i] = mx;
+        cur++;
+    }
+
+    ps(a.bk);
+    F1R(i, n) pr(a[i], ' ');
     ps();
 }
 
 signed main() {
     setIO("startrek");
     
-    solve();
+    ll tc = 1;
+    // cin >> tc;
+    while (tc--) solve();
 
     return 0;
 }
