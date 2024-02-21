@@ -362,12 +362,7 @@ void solve() {
     ll pos = n-1;
     for (; sol >= 0; --sol) {
         ll j = min(pos, start_dr[sol]);
-        // while (pos-j+1 < p) j--;
-        for (; j >= 0; j--) {
-            if(pos - j + 1 >= p && pos - j + 1 <= q){
-                break;
-            }
-        }
+        while (pos-j+1 < p) j--;
 
         for (int i = j; i <= pos; i++) a[i] = sol+1;
         pos = j-1;
