@@ -1,13 +1,17 @@
 set -e
-g++ 1637D_gen.cpp -std=c++17 -o gen
-g++ 1637D_brute.cpp -std=c++17 -o brute
-for((i = 1; i < 100; ++i)); do
-    ./gen > input_file
-    python3 1637D.py < input_file > myAnswer
-    ./brute < input_file > correctAnswer
+g++ ac.cpp -std=c++17 -o ac
+for((i = 1; i < 1000; ++i)); do
+    python3 gen.py > input_file
+    python3 UGC_C.py < input_file > myAnswer
+    ./ac < input_file > correctAnswer
+
+    cat myAnswer
+    cat correctAnswer
+
     diff myAnswer correctAnswer > /dev/null || break
     echo "Passed test: "  $i
 done
+
 echo "WA on the following test:"
 cat input_file
 echo "Your answer is:"
