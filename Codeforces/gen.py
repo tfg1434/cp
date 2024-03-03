@@ -1,7 +1,7 @@
 import random
 
-n = 6
-k = 3
+n = 7
+k = random.randint(1, n)
 
 print(n, k)
 
