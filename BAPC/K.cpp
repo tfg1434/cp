@@ -34,6 +34,11 @@ ll n, m;
 ll d4x[4] = {0, 1, 0, -1};
 ll d4y[4] = {1, 0, -1, 0};
 
+// THIS PROBLEM WAS A NIGHTMARE
+// i mutated the xaxis/yaxis array which silently fucked up the other calculations...
+// next time i will zero in on the testcase. sometimes it's faster to debug code, but
+// only if it's a large code or large testcase. for simple code and simple tc, better
+// to look at testcase
 void solve() {
     cin >> n >> m;
 
@@ -47,14 +52,6 @@ void solve() {
     }
     vl acv(n);
 
-    auto move_player = [&](ll i, ll dx, ll dy) {
-        auto& x = xs[i];
-        auto& y = ys[i];
-        xaxis[x]--; yaxis[y]--;
-        x += dx; y += dy;
-        xaxis[x]++; yaxis[y]++;
-    };
-
     for (int t = 0; t < m; t++) {
         for (auto p : add[t]) {
             acv[p] = 1;
@@ -63,18 +60,28 @@ void solve() {
         }
 
         for (int i = 0; i < n; i++) if (acv[i]) {
-            ll x = xs[i];
-            ll y = ys[i];
-            ll d = dir[i];
-            // cout << i+1 << " is at " << x << ' ' << y << " and has direction " << "NESW"[d]<< endl;
 
-            if (((d == 0 || d==2) && (yaxis[y]-1)%2 == 1) || ((d == 1 ||d==3) && (xaxis[x]-1)%2 == 1)) {
+            if (((dir[i] % 2 == 0) && yaxis[ys[i]]%2 == 0) ||
+                    ((dir[i] % 2 == 1) && xaxis[xs[i]]%2 == 0)) {
                 dir[i] = (dir[i]+1)%4;
-                d = dir[i];
             } 
 
-            move_player(i, d4x[d], d4y[d]);
+            // cout << i+1 << " is at " << xs[i] << ' ' << ys[i] << " and has direction " << "NESW"[dir[i]]<< endl;
         }
+
+        for (int i = 0; i < n; i++) if (acv[i]) {
+            xaxis[xs[i]]--;
+            yaxis[ys[i]]--;
+            xs[i] += d4x[dir[i]];
+            ys[i] += d4y[dir[i]];
+            xaxis[xs[i]]++;
+            yaxis[ys[i]]++;
+        }
+
+        // cout << "After time " << t << " dir is: ";
+        // for (int i = 0; i < n; i++) cout << dir[i] << " \n"[i==n-1];
+        // cout << "After time " << t << " acv is: ";
+        // for (int i = 0; i < n; i++) cout << acv[i] << " \n"[i==n-1];
     }    
 
     for (int i = 0; i < n; i++) {
