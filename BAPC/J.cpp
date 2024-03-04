@@ -29,41 +29,58 @@ tcT> bool ckmax(T& a, const T& b) {
     return a < b ? a = b, 1 : 0; 
 } 
 
-const ll N = 3e5+1;
-ll a[N];
+vl a;
 ll n;
-vpl dp[N], pd[N];
-vl g[N];
+V<vpl> dp; // (value, vertex)
+V<vl> g;
 
 ll f(ll x, ll y) {
     if (x > y) swap(x, y);
-    return x + (ll)sqrt(y);
+    return y + (ll)sqrt(x); // i did min+sqrt(max) first bro
 }
 
-// dp[u] is coming up, pd[u] is going down
-// note that if this node only has one child, you can choose either
-// to go up or go down
-// note that these arrays only track paths that go down to the
-// leaves, since paths will always be more valuable this way
-//
-// pd is weig
 void calc_dp(ll u, ll p) {
     if (sz(g[u]) - (u != p) == 0) {
         dp[u].pb({a[u], -1});
-        pd[u]
+        return;
     } 
+
     for (auto v : g[u]) if (v != p) {
         calc_dp(v, u);
-        dp[u].pb({ f(dp[v].bk, a[u]), v });
-        pd[u].pb({ f(pd[v].bk, a[u]), v });
+        dp[u].pb({f(a[u], dp[v].bk.f), v});
     }
 
     sort(all(dp[u]));
-    sort(all(pd[u]));
+}
+
+ll ans = 0;
+
+void reroot(ll u, ll p, ll super) {
+    ckmax(ans, max( dp[u].bk.f, super));
+
+    if (sz(g[u]) - (u != p) == 0) return;
+
+    ll used = -1;
+    ll best_child = 0, second_best_child = 0;
+    best_child = dp[u].bk.f;
+    used = dp[u].bk.s;
+    if (sz(dp[u]) > 1) 
+        second_best_child = dp[u][sz(dp[u])-2].f;
+
+    for (auto v : g[u]) if (v != p) {
+        ll use = v == used ? second_best_child : best_child;
+
+        reroot(v, u, f(max(super, use), a[v]));
+    }
 }
 
 void solve() {
     cin >> n;
+
+    g = V<vl>(n);
+    a = vl(n);
+    dp = V<vpl>(n);
+
     for (int i = 0; i < n; i++) cin >> a[i];
     for (int i = 0; i < n-1; i++) {
         ll u, v; cin >> u >> v; u--; v--;
@@ -71,18 +88,17 @@ void solve() {
     }
 
     calc_dp(0, 0);
-    for (int i = 0; i < n; i++) {
-        for (auto[x, y] : dp[i]) {
+    reroot(0, 0, sz(dp[0]) > 1 ? dp[0][sz(dp[0])-2].f : 0ll);
 
-        }
-    }
+    cout << ans << endl;
 }
 
 signed main() {
-    ios::sync_with_stdio(0)->cin.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
     
     ll tc = 1;
-    cin >> tc;
+    // cin >> tc;
     while (tc--) solve();
 
     return 0;
