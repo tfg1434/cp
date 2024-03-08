@@ -1,19 +1,10 @@
-import random
+from random import *
 
-n = 7
-k = random.randint(1, n)
+n = 6
+print(0, 0)
+print(n)
 
-print(n, k)
+max_x = 9
 
-b = []
-for i in range(n):
-    a = [random.choice([1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3]) for _ in range(n)]
-    if b:
-        for j in range(n):
-            if b[j] == 2 and a[j] == 2:
-                a[j] = 1
-
-    print(*a)
-
-    b = a.copy()
-
+for _ in range(n):
+    print(randint(-max_x, max_x), randint(-max_x, max_x))

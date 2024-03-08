@@ -1,15 +1,13 @@
 set -e
-g++ ac.cpp -std=c++17 -o ac
-for((i = 1; i < 1000; ++i)); do
+
+g++ 1939A.cpp -std=c++17 -o cpp
+
+for((i = 1; i < 100; ++i)); do
     python3 gen.py > input_file
-    python3 UGC_C_correct.py < input_file > myAnswer
-    ./ac < input_file > correctAnswer
-
-    cat myAnswer
-    cat correctAnswer
-
-    diff myAnswer correctAnswer > /dev/null || break
-    echo "Passed test: "  $i
+    # python3 1939A.py < input_file > myAnswer
+    ./cpp < input_file > myAnswer
+    cat input_file myAnswer > tmp_file
+    python3 checker.py < tmp_file
 done
 
 echo "WA on the following test:"
