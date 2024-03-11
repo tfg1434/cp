@@ -7,7 +7,7 @@ def solve():
 
     d = [0]+d
     l = [a0]+l
-    r = [b0]+l
+    r = [b0]+r
 
     # sum of d from i+1..n
     s = [0]*(n+1)
@@ -15,6 +15,8 @@ def solve():
         s[i] = s[i+1] + d[i+1];
 
     x = [l[i]+s[i] for i in range(n+1)]
+    print(s)
+    print(x)
     y = [r[i]+s[i] for i in range(n+1)]
     z = [[x[i], y[i]] for i in range(n+1)]
     z.sort(reverse=True)
@@ -31,6 +33,7 @@ def solve():
         if i < n:
             fin_b = min(fin_b, suf[i+1])
 
+        print(fin_a, fin_b)
         ans = max(ans, fin_a+fin_b)
 
     print(ans)
