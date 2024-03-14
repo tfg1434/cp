@@ -1,32 +1,35 @@
+# this caused me so much grief
+# why? duplicates in a :(
+# 
+# now tle? wtf
+# oh i thought they guaranteed the product lmao
+
+from bisect import *
+
 def solve():
     n, m = map(int, input().split())
     a = list(map(int, input().split()))
     b = list(map(int, input().split()))
+    nm = max(n, m)+1
 
-    nxt = [[-1]*m for _ in range(n)]
-    for i in range(n):
-        s = []
-        for j in range(m):
-            s.append(j)
-            if b[j] == a[i]:
-                while s:
-                    nxt[i][s.pop()] = j
-
-        for j in range(m):
-            if b[j] == a[i]:
-                while s:
-                    nxt[i][s.pop()] = j+m
-
+    where = [[] for _ in range(nm)]
+    for i in range(m):
+        where[b[i]].append(i)
 
     ans = 1
-    cur = 0
-    for i in range(n):
-        if nxt[i][cur] == -1:
+    if a[0] not in b:
+        return print(-1)
+    cur = b.index(a[0])
+
+    for i in range(1, n):
+        if not where[a[i]]:
             return print(-1)
-        cur = nxt[i][cur]
-        if cur >= m:
+
+        idx = bisect_right(where[a[i]], cur)
+        if idx >= len(where[a[i]]):
             ans += 1
-            cur -= m
+            idx = 0
+        cur = where[a[i]][idx]
 
     print(ans)
 
