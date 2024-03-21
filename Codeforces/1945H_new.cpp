@@ -119,12 +119,8 @@ tcTU> T lstTrue(T lo, T hi, U f) {
 tcT> void UNIQUE(vector<T>& v) { // sort and remove duplicates
     sort(all(v)); v.erase(unique(all(v)),end(v)); }
 tcTU> void safeErase(T& t, const U& u) { // don't erase
-    auto it = find(u); assert(it != end(t));
+    auto it = t.find(u); assert(it != end(t));
     t.erase(it); } // element that doesn't exist from (multi)set
-void vecDiscard(vl& t, const ll& u) {
-    auto it = find(all(t), u);
-    if (it != end(t)) t.erase(it);
-}
 
 #define tcTUU tcT, class ...U
 
@@ -310,223 +306,119 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-ll n, x;
-vl a;
-const ll LOGN = 19;
-vl globsum;
-const ll MAXN = 4e5;
-vl divs[MAXN+1];
+ll C(ll x) {
+    // assert(x >= 2);
+    return x*(x-1)/2;
+}
 
-// remove two elems so that the bitwise AND is 0
-pl zero() {
-    V<vl> has_bit(LOGN);
-    F0R(i, n) {
-        F0R(j, LOGN) {
-            if (a[i] & (1<<j)) has_bit[j].pb(i);
+ll n, x, mx; 
+const ll logn = 19;
+vl no_bit[logn];
+unordered_set<ll> st;
+set<pl> pairs;
+vl a;
+V<vl> where;
+V<vl> ind_of_mult;
+const ll MAXN = 4e5+1;
+vl divs[MAXN];
+
+void init() {
+    for (ll i = 1; i < MAXN; i++) {
+        for (ll j = i; j < MAXN; j += i) {
+            divs[j].pb(i);
         }
     }
-    ll AND = a[0];
-    each(x, a) AND &= x;
-    if (!AND) {
-        return {0, 1};
-    }
-
-    F0R(j, LOGN) {
-        auto w = has_bit[j];
-
-        if (sz(w) > 3) return {-1, -1};
-
-        if (sz(w) == 3) {
-            vpl combs = {{w[0], w[1]}, {w[0], w[2]}, {w[1], w[2]}};
-            for (pl take : combs) {
-                auto cpy = globsum;
-                F0R(j, LOGN) cpy[j] -= (a[take.f] & (1 << j)) > 0;
-                F0R(j, LOGN) cpy[j] -= (a[take.s] & (1 << j)) > 0;
-                bool ok = true;
-                F0R(j, LOGN) {
-                    assert(cpy[j] <= n-2);
-                    ok &= cpy[j] < n-2;
-                }
-                if (ok) {
-                    return {take.f, take.s};
-                }
-            }
-
-        } else if (sz(w) == 2) {
-            each(take, w) {
-                vl second_idx = {-1, -1};
-                bool ok = true;
-
-                F0R(i, LOGN) if (i != j) {
-                    auto W = has_bit[i];
-                    vecDiscard(W, take);
-                    if (sz(W) > 2) {
-                        ok = false;
-                        break;
-                    }
-
-                    if (sz(W) == 2) {
-                        if (sz(second_idx) && second_idx[0] == -1) {
-                            second_idx = {W[0], W[1]};
-
-                        } else {
-                            if (sz(second_idx) == 2) {
-                                if (count(all(W), second_idx[0]) 
-                                        || count(all(W), second_idx[1])) {
-                                    if (!count(all(W), second_idx[1])) 
-                                        second_idx.erase(bg(second_idx)+1);
-                                    if (!count(all(W), second_idx[0])) 
-                                        second_idx.erase(bg(second_idx));
-
-                                    continue;
-                                }
-                            }
-                            if (sz(second_idx)==1) {
-                                if (count(all(W), second_idx[0])) continue;
-                            }
-
-                            ok = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (ok) {
-                    if (second_idx[0] == -1) second_idx[0] = (take+1)%n;
-                    return {take, second_idx[0]};
-                }
-            }
-        } 
-    }
-
-    return {-1, -1};
 }
 
 void solve() {
-    re(n, x);
+    F0R(j, logn) no_bit[j].clear();
+    st.clear();
+    pairs.clear();
+
+    re(n, x);    
     a = vl(n); re(a);
-    
-    auto yes = [&](ll i, ll j) {
+    mx = *max_element(all(a));
+    where = V<vl>(mx+1);
+    ind_of_mult = V<vl>(mx+1);
+    F0R(i, n) where[a[i]].pb(i);
+    F0R(i, n) for (auto d : divs[a[i]]) ind_of_mult[d].pb(i);
+
+    F0R(j, logn) {
+        F0R(i, n) if ((a[i] & (1<<j)) == 0) no_bit[j].pb(i);
+    }
+    ll ans1 = -1, ans2 = -1;
+
+    F1R(g, mx) {
+        if (g % 10000 == 0) gg(g);
+        ll mn_and = 0;
+        st = unordered_set<ll>(all(ind_of_mult[g])); // positions that you allowed to remove
+        pairs = set<pl>(); // cost me so much TIME
+
+        R0F(j, logn) {
+            if (sz(no_bit[j]) > 2) continue;
+            if (!sz(no_bit[j])) {
+                mn_and += (1<<j);
+                continue;
+            }
+
+            // 1 <= |no_bit[j]| <= 2
+            if (sz(no_bit[j]) == 1) {
+                ll idx = no_bit[j][0];
+                if (st.count(x) && C(sz(st)-1) <= sz(pairs)) {
+                    mn_and += p2(j);
+                    continue;
+                }
+
+                st.erase(idx);
+
+            } else {
+                // condition: do not remove the pair x, y
+                // see if it is possible to put this condition
+                // you can require this condition unless it would mean you can no longer remove two values, 
+                // ie. pairs U (x, y) would cover C(|st|)
+                // if it's already in pairs then ofc it's okay
+                ll x = no_bit[j][0], y = no_bit[j][1];
+                if (x > y) swap(x, y);
+                if (st.count(x) && st.count(y) && !pairs.count({x, y}) 
+                        && sz(pairs)+1 >= C(sz(st))) {
+                    mn_and += p2(j);
+                    continue;
+                }
+
+                pairs.ins({x, y});
+            }
+        }
+
+        if (g>mn_and+x) {
+            vl removable; each(x, st) removable.pb(x);
+            sort(all(removable));
+            // i expect only 20 operations or maybe 40
+            each(x, st) {
+                each(y, st) if (x < y && !pairs.count({x, y})) {
+                    ans1 = x;
+                    ans2 = y;
+                    break;
+                }
+                if (ans1 != -1) break;
+            }
+        }
+    }
+
+    if (ans1 == -1) {
+        ps("NO");
+    } else {
         ps("YES");
-        ps(2, a[i], a[j]);
-        vl ans; F0R(k, n) if (k != i && k != j) ans.pb(a[k]);
-        ans.insert(bg(ans), n-2);
-        F0R(i, sz(ans)) pr(ans[i], ' ');
+        ps(2, a[ans1], a[ans2]);
+        pr(n-2, ' ');
+        F0R(i, n) if (i != ans1 && i != ans2) pr(a[i], ' ');
         ps();
-    };
-
-    globsum = vl(LOGN);
-    for (auto x : a) {
-        F0R(i, LOGN) {
-            globsum[i] += (x&(1<<i)) > 0;
-        }
-    }
-
-    ll mx = *max_element(all(a));
-    // where[i] = where are multiples of i
-    V<vl> where(mx+1);
-    F0R(i, n) {
-        for (auto d : divs[a[i]]) {
-            if (d > mx) continue;
-            where[d].pb(i);
-        }
-    }
-    F1R(i, mx) ps(i, where[i]);
-
-    // fix g, now find the min AND once you remove two values
-    // that are each multiples of g (in where[g])
-    for (ll g = 1; g <= mx; g++) {
-        // has_bit[i] = indices where a[idx] is a multiple of g and has the bit i
-        V<vl> has_bit(LOGN);
-        for (auto i : where[g]) {
-            F0R(j, LOGN) {
-                if (a[i] & (1<<j)) has_bit[j].pb(i);
-            }
-        }
-
-        V<pair<ll, vl>> paths; paths.pb({0, {}});
-        for (ll j = LOGN-1; j >= 0; j--) {
-            V<pair<ll, vl>> new_paths;
-
-            for (auto [cost, selected]: paths) {
-                auto v = has_bit[j];
-                ll cnt = 0;
-                // we already chose the ones in selected
-                // these all subtract from the globsum, since they are in has_bit[j]
-                each(x, selected) {
-                    auto it = find(all(v), x);
-                    if (it != end(v)) {
-                        v.erase(it);
-                        cnt++;
-                    }
-                }
-                globsum[j] -= cnt;
-
-                // if (globsum[j] - min(sz(v), 2-sz(selected)) > 1) {
-                // if ((sz(selected) == 2 || !sz(v)) && globsum[j] == n-sz(selected)) {
-                if (globsum[j] != )
-                if (globsum[j] <= min(sz(v), 2-sz(selected))) {
-                    // if (globsum[j] == 3) {
-                        // ps("Bit", j, "saved by two values");
-                        V<vl> combs = {{v[0], v[1]}};
-                        if (sz(v) > 2) {
-                            combs.pb({v[1], v[2]});
-                            combs.pb({v[0], v[2]});
-                        }
-                        for (auto comb : combs) {
-                            new_paths.pb({ cost, comb });
-                        }
-                    } else if (globsum[j] == 2) {
-                        // ps("Bit", j, "saved by one values");
-                        for (auto idx : v) {
-                            vl new_path = selected;
-                            new_path.pb(idx);
-                            assert(sz(new_path) <= 2);
-                            new_paths.pb({cost, new_path});
-                        }
-                    } else {
-                        assert(globsum[j] < 2);
-                        new_paths.pb({cost, selected});
-                    }
-                } else {
-                    // ps("Bit", j, "is inevitable");
-                    pair<ll, vl> new_path = { cost+(1<<j), selected };
-                    new_paths.pb(new_path);
-                }
-
-                globsum[j] += cnt;
-            }
-
-            paths = new_paths;
-        }
-
-        ps(paths);
-        for (auto[cost, selected] : paths) {
-            if (g == 4) ps(cost, x);
-            if (g > cost+x) {
-                if (!sz(selected)) selected.pb(0);
-                if (sz(selected) == 1) selected.pb((selected[0]+1)%n);
-                yes(selected[0], selected[1]);
-                return;
-            }
-        }
-    }
-
-    ps("NO");
-}
-
-void init() {
-    for (ll i = 1; i <= MAXN; i++) {
-        for (ll j = i; j <= MAXN; j += i) {
-            divs[j].pb(i);
-        }
     }
 }
 
 signed main() {
     setIO();
     init();
-
+    
     ll tc = 1;
     cin >> tc;
     while (tc--) solve();
