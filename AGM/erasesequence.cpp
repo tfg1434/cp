@@ -1,3 +1,6 @@
+// i like, don't fully understand the solution. so I don't know how to
+// get the construction
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -306,85 +309,47 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
-vpl ans;
+const ll mx_n = 1e6;
+ll e[mx_n];
+ll find(ll u) {
+    return e[u] == u ? u : e[u]=find(e[u]);
+}
 
-bool solve() {
-    def(ll, n);
-    if (n == 1) return true;
-    
-    vl a(n); re(a);
+// Multiply each element in a by -1, then
+// We are asked to find whether the graph where the edges are inversions
+// is connected
 
-    // duplicate = bad
-    unordered_set<ll> st;
-    each(x, a) st.ins(x);
-    if (sz(st) < n) return false;
+void mergesort(vl& a, ll l, ll r) {
+    if (l == r) return;
 
-    ll l = find(all(a), *min_element(all(a))) - bg(a);
-    ll r = find(all(a), *max_element(all(a))) - bg(a);
-
-    if (l < r) {
-        for (ll i = 0; i < l; i++) ans.eb(r, i);
-        for (ll i = r+1; i < n; i++) ans.eb(l, i);
-        for (ll i = l+1; i <= r; i++) ans.eb(l, i);
-        return true;
-    } else {
-        swap(l, r);
-
-        vl nge(n), pse(n);
-        for (ll i = l+1; i < r; i++) {
-
-        }
-
-        auto mn = min_element(bg(a), bg(a)+l);
-        auto mx = max_element(bg(a)+r+1, end(a));
-
-        vl spe;
-        ll lo = -1, hi = -1;
-        for (ll i = l+1; i < r; i++) {
-            if (a[i] < *mx && lo == -1) lo = i;
-            if (a[i] > *mn) hi = i;
-
-            if (*mx <= a[i] && a[i] <= *mn) {
-                spe.pb(i);
-            }
-        }
-
-        if (sz(spe) && (lo == -1 || lo > spe[0]) && (hi == -1 || hi < spe[sz(spe)-1])) 
-            return false;
-
-        if (lo != -1) {
-            for (auto i : spe) 
-                ans.eb(lo, i);
-        } else if (hi != -1) {
-            for (auto i : spe)
-                ans.eb(hi, i);
-        }
-
-        // delete everything on (l, r)
-        unordered_set<ll> skip(all(spe));
-        for (ll i = l+1; i < r; i++) if (!skip[i]) {
-            if (a[i] > *mn) ans.eb(mn-bg(a), i);
-            else ans.eb(mx-bg(a), i);
-        }
-
-        // delete everything on [0, l) except mn
-        for (ll i = 0; i < l; i++) if (i != mn-bg(a)) {
-            ans.eb(r, i);
-        }
-
-        // delete everything on [r+1, n) except mx
-        for (ll i = r+1; i < n; i++) if (i != mx-bg(a)) {
-            ans.eb(l, i);
-        }
-
-        if (*mn < *mx) {
-            ans.eb(mx-bg(a), r);
-            ans.eb(mn-bg(a), mx-bg(a));
-            ans.eb(l, mn-bg(a));
-        } else {
-
+    ll m = (l+r)/2;
+    mergesort(a, l, m);
+    mergesort(a, m+1, r);
+    ll j = l;
+    for (ll i = m+1; i <= r; i++) {
+        while (j <= m && a[j] <= a[i]) j++;
+        for (j = find(j); j <= i; j = find(j)) {
+            e[j] = j+1;
         }
     }
+    
+    sort(bg(a)+l, bg(a)+r+1);
+}
+
+void solve() {
+    def(ll, n);
+    if (n == 1) {
+        ps("YES");
+        return;
+    }
+    F0R(i, n+1) e[i] = i;
+
+    vl a(n); re(a);
+    each(x, a) x *= -1;
+    mergesort(a, 0, n-1);
+    bool ok = true;
+    F0R(i, n) ok &= (find(i) == find(0));
+    ps(ok ? "YES" : "NO");
 }
 
 signed main() {
