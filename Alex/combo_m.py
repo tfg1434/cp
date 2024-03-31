@@ -9,9 +9,6 @@ for i in range(1, mx_n+1):
 ff = [pow(f[i], P-2, P) for i in range(mx_n+1)]
 def C(n, r):
     return f[n]*ff[n-r]%P*ff[r]%P
-p2 = [1]
-for i in range(1, mx_n+1):
-    p2.append(p2[-1]*2%P)
 p3 = [1]
 for i in range(1, mx_n+1):
     p3.append(p3[-1]*3%P)
@@ -19,20 +16,21 @@ for i in range(1, mx_n+1):
 def solve():
     n, k = S()
 
+    if k == 0:
+        return print(p3[n])
+
     ans = 0
     for i in range(1, k+1):
         groups = C(k-1, i-1)
-        spacers = 0
-        if (n-k-i >= 0):
+        if n-k-i >= 0:
             spacers = C(n-k-i + i, i)
-
-        ways = groups*spacers%P * p2[k]%P * p3[n-k-i]%P
+            ans = (ans + groups*spacers%P*p3[k-i]%P*p3[n-k-i]%P) % P
         if n-k-i+1 >= 0:
-            ways += groups * C(n-k-i+1 + i-1, i-1) % P * p2[k-i] % P * p3[n-k-i+1] % P
+            spacers = C(n-k-i+1 + i-1, i-1)
+            ans = (ans + groups*spacers%P*p3[k-i]%P*p3[n-k-i+1]%P) % P
 
-        ans = (ans+ways)%P
-    
     print(ans)
+
 
 solve()
 
