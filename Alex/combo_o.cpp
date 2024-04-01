@@ -1,3 +1,5 @@
+// AC
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -64,12 +66,12 @@ const ll dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count()); 
 template<class T> using pqg = priority_queue<T,vector<T>,greater<T>>;
 
-ll pw(ll a, ll b) {
+ll pw(ll a, ll b, ll m) {
     ll res = 1;
     while (b) {
-        if (b & 1) res = res * a % P;
+        if (b & 1) res = res * a % m;
         b >>= 1;
-        a = a * a % P;
+        a = a * a % m;
     }
 
     return res;
@@ -80,6 +82,8 @@ ll pw(ll a, ll b) {
 constexpr ll pct(ll x) { return __builtin_popcount(x); } // # of bits set
 constexpr ll bits(ll x) { // assert(x >= 0); // make C++11 compatible until USACO updates ...
     return x == 0 ? 0 : 31-__builtin_clz(x); } // floor(log2(x)) 
+constexpr ll p2(ll x) { return 1<<x; }
+constexpr ll msk2(ll x) { return p2(x)-1; }
 
 ll cdiv(ll a, ll b) { return a/b+((a^b)>0&&a%b); } // divide a by b rounded up
 ll fdiv(ll a, ll b) { return a/b-((a^b)<0&&a%b); } // divide a by b rounded down
@@ -304,38 +308,116 @@ struct chash {
 template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
+ll n, k, mod;
+
+tcT> void add(T& a, const T& b) {
+    a += b;
+    if (a >= mod) a -= mod;
+}
+
+struct Matrix {
+    vector<vector<int>> mat;
+    int rows, cols;
+
+    Matrix(int rows, int cols) : rows(rows), cols(cols) {
+        mat = vector<vector<int>>(rows, vector<int>(cols));
+    }
+    Matrix(vector<vector<int>> mat) : mat(mat) {
+        rows = mat.size();
+        cols = (rows > 0) ? mat[0].size() : 0;
+    }
+    
+    Matrix operator *= (const Matrix& m) {
+        assert(cols == m.rows);
+
+        cols = m.cols;
+        vector<vector<int>> nmat(rows, vector<int>(cols, 0));
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                for (int k = 0; k < m.rows; ++k) {
+                    int t = ((ll)mat[i][k] * m.mat[k][j]) % mod;
+                    add(nmat[i][j], t);
+                }
+            }
+        }
+        mat = nmat;
+
+        return *this;
+    }
+    Matrix operator * (const Matrix& m) {
+        Matrix mtx(*this); mtx *= m;
+        return mtx;
+    }
+    friend ostream& operator << (ostream& out, const Matrix& m) {
+        for (int i = 0; i < m.rows; ++i) {
+            for (int j = 0; j < m.cols; ++j) out << m.mat[i][j] << " ";
+            if (i != m.rows-1) out << "\n";
+        }
+        return out;
+    }
+};
+
 void solve() {
-    def(ll, n);
-    vl p2{1}; rep(n) p2.pb(p2.bk*2%P);
-    vl a(n); re(a);
-    ll ans = 0;
-    for (ll i = 0; i < n; i++) for (ll j = i+1; j < n; j++) {
-        ll dist = a[j]-a[i];
-        ll ways = 1;
-        // need to delete everything from lo..i-1
-        ll lo = fstTrue(0ll, i, [&](ll idx) {
-            return a[i]-a[idx] <= dist;
-        });
-        if (lo < i) {
-            ways *= p2[lo];
-        } else { // forgetting this else clause cost me so much timeee!!!
-            ways *= p2[i];
+    re(n, k, mod);
+
+    if (k % 2) {
+        ll ans = 0;
+        for (ll sum = 0; sum < k; sum++) {
+            ll r;
+            for (ll i = 0; i < k; i++) if (2*i%k == sum) r = i;
+
+            ll cont = pw(k, n-1, mod);
+            ll sign = -1;
+            ll s = (((2*r - (n-1)%k*r%k)%k)+k)%k;
+            // for (ll len = n; len >= 1; len--) {
+                // (cont += sign*pw(k-1, len-1, mod)) %= mod;
+                // sign *= -1;
+            // }
+            ll sub = (1-pw((1-k+mod)%mod, n, mod))*pw(k, mod-2, mod);
+            if (n % 2==0) sub *= -1;
+            sub = (sub+mod)%mod;
+            cont = ((cont-sub)%mod+mod)%mod;
+            if (r == s) cont = ((cont+(n%2 ? 1 : -1))%mod+mod)%mod;
+            ans = (ans+cont)%mod;
         }
 
-        // need to delete everything from j..hi
-        ll hi = lstTrue(j, n-1, [&](ll idx) {
-            return a[idx]-a[j] < dist;
-        });
-        if (hi > j) {
-            ways *= p2[n-1-hi];
+        ps(ans);
+    } else {
+        ll ans = 0;
+        int sum = (pw(2, n, mod) - pw((2 - k + mod) % mod, n, mod) + mod) % mod;
+        ans = n % 2 ?
+                            (pw(k, n, mod) - sum + mod) * pw(2, mod-2, mod) % mod
+                        :
+                            (pw(k, n, mod) + sum) * pw(2, mod-2, mod) % mod;
+        int cnt = gcd(abs(n - 2), k / 2);
+        if (n % 2) {
+            ans = (ans + pw(2, n - 1, mod) * cnt) % mod;
         } else {
-            ways *= p2[n-1-j];
+            ans = (ans + (mod - pw(2, n - 1, mod)) * cnt) % mod;
         }
+        // for (ll sum = 0; sum < k; sum++) {
+            // if (sum % 2) {
+                // continue;
+            // }
 
-        (ans += ways) %= P;
+            // vl r;
+            // for (ll i = 0; i < k; i++) if (2*i%k == sum) r.pb(i);
+            // assert(sz(r) == 2);
+
+            // ll cont = pw(k, n-1, mod);
+            // ll sign = -1;
+            // for (ll len = n; len >= 1; len--) {
+                // (cont += sign*pw(k-2, len-1, mod)) %= mod;
+                // sign = ((sign * -2 % mod)+mod) % mod;
+            // }
+
+            // cont = (cont + sign*pw(2, mod-2, mod)%mod)%mod;
+            // ans = (ans+cont)%mod;
+        // }
+
+        ps(ans);
     }
 
-    ps(ans);
 }
 
 signed main() {
