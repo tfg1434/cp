@@ -1,5 +1,3 @@
-// O(n^2) dp
-
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -318,21 +316,26 @@ void solve() {
     sort(all(ba));
 
     ll ans = 0;
-    // dp(i, t) = min time to read t messages, considering only the first i messages
-    //            AND, you read the i-message (oops i wasted time here)
-    V<vl> dp(n+1, vl(n+1, BIG));
-    dp[0][0] = 0;
-    for (ll i = 0; i <= n; i++) dp[i][0] = 0;
-    vl mn(n, BIG); // mn[t] = cost to read t messages, adjusted with -b[i-1]
-    mn[0] = 0;
-    for (ll i = 1; i <= n; i++) {
-        for (ll t = 1; t <= i; t++) {
-            if (t > 1) dp[i][t] = mn[t-1] + ba[i-1].f + ba[i-1].s;
-            else dp[i][t] = ba[i-1].s;
-            if (dp[i][t] <= L) ckmax(ans, t);
-        }
-        for (ll t = 1; t <= min(n-1, i); t++) {
-            ckmin(mn[t], dp[i][t] - ba[i-1].f);
+    for (ll i = 0; i < n; i++) {
+        multiset<ll> st;
+        ll sum = 0;
+        for (ll j = i; j < n; j++) {
+            ll delta = ba[j].f - ba[i].f;
+            if (delta > L) break;
+            while (sum + delta > L) {
+                sum -= *rbegin(st);
+                st.erase(--(rbegin(st).base()));
+            }
+            if (ba[j].s + sum + delta <= L) {
+                sum += ba[j].s;
+                st.ins(ba[j].s);
+            } else if (sz(st) && ba[j].s < *rbegin(st)) {
+                sum -= *rbegin(st);
+                st.erase(--(rbegin(st).base()));
+                sum += ba[j].s;
+                st.ins(ba[j].s);
+            }
+            ckmax(ans, sz(st));
         }
     }
 
@@ -348,3 +351,4 @@ signed main() {
 
     return 0;
 }
+
