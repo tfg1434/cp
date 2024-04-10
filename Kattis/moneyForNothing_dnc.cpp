@@ -318,28 +318,59 @@ void solve() {
         consumers.eb(x, y);
     }
     sort(all(producers));
+    vpl new_producers;
+    ll min_y = BIG;
+    F0R(i, m) {
+        if (min_y > producers[i].second) {
+            min_y = producers[i].second;
+            new_producers.push_back(producers[i]);
+        }
+    }
+    producers = new_producers;
+    new_producers.clear();
+
     sort(all(consumers));
+    vpl new_consumers;
+    ll max_y = -BIG;
+    for (ll i = n-1; i >= 0; i--) {
+        if (max_y < consumers[i].second) {
+            max_y = consumers[i].second;
+            new_consumers.push_back(consumers[i]);
+        }
+    }
+    consumers = new_consumers;
+    reverse(all(consumers));
+    new_consumers.clear();
+
+    for (ll i = 0; i < sz(producers); i++) {
+        auto last = upb(consumers, {producers[i].f, BIG});
+        bool ok = last < sz(consumers) && consumers[last].s > producers[i].s;
+        if (ok) {
+            new_producers.pb(producers[i]);
+        }
+    }
+    producers = new_producers;
+    new_producers.clear();
 
     ll ans = 0;
-    // we assign the middle producer on [l, r) with the best consumer that has x on [lx, rx)
-    yy([&](auto rec, ll l, ll r, ll lx, ll rx) -> void {
+    yy([&](auto rec, ll l, ll r, ll lb, ll rb) -> void {
+        if (l == r) return;
+
         ll m = (l+r)/2;
-        ll area = 0;
-        ll best_x = -1;
-        auto co = lwb(consumers, {lx, 0});
-        auto te = upb(consumers, {rx, BIG});
-        for (ll i = co; i < te; i++) {
+        ll area = -1;
+        ll best = -1;
+        for (ll i = lb; i < rb; i++) {
             auto [x, y] = consumers[i];
-            if (ckmax(area, (x-producers[m].f)*(y-producers[m].s))) {
-                best_x = x;
+            if (ckmax(area, max(0ll, x-producers[m].f)*max(0ll, y-producers[m].s))) {
+                best = i;
             }
         }
         ckmax(ans, area);
+        assert(best != -1);
 
-        if (l+1 == r) return;
-        rec(l, m, lx, best_x+1);
-        rec(m, r, best_x, rx);
-    })(0, n, consumers[0].f, consumers.bk.f+1);
+        rec(l, m, lb, best+1);
+        rec(m+1, r, best, rb);
+    })(0, sz(producers), 0, sz(consumers));
 
     ps(ans);
 }
@@ -347,9 +378,7 @@ void solve() {
 signed main() {
     setIO();
     
-    ll tc = 1;
-    // cin >> tc;
-    while (tc--) solve();
+    solve();
 
     return 0;
 }
