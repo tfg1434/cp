@@ -307,52 +307,55 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 ll n, m;
-
 void solve() {
-    V<vpl> g(n);
+    V<vl> g(n, vl(n, BIG));
     rep(m) {
         def(ll, u, v, w); u--; v--;
-        g[u].pb({w, v}); g[v].pb({w, u});
+        if (w < g[u][v])
+            g[u][v] = g[v][u] = w;
     }
 
-    ll mn_len = BIG;
+    V<vl> path(n, vl(n)), dist(n, vl(n));
+    F0R(i, n) F0R(j, n) {
+        dist[i][j] = g[i][j];
+        if (g[i][j] < BIG) path[i][j] = i;
+    }
+
+    ll mn = BIG;
     vl sol;
-    for (ll i = 0; i < n; i++) {
-        V<vl> dist(n, vl(n, BIG));
-        pqg<pair<ll, pl>> q;
-        dist[i][i] = 0; q.push({0, {i, i}});
-        V<vpl> prv(n, vpl(n));
-
-        while (sz(q)) {
-            auto[d, up] = q.top(); q.pop();
-            auto [u, p] = up;
-            if (d != dist[u][p]) continue;
-
-            for (auto [w, v] : g[u]) if (v != p && ckmin(dist[v][u], w+d)){
-                q.push({ dist[v][u], {v, u} });
-                prv[v][u] = {u, p};
-            }
-
-            if (u == i && p != i && ckmin(mn_len, dist[u][p])) {
+    F0R(k, n) {
+        for (ll i = 0; i < k; i++) for (ll j = 0; j < i; j++) {
+            // notice that max length of path is 30000, so this part is fast enough
+            if (ckmin(mn, g[i][k] + g[k][j] + dist[i][j])) {
+                ll cur = j;
                 sol.clear();
-                for (auto x = mp(i, p); x != mp(i, i); x = prv[x.f][x.s]) sol.pb(x.f);
+                while (cur != i) {
+                    sol.pb(cur);
+                    cur = path[i][cur];
+                }
+                sol.pb(i);
+                sol.pb(k);
+            }
+        }
+
+        F0R(i, n) F0R(j, n) {
+            if (ckmin(dist[i][j], dist[i][k]+dist[k][j])) {
+                path[i][j] = path[k][j];
             }
         }
     }
 
-    if (mn_len == BIG) {
+    if (mn == BIG) {
         ps("No solution.");
         return;
     }
-    for (ll i = 0; i < sz(sol); i++) pr(sol[i]+1, " \n"[i==sz(sol)-1]);
+    F0R(i, sz(sol)) pr(sol[i]+1, " \n"[i==sz(sol)-1]);
 }
 
 signed main() {
     setIO();
     
-    while (cin >> n >> m) {
-        solve();
-    }
+    while (cin >> n >> m) solve();
 
     return 0;
 }
