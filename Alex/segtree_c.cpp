@@ -307,83 +307,68 @@ template <class K, class V> using cmap = unordered_map<K, V, chash>;
 // example usage: cmap<int, int>
 
 struct node_info {
-    ll pre, suf, mx;
-    bool all_zero;
+    ll cnt;
     node_info() {
-        pre = suf = mx = 0;
-        all_zero = true;
+        cnt = 0;
     }
-    node_info(ll a) {
-        pre = a ? 0 : 1;
-        suf = a ? 0 : 1;
-        mx = a ? 0 : 1;
-        all_zero = a ? false : true;
+    node_info(ll c) {
+        cnt = c;
     }
 };
 
 node_info merge_node(const node_info& a, const node_info& b) {
     node_info res;
-    res.pre = a.pre + (a.all_zero ? b.pre : 0);
-    res.suf = b.suf + (b.all_zero ? a.suf : 0);
-    res.mx = max(max(a.mx, b.mx), a.suf + b.pre);
+    res.cnt = a.cnt + b.cnt;
     return res;
 }
 
-V<node_info> t;
-void build(ll v, ll l, ll r, vl& a) {
-    if (l == r-1) {
-        t[v] = node_info(a[l]);
-        return;
+struct segtree {
+    ll n;
+    V<node_info> t;
+    segtree(ll n) {
+        this->n = n;
+        ll size = 1;
+        while (size < 2*n) size *= 2;
+        t.resize(size); // i did t.assign(size, 1) -- this doesn't update the upper nodes bud
     }
-    ll m = (l+r)/2;
-    build(2*v+1, l, m, a);
-    build(2*v+2, m, r, a);
-    t[v] = merge_node(t[2*v+1], t[2*v+2]);
-}
-
-node_info query(ll v, ll l, ll r, ll L, ll R) {
-    if (R <= l || r <= L) return node_info();
-    if (L <= l && r <= R) return t[v];
-    ll m = (l+r)/2;
-    return merge_node(query(2*v+1, l, m, L, R),
-                 query(2*v+2, m, r, L, R));
-}
-
-void set_elem(ll v, ll l, ll r, ll i, ll x) {
-    if (l == r-1) {
-        t[v] = node_info(x);
-        return;
+    ll num_between(ll v, ll l, ll r, ll L, ll R) {
+        if (r <= L || R <= l) return 0;
+        if (L <= l && r <= R) return t[v].cnt;
+        ll m = (l+r)/2;
+        return num_between(2*v+1, l, m, L, R) +
+               num_between(2*v+2, m, r, L, R);
     }
-
-    ll m = (l+r)/2;
-    if (i < m) set_elem(2*v+1, l, m, i, x);
-    else set_elem(2*v+2, m, r, i, x);
-    t[v] = merge_node(t[2*v+1], t[2*v+2]);
-}
-
-void init_tree(ll n, vl& a) {
-    ll size = 1;
-    while (size < 2*n) size *= 2;
-    t.resize(size);
-    build(0, 0, n, a);
-}
+    void toggle_idx(ll v, ll l, ll r, ll idx) {
+        if (l == r-1) {
+            t[v].cnt ^= 1;
+            return;
+        }
+        ll m = (l+r)/2;
+        if (idx < m) toggle_idx(2*v+1, l, m, idx);
+        else toggle_idx(2*v+2, m, r, idx);
+        t[v] = merge_node(t[2*v+1], t[2*v+2]);
+    }
+};
 
 void solve() {
-    ll n; cin >> n;
+    def(ll, n);
     vl a(n); re(a);
-    init_tree(n, a);
-    gg(t[0].mx);
+    vl b = a; sor(b);
+    for (ll i = 0; i < n; i++) a[i] = lwb(b, a[i]);
 
-    char c;
-    while (cin >> c) {
-        if (c == '?') {
-            def(ll, l, r); l--;
-            ps(query(0, 0, n, l, r).mx);
-        } else {
-            def(ll, i, x); i--;
-            set_elem(0, 0, n, i, x);
-        }
+    segtree L(n), R(n);
+    for (ll i = 0; i < n; i++) R.toggle_idx(0, 0, n, i);
+    ll ans = 0;
+    // suppose the middle elem is at index i
+    for (ll i = 0; i < n; i++) {
+        R.toggle_idx(0, 0, n, a[i]);
+        ll ways = L.num_between(0, 0, n, a[i]+1, n) *
+                  R.num_between(0, 0, n, 0, a[i]);
+        ans += ways;
+        L.toggle_idx(0, 0, n, a[i]);
     }
+
+    ps(ans);
 }
 
 signed main() {
