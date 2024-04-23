@@ -149,24 +149,30 @@ void solve() {
     vi a(n); re(a);
     int ans = 0;
     for (int b = 0; b < 30; b++) {
-        vpi events;
-        events.pb({-1, 0});
+        vi events;
+        vb is_x;
+        is_x.pb(false);
+        events.pb(-1);
         for (int i = 0; i < n; i++) if (a[i] & (1 << b)){
-            if (b == bits(a[i])) events.pb({i, 1});
-            else events.pb({i, 0});
+            is_x.pb(b==bits(a[i]));
+            events.pb(i);
         }
-        events.pb({n, 0});
+        is_x.pb(false);
+        events.pb(n);
 
-        vi len(2), lc(2);
+        // int ans = 0; mental illness
+        vi right(2);
+        for (int i = 0; i < sz(events)-1; i++) right[i%2] += events[i+1]-events[i];
+        vi left(2);
+        // transitioning from events[i]
+        // we are centered on the position events[i+1]
         for (int i = 0; i < sz(events)-1; i++) {
-            if (!events[i].s) {
-                ans += lc[i%2] * (events[i+1].f-events[i].f);
-                len[i%2] += events[i+1].f-events[i].f;
-            } else {
-                lc[i%2] += len[i%2];
-                ans += lc[i%2] * (events[i+1].f-events[i].f);
-                len[i%2] += events[i+1].f-events[i].f;
-            }
+            right[0] -= events[i+1]-events[i];
+            left[1] += events[i+1]-events[i];
+            swap(right[0], right[1]);
+            swap(left[0], left[1]);
+            if (is_x[i+1]) 
+                ans += left[0]*right[1] + left[1]*right[0];
         }
     }
 
