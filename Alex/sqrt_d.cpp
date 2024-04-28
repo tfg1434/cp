@@ -1,11 +1,11 @@
-// #pragma GCC optimize("Ofast,no-stack-protector")
-// #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-// #pragma GCC optimize("unroll-loops")
+// optimizing too hard q_q
+
+#pragma GCC optimize("Ofast,no-stack-protector")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+#pragma GCC optimize("unroll-loops")
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
-const int INF = 1e18; // 1e9
 const int P = 1e9+7; // 998244353;
 const double PI = acos(-1.0);
 
