@@ -146,7 +146,8 @@ int par[max_n];
 int siz[max_n];
 V<pair<int&, int>> history;
 int find(int u) {
-    return u == par[u] ? u : find(par[u]); // didn't write find(...)
+    while (u != par[u]) u = par[u];
+    return u;
 }
 void unite(int u, int v) {
     if ((u=find(u)) != (v=find(v))) {
