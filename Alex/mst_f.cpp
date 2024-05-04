@@ -150,6 +150,7 @@ int find(int u) {
 }
 void unite(int u, int v) {
     if ((u=find(u)) != (v=find(v))) {
+        if (siz[u] > siz[v]) swap(u, v);
         history.pb({par[u], par[u]});
         history.pb({siz[v], siz[v]});
         par[u] = v;
