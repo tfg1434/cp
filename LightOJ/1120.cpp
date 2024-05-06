@@ -143,33 +143,58 @@ template<class F> struct y_combinator_result {
 };
 template<class Fun> decltype(auto) yy(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
 
+vi ys;
+vi sum, counter;
+void update(int v, int l, int r, int L, int R, bool open) {
+    if (R <= ys[l] || ys[r] <= L) return;
+    if (L <= ys[l] && ys[r] <= R) {
+        counter[v] += open ? 1 : -1;
+        if (counter[v]) sum[v] = ys[r]-ys[l];
+        else sum[v] = 2*v+2 < sz(sum) ? sum[2*v+1]+sum[2*v+2] : 0;
+        return;
+    }
+    int m = (l+r)/2;
+    update(2*v+1, l, m, L, R, open);
+    update(2*v+2, m, r, L, R, open);
+    if (counter[v]) sum[v] = ys[r]-ys[l];
+    else sum[v] = 2*v+2 < sz(sum) ? sum[2*v+1]+sum[2*v+2] : 0;
+}
+
+void init_tree(int n) {
+    int size = 1;
+    while (size < 2*n) size *= 2;
+    sum.clear(); counter.clear();
+    sum.resize(size); counter.resize(size);
+}
+
 void solve(int tc) {
     def(int, n);
+    init_tree(2*n);
+    ys.clear();
     V<array<int, 4>> a(n); re(a);
     V<array<int, 3>> events; // x, type, ind
     for (int i = 0; i < n; i++) {
         auto&[x1, y1, x2, y2] = a[i];
         events.pb({x1, 0, i});
         events.pb({x2, 1, i});
+        ys.pb(y1); ys.pb(y2);
     }
     sort(all(events));
+    sort(all(ys));
+    ys.pb(INF);
 
+    update(0, 0, 2*n, a[events[0][2]][1], a[events[0][2]][3], true);
     int ans = 0;
-    multiset<int> ys;
-    ys.insert(a[events[0][2]][1]);
-    ys.insert(a[events[0][2]][3]);
     for (int i = 1; i < sz(events); i++) {
         auto [X, TYPE, IND] = events[i];
         if (X > events[i-1][0]) {
-            ans += (X-events[i-1][0])*(*rbegin(ys)-*bg(ys));
+            ans += (X-events[i-1][0])*sum[0];
         }
 
         if (TYPE == 0) {
-            ys.insert(a[IND][1]);
-            ys.insert(a[IND][3]);
+            update(0, 0, 2*n, a[IND][1], a[IND][3], true);
         } else {
-            ys.erase(ys.find(a[IND][1]));
-            ys.erase(ys.find(a[IND][3]));
+            update(0, 0, 2*n, a[IND][1], a[IND][3], false);
         }
     }
 
