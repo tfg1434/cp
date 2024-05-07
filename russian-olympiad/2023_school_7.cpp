@@ -68,11 +68,13 @@ vi work() {
         if (k == 1) continue;
         if (p+k > n) continue;
         
-        auto [m1, m2] = find_maximums(p, p+k);
-        res[i] += (p+k == n || a[p+k] > a[p]) && m2 == p;
+        if (p+k == n || a[p+k] > a[p]) {
+            auto [m1, m2] = find_maximums(p, p+k);
+            res[i] += m2 < m1 && (p+k == n || a[m2] < a[p+k]);
 
-        if (p+k == n || a[p+k] > a[m1]) {
-            res[i] += p+k - m1 - 1;
+            if (p+k == n || a[p+k] > a[m1]) {
+                res[i] += p+k - m1 - 1;
+            }
         }
     }
     return res;
