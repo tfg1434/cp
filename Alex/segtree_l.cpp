@@ -1,9 +1,7 @@
-// WA for some reason
-
 #include <bits/stdc++.h>
 using namespace std;
 
-using ll = long long;
+using ll = int;
 using db = long double; // or double, if TL is tight
 using str = string; // yay python! 
 
@@ -312,8 +310,10 @@ vl a;
 const ll mx_c = 100;
 
 struct buf_info {
+    bool empty;
     ll to[mx_c+1]; 
     buf_info() {
+        empty = true;
         iota(all(to), 0);
     }
 };
@@ -326,8 +326,8 @@ void p(ll v) {
             buf[2*v+1].to[i] = buf[v].to[buf[2*v+1].to[i]];
             buf[2*v+2].to[i] = buf[v].to[buf[2*v+2].to[i]];
         }
-        buf[v].to[i] = i;
     }
+    for (ll i = 1; i <= mx_c; i++) buf[v].to[i] = i;
 }
 
 void modify(ll v, ll l, ll r, ll L, ll R, ll x, ll y) {
@@ -359,7 +359,6 @@ void init_tree(ll n) {
     ll size = 1;
     while (size < 2*n) size *= 2;
     buf.resize(size);
-    build(0, 0, n);
 }
 
 void solve() {
