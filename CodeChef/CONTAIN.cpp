@@ -60,6 +60,8 @@ void solve() {
             }
             if (center.x == inf) break;
             sort(all(a), cmp);
+            int angle_start = 1;
+            while (angle_start > 1 && (conj(a[angle_start-1] - center)*(a[angle_start]-center)) == 0)
             vector<int> ch;
             for (int j = 0; j < n; j++) if (!used[j]) {
                 while (ch.size() > 1 && (conj(a[ch.back()] - a[ch[ch.size()-2]])*(a[j]-a[ch.back()])).y <= 0) {
