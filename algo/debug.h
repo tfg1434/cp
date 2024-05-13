@@ -31,7 +31,7 @@ template<size_t SZ> string ts(bitset<SZ> b) { return bit_vec(b); }
 template<class T, class U> string ts(pair<T, U> p);
 template<class T> typename enable_if<needs_output_v<T>,string>::type ts(T v);
 
-template<class T, class U> string ts(pair<T,U> p) { return "("+ts(p.f)+", "+ts(p.s)+")"; }
+template<class T, class U> string ts(pair<T,U> p) { return "("+ts(p.first)+", "+ts(p.second)+")"; }
 template<class T> typename enable_if<is_iterable_v<T>,string>::type ts_sep(T v, string sep) {
     bool fst = 1; string res = "";
     for (const auto& x: v) {
