@@ -1,19 +1,9 @@
 // ACMP.RU 1159 Manacher's Algorithm
-// MLE but I don't know why
 
 #include <bits/stdc++.h>
 using namespace std;
 
-using i64 = long long;
-using u64 = unsigned long long;
-
-int gen_base(int l, int r) {
-    auto seed = chrono::high_resolution_clock::now().time_since_epoch().count();
-    mt19937 mt_rand(seed);
-    int base = uniform_int_distribution<int>(l+1, r)(mt_rand);
-    if (base % 2 == 0) base--;
-    return base;
-}
+using u64 = int;
 
 struct polyhash {
     static const int mod = (int)1e9+123;
@@ -24,9 +14,12 @@ struct polyhash {
     vector<u64> pre2;
     polyhash(const string& s) : pre1(s.size()+1), pre2(s.size()+1) {
         assert(base < mod);
-        while (pow1.size() <= s.size()) {
-            pow1.push_back(1ll*pow1.back()*base%mod);
-            pow2.push_back(pow2.back()*base);
+        int freeze = pow1.size();
+        pow1.resize(s.size()+1);
+        pow2.resize(s.size()+1);
+        for (int i = freeze; i < pow1.size(); i++) {
+            pow1[i] = pow1[i-1]*1ll*base%mod;
+            pow2[i] = pow2[i-1]*base;
         }
         for (int i = 0; i < s.size(); i++) {
             assert(s[i] < base);
@@ -48,7 +41,7 @@ struct polyhash {
 
 int polyhash::base{(int)1e9+7};
 vector<int> polyhash::pow1{1};
-vector<u64> polyhash::pow2{2};
+vector<u64> polyhash::pow2{1};
 
 #define int int64_t
 
