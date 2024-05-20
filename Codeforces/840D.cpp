@@ -28,9 +28,17 @@ template<class T> int upb(V<T>& a, const T& b) { return ub(all(a),b)-begin(a); }
 template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : false; }
 template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
 
+const int K = 500;
+struct query {
+    int l, r, k, ind;
+    bool operator <(const query& o) const {
+        if (l/K == o.l/K) return r < o.r;
+        return l/K < o.l/K;
+    }
+};
 const int max_n = 3e5, max_brute = 1000;
 int n, q, a[max_n], cnt[max_n+1], ans[max_n];
-V<array<int, 4>> queries;
+V<query> queries;
 
 void solve() {
     cin >> n >> q; 
