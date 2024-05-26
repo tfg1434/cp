@@ -17,6 +17,7 @@ correctAnswer
 input_file
 stress.sh
 test.cpp
+i
 
 *.out*
 *.in*
