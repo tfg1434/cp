@@ -1,5 +1,3 @@
-// WA
-
 #include <bits/stdc++.h>
 using namespace std;
 const int inf = 1e9+1;
@@ -108,12 +106,12 @@ void solve() {
     xs.erase(unique(all(xs)), end(xs));
     vi c(xs.size()-1);
     for (int i = 0; i < xs.size()-1; i++) {
-        if (xs[i]/k == xs[i+1]/k) {
+        if (xs[i]/n == xs[i+1]/n) {
             c[i] = B.range_min(xs[i]%n, xs[i]%n + xs[i+1]-xs[i]);
         } else {
             c[i] = min(
                     B.range_min(xs[i]%n, n),
-                    B.range_min(0, xs[i+1]-xs[i+1]/k*k)
+                    B.range_min(0, xs[i+1]-xs[i+1]/n*n)
                     );
         }
     }
