@@ -1,5 +1,8 @@
+// RTE on test 13
+
 #include <bits/stdc++.h>
 using namespace std;
+#define int int64_t
 const int inf = 1e9+1;
 
 #ifdef LOCAL
@@ -30,7 +33,7 @@ struct node {
         l = r = buf = -1;
         mn = inf;
     }
-} t[6'000'000];
+} t[12'000'000];
 int tree_sz = 1;
 
 int next_p2(int x) {
@@ -102,6 +105,7 @@ void build_large(int v, int l, int r) {
     t[v].r = tree_sz++;
     build_large(t[v].l, l, m);
     build_large(t[v].r, m, r);
+    t[v].mn = min(t[t[v].l].mn, t[t[v].r].mn);
 }
 
 
