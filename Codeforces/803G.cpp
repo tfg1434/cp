@@ -1,5 +1,3 @@
-// RTE on test 13
-
 #include <bits/stdc++.h>
 using namespace std;
 #define int int64_t
@@ -28,12 +26,12 @@ int n, k, q, N, K;
 vi b;
 
 struct node {
-    int l, r, mn, buf;
+    int32_t l, r, mn, buf;
     node() {
         l = r = buf = -1;
         mn = inf;
     }
-} t[12'000'000];
+} t[31'000'000];
 int tree_sz = 1;
 
 int next_p2(int x) {
@@ -53,10 +51,12 @@ int get_r(int v) {
     return t[v].r;
 }
 void pd(int v) {
+    get_l(v);
+    get_r(v);
     if (t[v].buf != -1) {
         t[v].mn = t[v].buf;
-        t[get_l(v)].buf = t[v].buf;
-        t[get_r(v)].buf = t[v].buf;
+        t[t[v].l].buf = t[v].buf;
+        t[t[v].r].buf = t[v].buf;
         t[v].buf = -1;
     }
 }
@@ -77,8 +77,8 @@ void range_set(int v, int l, int r, int L, int R, int x) {
         return;
     }
     int m = (l+r)/2;
-    range_set(get_l(v), l, m, L, R, x);
-    range_set(get_r(v), m, r, L, R, x);
+    range_set(t[v].l, l, m, L, R, x);
+    range_set(t[v].r, m, r, L, R, x);
     t[v].mn = min(t[t[v].r].mn, t[t[v].l].mn);
 }
 
