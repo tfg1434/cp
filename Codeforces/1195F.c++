@@ -1,3 +1,5 @@
+// the proper way to solve. # diff on a segment = MST
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -30,14 +32,6 @@ template<class T> bool operator<(const complex<T>& a, const complex<T>& b) {
     if (a.x == b.x) return a.y < b.y;
     return a.x < b.x;
 }
-const int K = 1000;
-struct query {
-    int l, r, i;
-    bool operator<(const query& o) const {
-        if (l/K != o.l/K) return l/K < o.l/K;
-        return r < o.r;
-    }
-};
 const int max_n = 1e5;
 int n, q; 
 V<pt> pts[max_n], sides;
@@ -47,11 +41,36 @@ struct chash {
     }
 };
 
+V<vi> t;
+void build(int v, int l, int r, const vi& a) {
+    if (l == r-1) {
+        t[v].pb(a[l]);
+        return;
+    }
+    int m = (l+r)/2;
+    build(2*v+1, l, m, a);
+    build(2*v+2, m, r, a);
+    merge(all(t[2*v+1]), all(t[2*v+2]), back_inserter(t[v]));
+}
+void init_tree(const vi& a) {
+    int size = 1;
+    while (size < 2*a.size()) size *= 2;
+    t.resize(size);
+    build(0, 0, a.size(), a);
+}
+int count_at_least(int v, int l, int r, int L, int R, int z) {
+    if (r <= L || R <= l) return 0;
+    if (L <= l && r <= R) return r-l-lwb(t[v], z);
+    int m = (l+r)/2;
+    return count_at_least(2*v+1, l, m, L, R, z) +
+        count_at_least(2*v+2, m, r, L, R, z);
+}
+
 void solve() {
     cin >> n;    
-    vi a;
     unordered_map<array<int, 2>, int, chash> m;
     vi pre_sizes(n+1);
+    vi a;
     for (int i = 0; i < n; i++) {
         int k; cin >> k; pts[i].resize(k); 
         for (int j = 0; j < k; j++) cin >> pts[i][j];
@@ -69,38 +88,20 @@ void solve() {
             a.pb(m[as_arr]);
         }
     }
+    vi prv(m.size(), -1), nxt(a.size(), a.size());
+    for (int i = 0; i < a.size(); i++) {
+        if (prv[a[i]] != -1) nxt[prv[a[i]]] = i;
+        prv[a[i]] = i;
+    }
+    init_tree(nxt);
 
-    V<query> queries;
     cin >> q;
     for (int i = 0; i < q; i++) {
         int l, r; cin >> l >> r; 
-        queries.pb({pre_sizes[l-1], pre_sizes[r], i});
+        l = pre_sizes[l-1];
+        r = pre_sizes[r];
+        cout << count_at_least(0, 0, pre_sizes[n], l, r, r) << '\n';
     }
-    sort(all(queries));
-    V<bool> vis(pre_sizes[n]);
-    vi f(m.size());
-    int cur = 0;
-    auto check = [&](int i) {
-        if (vis[i]) {
-            f[a[i]]--;
-            cur -= !f[a[i]];
-        } else {
-            cur += !f[a[i]];
-            f[a[i]]++;
-        }
-        vis[i] = !vis[i];
-    };
-    vi ans(q);
-    int l = 0, r = 0;
-    for (auto [L, R, I] : queries) {
-        while (l < L) check(l++);
-        while (l > L) check(--l);
-        while (r < R) check(r++);
-        while (r > R) check(--r);
-        ans[I] = cur;
-    }
-
-    for (int i = 0; i < q; i++) cout << ans[i] << '\n';
 }
 
 signed main() {
