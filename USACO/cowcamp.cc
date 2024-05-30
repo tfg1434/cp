@@ -1,5 +1,3 @@
-// O(T log K)
-
 #include <bits/stdc++.h>
 using namespace std;
 using db = long double;
@@ -131,21 +129,14 @@ void solve() {
                 {{ A/p2[t], B/p2[t]*t },
                 {0, 1}});
 
-        V<Matrix<db>> jump(30, Matrix<db>(2, 2));
-        jump[0] = p;
-        for (int i = 1; i < 30; i++) 
-            jump[i] = jump[i-1]*jump[i-1];
-
-        for (int i = 29; i >= 0; i--) if ((1 << i) <= k) {
-            if (floor((jump[i]*q)(0, 0)) == floor(q(0, 0))) {
-                q = jump[i]*q;
-                k -= (1 << i); 
-            }
+        int lo = 0, hi = k;
+        while (hi-lo > 1) {
+            int m = (lo+hi)/2;
+            auto Q = p.expo(m)*q;
+            floor(Q(0, 0)) == floor(q(0, 0)) ? lo = m : hi = m;
         }
-        if (k > 0) {
-            q = jump[0]*q;
-            k--;
-        }
+        q = p.expo(hi)*q;
+        k -= hi;
     }
 
     cout << fixed << setprecision(6) << q(0, 0)+1 << '\n';
@@ -157,4 +148,3 @@ signed main() {
     solve();
     return 0;
 }
-
