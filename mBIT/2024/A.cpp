@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int int64_t
+const int inf = 2e18;
+
+#ifdef LOCAL
+#include "algo/debug.h"
+#endif
+
+#define f first
+#define s second
+template<class T> using V = vector<T>; 
+using vi = V<int>;
+
+#define all(x) begin(x), end(x)
+#define rall(x) rbegin(x), rend(x) 
+#define pb push_back
+#define lb lower_bound
+#define ub upper_bound
+template<class T> int lwb(V<T>& a, const T& b) { return lb(all(a),b)-begin(a); }
+template<class T> int upb(V<T>& a, const T& b) { return ub(all(a),b)-begin(a); }
+template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : false; }
+template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
+
+int p, n, c;
+
+void solve() {
+    cin >> p >> n >> c;
+    V<array<int, 2>> a(n);
+    for (int i = 0; i < n; i++) cin >> a[i][0];
+    for (int i = 0; i < n; i++) cin >> a[i][1];
+
+    if (c*n < p) {
+        cout << "-1\n";
+        return;
+    }
+
+    sort(all(a), [&](const array<int, 2>& x, const array<int, 2>& y) {
+        return x[0]+x[1]*c < y[0]+y[1]*c;
+    });
+
+    int cost = 0;
+    int full = p/c, rem = p-full*c;
+    for (int i = 0; i < full; i++) cost += a[i][0]+a[i][1]*c;
+
+    int extra = 0;
+    if (rem) {
+        extra = inf;
+        for (int i = full; i < n; i++) {
+            ckmin(extra, a[i][1]*rem + a[i][0]);
+        }
+    }
+    cout << cost+extra << '\n';
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    int tc; cin >> tc; while (tc--) solve();
+    return 0;
+}
