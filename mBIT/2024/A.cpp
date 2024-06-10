@@ -39,18 +39,33 @@ void solve() {
         return x[0]+x[1]*c < y[0]+y[1]*c;
     });
 
-    int cost = 0;
-    int full = p/c, rem = p-full*c;
-    for (int i = 0; i < full; i++) cost += a[i][0]+a[i][1]*c;
+    int ans = inf;
+    {
+        int cost = 0;
+        int full = p/c, rem = p-full*c;
+        for (int i = 0; i < full; i++) cost += a[i][0]+a[i][1]*c;
 
-    int extra = 0;
-    if (rem) {
-        extra = inf;
-        for (int i = full; i < n; i++) {
-            ckmin(extra, a[i][1]*rem + a[i][0]);
+        int extra = 0;
+        if (rem) {
+            extra = inf;
+            for (int i = full; i < n; i++) {
+                ckmin(extra, a[i][1]*rem + a[i][0]);
+            }
+        }
+        ckmin(ans, cost+extra);
+    }
+
+    if (p/c < n) {
+        int cost = 0;
+        int full = p/c, rem = p-full*c;
+        for (int i = 0; i <= full; i++) cost += a[i][0]+a[i][1]*c;
+        for (int i = 0; i <= full; i++) {
+            int new_cost = cost-(a[i][0]+a[i][1]*c);
+            ckmin(ans, new_cost + (rem > 0)*(a[i][0] + rem*a[i][1]));
         }
     }
-    cout << cost+extra << '\n';
+
+    cout << ans << '\n';
 }
 
 signed main() {
