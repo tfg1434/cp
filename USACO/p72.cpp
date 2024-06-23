@@ -98,8 +98,6 @@ void solve() {
     V<vi> dist(2, vi(n+m, inf));
     dist[0][0] = 0; dij(dist[0]);
     dist[1][n-1] = 0; dij(dist[1]);
-    ps(dist[0]);
-    ps(dist[1]);
     vi f(n+m);
     for (int i = 0; i < n+m; i++) f[i] = dist[0][i]+dist[1][i];
     dij(f);
