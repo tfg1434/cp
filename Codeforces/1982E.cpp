@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int int64_t
+const int mod = 1e9+7;
 
 #ifdef LOCAL
 #include "algo/debug.h"
@@ -21,168 +22,61 @@ template<class T> int upb(V<T>& a, const T& b) { return ub(all(a),b)-begin(a); }
 template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : false; }
 template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
 
-using i64 = long long;
-template<class T>
-constexpr T pw(T a, i64 b) {
-    T res {1};
-    for (; b; b /= 2, a *= a) {
-        if (b % 2) {
-            res *= a;
-        }
-    }
-    return res;
-}
-constexpr i64 mul(i64 a, i64 b, i64 p) {
-    i64 res = a * b - i64(1.L * a * b / p) * p;
-    res %= p;
-    if (res < 0) {
-        res += p;
-    }
-    return res;
-}
- 
-template<i64 P>
-struct MInt {
-    i64 x;
-    constexpr MInt() : x {0} {}
-    constexpr MInt(i64 x) : x {norm(x % getMod())} {}
-    
-    const static i64 Mod = 998244353;
-    constexpr static i64 getMod() {
-        if (P > 0) {
-            return P;
-        } else {
-            return Mod;
-        }
-    }
-    constexpr i64 norm(i64 x) const {
-        if (x < 0) {
-            x += getMod();
-        }
-        if (x >= getMod()) {
-            x -= getMod();
-        }
-        return x;
-    }
-    constexpr i64 val() const {
-        return x;
-    }
-    constexpr MInt operator-() const {
-        MInt res;
-        res.x = norm(getMod() - x);
-        return res;
-    }
-    constexpr MInt inv() const {
-        return pw(*this, getMod() - 2);
-    }
-    constexpr MInt &operator*=(MInt rhs) & {
-        if (getMod() < (1ULL << 31)) {
-            x = x * rhs.x % int(getMod());
-        } else {
-            x = mul(x, rhs.x, getMod());
-        }
-        return *this;
-    }
-    constexpr MInt &operator+=(MInt rhs) & {
-        x = norm(x + rhs.x);
-        return *this;
-    }
-    constexpr MInt &operator-=(MInt rhs) & {
-        x = norm(x - rhs.x);
-        return *this;
-    }
-    constexpr MInt &operator/=(MInt rhs) & {
-        return *this *= rhs.inv();
-    }
-    friend constexpr MInt operator*(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res *= rhs;
-        return res;
-    }
-    friend constexpr MInt operator+(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res += rhs;
-        return res;
-    }
-    friend constexpr MInt operator-(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res -= rhs;
-        return res;
-    }
-    friend constexpr MInt operator/(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res /= rhs;
-        return res;
-    }
-    friend constexpr istream &operator>>(istream &is, MInt &a) {
-        i64 v {};
-        is >> v;
-        a = MInt(v);
-        return is;
-    }
-    friend constexpr ostream &operator<<(ostream &os, const MInt &a) {
-        return os << a.val();
-    }
-    friend constexpr bool operator==(MInt lhs, MInt rhs) {
-        return lhs.val() == rhs.val();
-    }
-    friend constexpr bool operator!=(MInt lhs, MInt rhs) {
-        return lhs.val() != rhs.val();
-    }
-    friend constexpr bool operator<(MInt lhs, MInt rhs) {
-        return lhs.val() < rhs.val();
-    }
-};
- 
-constexpr i64 mod = 1e9+7;
-using Z = MInt<mod>;
-
-#pragma GCC target("bmi,bmi2,lzcnt,popcnt")
-#define pct __builtin_popcountll
-#define ctz __builtin_ctzll
+#define pct __builtin_popcount
 constexpr int p2(int x) { return 1LL << x; }
 constexpr int msk2(int x) { return p2(x)-1; }
+constexpr int bits(int x) { return x == 0 ? 0 : 63-__builtin_clzll(x); } // floor(log2(x)) 
 
-Z count(int n) { return Z(n)*(n+1)/2; }
-
-int n, k;
-
-int LESS(int x) {
-    while (pct(x) > k) {
-        x += p2(ctz(x));
-    }
-    return x;
+const int K = 60;
+struct Info {
+    int l, r, ans;
+    Info() : l{-1}, r{-1}, ans{-1} {}
+    Info(int l, int r, int ans) : l{l}, r{r}, ans{ans} {}
+};
+Info memo[K][K+1];
+Info merge_info(const Info& a, const Info& b, int na, int nb) {
+    Info res;
+    res.l = a.l + (a.l == na)*b.l;
+    res.r = b.r + (b.r == nb)*a.r;
+    (res.ans = a.ans + b.ans + (a.r%mod)*(b.l%mod)) %= mod;
+    return res;
 }
 
-int MORE(int x) {
-    while (true) {
-        int pc = pct(x);
-        if (pc+ctz(x) > k) return x | msk2(k-pc+1);
-        x += p2(ctz(x));
-    }
-}
-
-void solve() {
-    cin >> n >> k;
-
-    for (int i = 0; i <= LOG; i++) {
-        for (int j = 0; j <= 60; j++) {
-            if (j < i)
-            dp[i][j] = dp[i-1][j] + dp[i-1][j-1];
-            if (j >= i-1) {
-                int l = prv(msk2(i-1), j);
-                int r = nxt(p2(i-1), j);
-                ans += count(r-l-1);
+void precalc() {
+    for (int m = 0; m < K; m++) {
+        for (int k = 0; k <= K; k++) {
+            if (!m) {
+                memo[m][k] = Info(1, 1, 1);
+            } else if (!k) {
+                memo[m][k] = Info(1, 0, 1);
+            } else {
+                memo[m][k] = merge_info(memo[m-1][k], memo[m-1][k-1], p2(m-1), p2(m-1));
             }
         }
     }
+}
 
-    cout << ans << '\n';
+Info f(int n, int k) {
+    if (p2(bits(n)) == n) {
+        return memo[bits(n)][k];
+    }
+    if (!k) {
+        return Info(1, 0, 1);
+    }
+    int m = bits(n-1);
+    Info a = f(p2(m), k), b = f(n-p2(m), k-1);
+    return merge_info(a, b, p2(m), n-p2(m));
+}
+
+void solve() {
+    int n, k; cin >> n >> k;
+    cout << f(n, k).ans << '\n';
 }
 
 signed main() {
     ios::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
+    precalc();
     int tc; cin >> tc; while (tc--) solve();
     return 0;
 }
