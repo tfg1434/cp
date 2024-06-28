@@ -1,5 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
+using db = long double;
+const db eps = 1e-9;
+#define int int64_t
 
 #ifdef LOCAL
 #include "algo/debug.h"
@@ -20,24 +23,26 @@ template<class T> int upb(V<T>& a, const T& b) { return ub(all(a),b)-begin(a); }
 template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : false; }
 template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
 
-double pw(double a, int b) {
-    double res = 1;
-    while (b > 0) {
-        if (b % 2) res *= a;
-        b /= 2;
-        a *= a;
-    }
-    return res;
-}
-
 void solve() {
-    int m, n; cin >> m >> n;
-    double res = 0;
-    for (int i = 1; i < m; i++) {
-        res -= pw(1.0*i/m, n);
+    int k, q; cin >> k >> q;
+
+    while (q--) {
+        int inp; cin >> inp;
+        db p = 1.L*inp/2000;
+
+        int lo = 0, hi = 1e5;        
+        while (hi-lo > 1) {
+            int d = (lo+hi)/2;
+            db p_succ = 0;
+            for (int pc = 0; pc <= k; pc++) {
+                int coef = pc%2 == 0 ? 1 : -1;
+                p_succ += coef*pow(1.L*(k-pc)/k, d);
+            }
+            p_succ+eps > p ? hi = d : lo = d;
+        }
+
+        cout << hi << '\n';
     }
-    res += m;
-    cout << fixed << setprecision(4) << res << '\n';
 }
 
 signed main() {

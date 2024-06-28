@@ -18,6 +18,13 @@ input_file
 stress.sh
 test.cpp
 i
+wa
+ac
+answer
+suspect
+gen*
+
+
 
 *.out*
 *.in*

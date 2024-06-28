@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
+#define int int64_t
+const int inf = 1e18;
 
 #ifdef LOCAL
 #include "algo/debug.h"
@@ -20,29 +22,23 @@ template<class T> int upb(V<T>& a, const T& b) { return ub(all(a),b)-begin(a); }
 template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : false; }
 template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
 
-double pw(double a, int b) {
-    double res = 1;
-    while (b > 0) {
-        if (b % 2) res *= a;
-        b /= 2;
-        a *= a;
-    }
-    return res;
-}
-
 void solve() {
-    int m, n; cin >> m >> n;
-    double res = 0;
-    for (int i = 1; i < m; i++) {
-        res -= pw(1.0*i/m, n);
+    string a, b; cin >> a >> b;
+    int n = a.size(), m = b.size();
+    int ans = n+m;
+    for (int i = 0; i < m; i++) {
+        int k = i;
+        for (int j = 0; j < n; j++) {
+            if (a[j] == b[k]) k++;
+        }
+        ckmin(ans, i+n+m-k);
     }
-    res += m;
-    cout << fixed << setprecision(4) << res << '\n';
+    cout << ans << '\n';
 }
 
 signed main() {
     ios::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
-    solve();
+    int tc; cin >> tc; while (tc--) solve();
     return 0;
 }
