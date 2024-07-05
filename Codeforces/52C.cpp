@@ -24,11 +24,11 @@ template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : fals
 
 const int N = 2e5;
 struct MinTreapItem {
-    int x, y, l, r, siz, mn, buf;
+    int y, l, r, siz, val, mn, buf;
     MinTreapItem() {}
-    MinTreapItem(int x) : x(x), y(rand()), l(-1), r(-1), siz(1), mn(x), buf() { }
+    MinTreapItem(int val) : y(rand()), l(-1), r(-1), siz(1), val(val), mn(val), buf() { }
     friend ostream& operator<<(ostream& out, const MinTreapItem rhs) {
-        out << rhs.x << ' ' << rhs.y << ' ' << rhs.siz << ' ' << rhs.mn << ' ' << rhs.buf; 
+        out << rhs.val << ' ' << rhs.y << ' ' << rhs.siz << ' ' << rhs.mn << ' ' << rhs.buf; 
         return out;
     }
 } t[N];
@@ -40,12 +40,12 @@ struct MinTreap {
     void pull(int v) {
         if (v != -1) {
             t[v].siz = 1+siz(t[v].l)+siz(t[v].r);
-            t[v].mn = min({ t[v].x, mn(t[v].l), mn(t[v].r) });
+            t[v].mn = min({ t[v].val, mn(t[v].l), mn(t[v].r) });
         } 
     }
     void push(int v) {
         if (v != -1 && t[v].buf) {
-            t[v].x += t[v].buf;
+            t[v].val += t[v].buf;
             t[v].mn += t[v].buf;
             if (t[v].l != -1) t[t[v].l].buf += t[v].buf;
             if (t[v].r != -1) t[t[v].r].buf += t[v].buf;
@@ -56,7 +56,7 @@ struct MinTreap {
         if (v == -1) return;
         push(v);
         print(t[v].l);
-        cout << t[v].x << ' ';
+        cout << t[v].val << ' ';
         print(t[v].r);
     }
     void dbg(int v, int add=0) {
@@ -103,11 +103,11 @@ struct MinTreap {
         merge(root, root, C);
         return res;
     }
-    void range_add(int lq, int rq, int x) {
+    void range_add(int lq, int rq, int d) {
         int A, B, C;
         split(root, rq, B, C);
         split(B, lq, A, B);
-        t[B].buf += x;
+        t[B].buf += d;
         merge(root, A, B);
         merge(root, root, C);
     }
