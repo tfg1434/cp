@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int int64_t
 
 #ifdef LOCAL
 #include "algo/debug.h"
@@ -22,95 +21,95 @@ template<class T> bool ckmin(T& a, const T& b) { return a > b ? a=b, true : fals
 template<class T> bool ckmax(T& a, const T& b) { return a < b ? a=b, true : false; }
 
 const int MAX = 1e9+1;
+
+namespace SegmentTree {
 struct Node {
     int l, r, mx;
     Node() : l(-1), r(-1), mx() {}
-} t[24'000'000];
-int cur_node=1;
+} t[25'000'000];
+int cur_node;
 
-void extend(int v) {
-    if (t[v].l == -1) {
-        t[v].l = cur_node++;
-        t[v].r = cur_node++;
+struct Tree {
+    int root;
+
+    void extend(int v) {
+        if (t[v].l == -1) {
+            t[v].l = cur_node++;
+            t[v].r = cur_node++;
+        }
     }
-}
 
-void pull(int v) {
-    t[v].mx = max(t[t[v].l].mx, t[t[v].r].mx);
-}
-
-void point_ckmax(int v, int l, int r, int i, int x) {
-    if (l == r-1) {
-        ckmax(t[v].mx, x);
-        return;
+    void pull(int v) {
+        t[v].mx = max(t[t[v].l].mx, t[t[v].r].mx);
     }
-    int m = (l+r)/2;
-    extend(v);
-    if (i < m) point_ckmax(t[v].l, l, m, i, x);
-    else point_ckmax(t[v].r, m, r, i, x);
-    pull(v);
-}
-void point_ckmax(int i, int x) { point_ckmax(0, 0, MAX, i, x); }
 
-int range_max(int v, int l, int r, int L, int R) {
-    if (r <= L || R <= l) return 0;
-    if (L <= l && r <= R) return t[v].mx;
-    int m = (l+r)/2;
-    extend(v);
-    return max(range_max(t[v].l, l, m, L, R), range_max(t[v].r, m, r, L, R));
+    void point_ckmax(int v, int l, int r, int i, int x) {
+        if (l == r-1) {
+            ckmax(t[v].mx, x);
+            return;
+        }
+        int m = (l+r)/2;
+        extend(v);
+        if (i < m) point_ckmax(t[v].l, l, m, i, x);
+        else point_ckmax(t[v].r, m, r, i, x);
+        pull(v);
+    }
+    void point_ckmax(int i, int x) { point_ckmax(root, 1, MAX, i, x); }
+
+    void point_ckmin(int v, int l, int r, int i, int x) {
+        if (l == r-1) {
+            ckmin(t[v].mx, x);
+            return;
+        }
+        int m = (l+r)/2;
+        extend(v);
+        if (i < m) point_ckmin(t[v].l, l, m, i, x);
+        else point_ckmin(t[v].r, m, r, i, x);
+        pull(v);
+    }
+    void point_ckmin(int i, int x) { point_ckmin(root, 1, MAX, i, x); }
+
+    int range_max(int v, int l, int r, int L, int R) {
+        if (r <= L || R <= l) return 0;
+        if (L <= l && r <= R) return t[v].mx;
+        int m = (l+r)/2;
+        extend(v);
+        return max(range_max(t[v].l, l, m, L, R), range_max(t[v].r, m, r, L, R));
+    }
+    int range_max(int L, int R) { return range_max(root, 1, MAX, L, R); }
+    Tree() {
+        root = cur_node++;
+    }
+};
 }
-int range_max(int L, int R) { return range_max(0, 0, MAX, L, R); }
 
 void solve() {
     int n; cin >> n;
     vi a(n); 
     for (int i = 0; i < n; i++) cin >> a[i];
-    int mx = 0;
-    vi lis(n);
+
+    SegmentTree::Tree left, right;
+    map<int, vi> longest_starting_at;
     for (int i = n-1; i >= 0; i--) {
-        lis[i] = range_max(a[i]+1, MAX)+1;
-        point_ckmax(a[i], lis[i]);
-        ckmax(mx, lis[i]);
+        int best_len = right.range_max(a[i]+1, MAX)+1;
+        longest_starting_at[a[i]].pb(best_len);
+        right.point_ckmax(a[i], best_len);
     }
 
-    V<vi> group(mx+1);
-    for (int i = 0; i < n; i++) group[lis[i]].pb(i);
-    V<bool> reachable(n);
-    for (int i : group[1]) reachable[i] = true;
-    for (int x = 1; x <= mx; x++) {
-        sort(all(group[x]));
-        int m = group[x].size();
+    int ans = 0;
+    for (int i = 0; i < n; i++) { // set a[i] = a[i-1]+1 (or 0 if !i)
+        longest_starting_at[a[i]].pop_back();
+        right.point_ckmin(a[i], longest_starting_at[a[i]].size() ? longest_starting_at[a[i]].back() : 0); 
 
-        int p = 0;
-        int k = 0;
-        for (int j = 0; j < m-1; j++) {
-            bool reachable = false;
-            if (x == 1) {
-                reachable = true;
-            } else {
-                while (p < group[x-1].size() && a[group[x-1][p]] > a[group[x][j]]) p++;
-                reachable = p < group[x-1].size();
-            }
-            if (!reachable) continue;
+        int new_val = !i ? 0 : a[i-1]+1;
+        int left_len = left.range_max(1, new_val);
+        int right_len = right.range_max(new_val+1, MAX);
+        ckmax(ans, left_len+1+right_len);
 
-            if (x == mx) {
-                cout << mx+1 << '\n';
-                return;
-            }
-            while (k < group[x+1].size() && group[x+1][k] < group[x][j+1]) k++;
-            if (k == group[x+1].size()) break;
-            if (a[group[x+1][k]] > a[group[x][j]]+1) {
-                cout << mx+1 << '\n';
-                return;
-            }
-        }
-
-        k = 0;
-        for (int j = 0; j < m; j++) if (reachable[j]) {
-
-        }
+        left.point_ckmax(a[i], left.range_max(1, a[i])+1);
     }
-    cout << mx << '\n';
+
+    cout << ans << '\n';
 }
 
 signed main() {
