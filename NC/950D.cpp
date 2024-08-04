@@ -27,10 +27,12 @@ void solve() {
     for (int i = 0; i < n; i++) cin >> x[i];
     for (int i = 0; i < n; i++) cin >> y[i];
     vi inds(n); iota(all(inds), 0);
-    sort(all(inds), [&](int a, int b) {
-        int lhs = min(x[a], y[b]), rhs = min(y[a], x[b]);
-        if (lhs != rhs) return lhs < rhs;
-        return x[a] < x[b]; // 没有这一步只能过落谷不能过留客
+    sort(all(inds), [&](int i, int j) {
+        bool cat_a = !(x[i] < y[i]);
+        bool cat_b = !(x[j] < y[j]);
+        if (cat_a != cat_b) return cat_a < cat_b;
+        if (!cat_a) return x[i] < x[j];
+        return y[i] > y[j];
     });
 
     int ans = 0, buf = 0;
@@ -53,3 +55,4 @@ signed main() {
     solve();
     return 0;
 }
+
