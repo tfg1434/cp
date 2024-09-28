@@ -1,19 +1,23 @@
-set -e
-g++ outofsort.cpp -std=c++17 -o code
-g++ sortgen.cpp -std=c++17 -o gen
-# g++ brute.cpp -std=c++17 -o brute
-for((i = 1; i < 100; ++i)); do
-    ./gen $i > input_file
-    ./code < input_file > myAnswer
-    cat input_file
-    cat myAnswer
-    # cmp --silent myAnswer correctAnswer || break
-    # echo "Passed test: "  $i
-done
+#!/bin/sh
 
-# echo "WA on the following test:"
-# cat input_file
-# echo "Your answer is:"
-# cat myAnswer
-# echo "Correct answer is:"
-# cat correctAnswer
+g++ -std=c++17 identity-theft-dp.cpp -O2 -o sol
+g++ -std=c++17 identity-theft-bfs.cpp -O2 -o code
+
+for (( i = 0; i < 100; i += 1 )); do
+    if [ $(( $i % 10 )) -eq 0 ]; then
+        echo "Running test $i"
+    fi
+    python gen.py > j
+    ./sol < j > answer
+    ./code < j > suspect
+    if ! cmp -s answer suspect ; then
+        echo "WA on test $i"
+        echo "Test"
+        cat j
+        echo "Got"
+        cat suspect
+        echo "Expected"
+        cat answer
+        break
+    fi
+done
